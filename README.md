@@ -1,66 +1,82 @@
-<<<<<<< HEAD
 # SARIMAX Energy Dashboard
 
-A React.js dashboard for energy consumption forecasting with interactive charts and controls.
+A React.js dashboard for smart energy consumption monitoring and forecasting using SARIMAX time series analysis.
 
-## Features
+## 🎯 Features
 
-- **Actual vs Forecast Chart**: Line chart showing actual energy consumption vs forecasted values
+- **Actual vs Forecast Chart**: Interactive line chart showing actual energy consumption vs forecasted values
 - **Previous vs Forecasted Chart**: Bar chart comparing previous and forecasted consumption
-- **Forecast Controls**: Adjustable history period, forecast period, tariff rate, and budget
-- **Consumption Ranking**: Appliance-level consumption breakdown with kWh and PHP costs
-- **Energy Forecast Summary**: Summary statistics including next period, previous period, actual usage, top appliance, and budget status
+- **Forecast Controls**: Adjustable parameters including history period, forecast period, tariff rate, and budget
+- **Consumption Ranking**: Appliance-level consumption breakdown with kWh usage and PHP costs
+- **Energy Forecast Summary**: Summary statistics including next period forecast, previous period comparison, actual usage, top consuming appliance, and budget status
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 - **React 18**: UI framework
-- **Tailwind CSS**: Styling
-- **Chart.js + react-chartjs-2**: Charts
-- **React Scripts**: Build tooling
+- **Tailwind CSS**: Modern utility-first CSS framework
+- **Chart.js + react-chartjs-2**: Interactive data visualization
+- **React Scripts**: Build tooling and development server
 
-## Installation
+## 📦 Frontend Setup
 
-1. Install dependencies:
-```bash
-npm install
-```
+### Prerequisites
 
-2. Start the development server:
-```bash
-npm start
-```
+- Node.js (v14 or higher)
+- npm (v6 or higher)
 
-The app will open at [http://localhost:3000](http://localhost:3000)
+### Installation
 
-## Building for Production
+1. **Clone the repository:**
+   ```bash
+   git clone <your-repo-url>
+   cd Sarimax-Thesis
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
+   ```bash
+   npm start
+   ```
+
+   The app will automatically open at [http://localhost:3000](http://localhost:3000)
+
+### Building for Production
 
 ```bash
 npm run build
 ```
 
-This creates an optimized production build in the `build` folder.
+This creates an optimized production build in the `build` folder, ready for deployment.
 
-## Project Structure
+## 📁 Project Structure
 
 ```
-src/
-├── components/
-│   ├── DashboardHeader.js          # Dashboard header with date navigation
-│   ├── ActualForecastChart.js      # Line chart for actual vs forecast
-│   ├── PreviousForecastChart.js    # Bar chart for previous vs forecasted
-│   ├── ForecastControls.js         # Control panel for forecast parameters
-│   ├── ConsumptionRanking.js       # Appliance consumption ranking
-│   └── EnergyForecastSummary.js    # Summary statistics card
-├── App.js                          # Main application component
-├── index.js                        # Application entry point
-└── index.css                       # Global styles with Tailwind imports
+Sarimax-Thesis/
+├── public/                          # Static files
+├── src/
+│   ├── components/
+│   │   ├── DashboardHeader.js       # Header with date navigation
+│   │   ├── ActualForecastChart.js   # Line chart component
+│   │   ├── PreviousForecastChart.js # Bar chart component
+│   │   ├── ForecastControls.js      # Forecast parameter controls
+│   │   ├── ConsumptionRanking.js    # Appliance ranking table
+│   │   └── EnergyForecastSummary.js # Summary statistics card
+│   ├── App.js                       # Main application component
+│   ├── index.js                     # Application entry point
+│   └── index.css                    # Global styles + Tailwind imports
+├── package.json                     # Frontend dependencies
+└── README.md                        # This file
 ```
 
-## Troubleshooting
+## 🐛 Troubleshooting
 
-### Module Resolution Errors (isexe, etc.)
+### npm install fails
 
-If you encounter module resolution errors after `npm install`, try:
+If you encounter errors during `npm install`:
 
 1. **Clean install:**
    ```bash
@@ -69,28 +85,52 @@ If you encounter module resolution errors after `npm install`, try:
    npm install
    ```
 
-2. **OneDrive Sync Issues:**
-   If your project is in OneDrive, it may interfere with `node_modules`. Consider:
-   - Excluding `node_modules` from OneDrive sync (Right-click folder → OneDrive → Free up space)
-   - Moving the project outside OneDrive for development
-   - Using `.onedrivesyncignore` if supported
+2. **Check Node version:**
+   ```bash
+   node --version  # Should be v14+
+   npm --version   # Should be v6+
+   ```
 
-### Port Already in Use
+### Port 3000 already in use
 
-If port 3000 is already in use:
+**On macOS/Linux:**
 ```bash
-# Windows
-netstat -ano | findstr :3000
-taskkill /PID <PID> /F
-
-# Then restart npm start
+lsof -ti:3000 | xargs kill -9
 ```
 
-## License
+**On Windows:**
+```bash
+netstat -ano | findstr :3000
+taskkill /PID <PID> /F
+```
+
+Then restart:
+```bash
+npm start
+```
+
+## 🐍 Backend / Data Collection (Optional)
+
+This repository also includes Python scripts for collecting energy data from Tuya IoT devices. These are **not required** to run the React dashboard.
+
+If you want to run the data collection scripts:
+
+1. **Install Python dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Run data collection:**
+   ```bash
+   python tuyaandweather.py
+   # or
+   python Data_Colletion.py
+   ```
+
+## 📄 License
 
 MIT
 
-=======
-# Thesis
-Smart Energy Consumption Monitoring
->>>>>>> ec1311cb222add6e7ddc72458c600df1b28049ee
+## 👥 Contributors
+
+Thesis Project - Smart Energy Consumption Monitoring
