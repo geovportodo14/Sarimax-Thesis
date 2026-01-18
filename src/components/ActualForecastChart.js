@@ -23,61 +23,70 @@ ChartJS.register(
   Filler
 );
 
-function ActualForecastChart({ labels, actualData, forecastData, allTime, onAllTimeChange, selectedFilter, onFilterChange, applianceFilters = ['Electric Fan', 'Rice Cooker', 'Television'] }) {
-  const chartData = useMemo(() => ({
-    labels: labels,
-    datasets: [
-      {
-        label: 'Actual',
-        data: actualData,
-        borderColor: '#3b82f6',
-        backgroundColor: (context) => {
-          if (!context.chart.chartArea) return 'rgba(59, 130, 246, 0.1)';
-          const ctx = context.chart.ctx;
-          const gradient = ctx.createLinearGradient(0, context.chart.chartArea.top, 0, context.chart.chartArea.bottom);
-          gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
-          gradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
-          return gradient;
+function ActualForecastChart({ labels, actualData, forecastData, allTime, onAllTimeChange, selectedFilter, onFilterChange, applianceFilters = ['Electric Fan', 'Rice Cooker', 'Television'], customDatasets = null }) {
+  const chartData = useMemo(() => {
+    if (customDatasets) {
+      return {
+        labels: labels,
+        datasets: customDatasets
+      };
+    }
+
+    return {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Actual',
+          data: actualData,
+          borderColor: '#3b82f6',
+          backgroundColor: (context) => {
+            if (!context.chart.chartArea) return 'rgba(59, 130, 246, 0.1)';
+            const ctx = context.chart.ctx;
+            const gradient = ctx.createLinearGradient(0, context.chart.chartArea.top, 0, context.chart.chartArea.bottom);
+            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+            gradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
+            return gradient;
+          },
+          borderWidth: 3,
+          pointBackgroundColor: '#3b82f6',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          pointHoverBackgroundColor: '#2563eb',
+          pointHoverBorderColor: '#ffffff',
+          pointHoverBorderWidth: 2,
+          fill: true,
+          tension: 0.4,
         },
-        borderWidth: 3,
-        pointBackgroundColor: '#3b82f6',
-        pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        pointRadius: 5,
-        pointHoverRadius: 7,
-        pointHoverBackgroundColor: '#2563eb',
-        pointHoverBorderColor: '#ffffff',
-        pointHoverBorderWidth: 2,
-        fill: true,
-        tension: 0.4,
-      },
-      {
-        label: 'Forecast',
-        data: forecastData,
-        borderColor: '#f97316',
-        backgroundColor: (context) => {
-          if (!context.chart.chartArea) return 'rgba(249, 115, 22, 0.1)';
-          const ctx = context.chart.ctx;
-          const gradient = ctx.createLinearGradient(0, context.chart.chartArea.top, 0, context.chart.chartArea.bottom);
-          gradient.addColorStop(0, 'rgba(249, 115, 22, 0.3)');
-          gradient.addColorStop(1, 'rgba(249, 115, 22, 0.05)');
-          return gradient;
+        {
+          label: 'Forecast',
+          data: forecastData,
+          borderColor: '#f97316',
+          backgroundColor: (context) => {
+            if (!context.chart.chartArea) return 'rgba(249, 115, 22, 0.1)';
+            const ctx = context.chart.ctx;
+            const gradient = ctx.createLinearGradient(0, context.chart.chartArea.top, 0, context.chart.chartArea.bottom);
+            gradient.addColorStop(0, 'rgba(249, 115, 22, 0.3)');
+            gradient.addColorStop(1, 'rgba(249, 115, 22, 0.05)');
+            return gradient;
+          },
+          borderWidth: 3,
+          borderDash: [5, 5],
+          pointBackgroundColor: '#f97316',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          pointHoverBackgroundColor: '#ea580c',
+          pointHoverBorderColor: '#ffffff',
+          pointHoverBorderWidth: 2,
+          fill: true,
+          tension: 0.35,
         },
-        borderWidth: 3,
-        borderDash: [5, 5],
-        pointBackgroundColor: '#f97316',
-        pointBorderColor: '#ffffff',
-        pointBorderWidth: 2,
-        pointRadius: 5,
-        pointHoverRadius: 7,
-        pointHoverBackgroundColor: '#ea580c',
-        pointHoverBorderColor: '#ffffff',
-        pointHoverBorderWidth: 2,
-        fill: true,
-        tension: 0.35,
-      },
-    ],
-  }), [labels, actualData, forecastData]);
+      ],
+    };
+  }, [labels, actualData, forecastData, customDatasets]);
 
   const options = useMemo(() => ({
     responsive: true,
@@ -106,7 +115,7 @@ function ActualForecastChart({ labels, actualData, forecastData, allTime, onAllT
         cornerRadius: 8,
         displayColors: true,
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             return `${context.dataset.label}: ${context.parsed.y.toFixed(2)} kWh`;
           },
         },
@@ -139,7 +148,7 @@ function ActualForecastChart({ labels, actualData, forecastData, allTime, onAllT
           font: {
             size: 11,
           },
-          callback: function(value) {
+          callback: function (value) {
             return value + ' kWh';
           },
         },
