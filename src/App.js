@@ -5,35 +5,37 @@ import PreviousForecastChart from './components/PreviousForecastChart';
 import ForecastControls from './components/ForecastControls';
 import ConsumptionRanking from './components/ConsumptionRanking';
 import EnergyForecastSummary from './components/EnergyForecastSummary';
+import ApplianceChart from './components/ApplianceChart';
+import { Card, CardBody, Skeleton } from './components/ui';
 
-// Utility functions
+// Fixed appliance list - only these three appliances
+const APPLIANCES = ['Electric Fan', 'Air Conditioner', 'Refrigerator'];
+
+// =============================================================================
+// UTILITY FUNCTIONS
+// =============================================================================
 function generateApplianceForecast(points, dummyData = null) {
-  let ac = [], ref = [], wm = [], ef = [];
-
+  let fan = [], ac = [], ref = [];
+  
   if (dummyData && dummyData.applianceRanges) {
     const ranges = dummyData.applianceRanges;
     for (let i = 0; i < points; i++) {
-      ac.push(ranges['Air Conditioner'].min + Math.random() * (ranges['Air Conditioner'].max - ranges['Air Conditioner'].min));
-      ref.push(ranges['Refrigerator'].min + Math.random() * (ranges['Refrigerator'].max - ranges['Refrigerator'].min));
-      wm.push(ranges['Washing Machine'].min + Math.random() * (ranges['Washing Machine'].max - ranges['Washing Machine'].min));
-      // Electric Fan (not in dummy ranges usually, so hardcode sensible defaults)
-      ef.push(0.15 + Math.random() * 0.1);
+      fan.push(ranges['Electric Fan']?.min + Math.random() * (ranges['Electric Fan']?.max - ranges['Electric Fan']?.min) || 0.05 + Math.random() * 0.1);
+      ac.push(ranges['Air Conditioner']?.min + Math.random() * (ranges['Air Conditioner']?.max - ranges['Air Conditioner']?.min) || 2.2 + Math.random() * 0.6);
+      ref.push(ranges['Refrigerator']?.min + Math.random() * (ranges['Refrigerator']?.max - ranges['Refrigerator']?.min) || 1.1 + Math.random() * 0.3);
     }
   } else {
-    // Fallback to original generation
     for (let i = 0; i < points; i++) {
-      ac.push(2.2 + Math.random() * 0.6);
-      ref.push(1.1 + Math.random() * 0.3);
-      wm.push(0.7 + Math.random() * 0.2);
-      ef.push(0.15 + Math.random() * 0.1);
+      fan.push(0.05 + Math.random() * 0.1);  // Electric Fan: ~50-150W
+      ac.push(2.2 + Math.random() * 0.6);     // Air Conditioner: ~2.2-2.8 kWh
+      ref.push(1.1 + Math.random() * 0.3);    // Refrigerator: ~1.1-1.4 kWh
     }
   }
-  return { ac, ref, wm, ef };
+  return { fan, ac, ref };
 }
 
 function generateLabels(forecastHours, lookbackHours) {
   const now = new Date();
-
   const prevPoints = Math.max(1, lookbackHours);
   const nextPoints = Math.max(1, forecastHours);
 
@@ -60,20 +62,17 @@ function formatHour(date, offsetHours) {
 function generateActual(points, dummyData = null, periodKey = null) {
   if (dummyData && dummyData.sampleData && periodKey && dummyData.sampleData[periodKey]) {
     const sample = dummyData.sampleData[periodKey].lookback.actual;
-    // Use sample data if available, pad or trim to match points needed
     if (sample.length >= points) {
       return sample.slice(0, points);
     } else {
-      // Use sample as base, generate additional points
       const baseValue = dummyData.actualBaseValue || 4.2;
       const increment = dummyData.actualIncrement || 0.15;
       const randomRange = dummyData.actualRandomRange || 0.8;
-      return [...sample, ...Array(points - sample.length).fill().map((_, i) =>
+      return [...sample, ...Array(points - sample.length).fill().map((_, i) => 
         baseValue + (sample.length + i) * increment + Math.random() * randomRange
       )];
     }
   }
-  // Fallback to original generation
   const baseValue = dummyData?.actualBaseValue || 4.2;
   const increment = dummyData?.actualIncrement || 0.15;
   const randomRange = dummyData?.actualRandomRange || 0.8;
@@ -89,26 +88,86 @@ function generateForecastPast(points, dummyData = null, periodKey = null) {
       const baseValue = dummyData.forecastBaseValue || 4.1;
       const increment = dummyData.forecastIncrement || 0.15;
       const randomRange = dummyData.forecastRandomRange || 0.9;
-      return [...sample, ...Array(points - sample.length).fill().map((_, i) =>
+      return [...sample, ...Array(points - sample.length).fill().map((_, i) => 
         baseValue + (sample.length + i) * increment + Math.random() * randomRange
       )];
     }
   }
-  // Fallback to original generation
   const baseValue = dummyData?.forecastBaseValue || 4.1;
   const increment = dummyData?.forecastIncrement || 0.15;
   const randomRange = dummyData?.forecastRandomRange || 0.9;
   return Array(points).fill().map((_, i) => baseValue + i * increment + Math.random() * randomRange);
 }
 
+// =============================================================================
+// LOADING SKELETON COMPONENT
+// =============================================================================
+function LoadingState() {
+  return (
+    <div className="min-h-screen bg-surface-50">
+      {/* Header skeleton */}
+      <div className="bg-white border-b border-surface-100 px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Skeleton width={40} height={40} rounded="xl" />
+            <div className="hidden sm:block">
+              <Skeleton width={150} height={20} className="mb-1" />
+              <Skeleton width={200} height={14} />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton width={40} height={40} rounded="xl" />
+            <Skeleton width={160} height={40} rounded="xl" />
+            <Skeleton width={40} height={40} rounded="xl" />
+          </div>
+        </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Hero skeleton */}
+        <div className="bg-white rounded-2xl border border-surface-100 p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Skeleton width={40} height={40} rounded="xl" />
+            <div>
+              <Skeleton width={180} height={24} className="mb-1" />
+              <Skeleton width={120} height={16} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} height={100} rounded="xl" />
+            ))}
+          </div>
+          <div className="space-y-2">
+            <Skeleton height={48} rounded="xl" />
+            <Skeleton height={48} rounded="xl" />
+            <Skeleton height={48} rounded="xl" />
+          </div>
+        </div>
+
+        {/* Charts skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Skeleton height={400} rounded="2xl" />
+          </div>
+          <Skeleton height={400} rounded="2xl" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// MAIN APP COMPONENT
+// =============================================================================
 function App() {
+  // State
   const [selectedPeriod, setSelectedPeriod] = useState(1);
   const [selectedLookback, setSelectedLookback] = useState(1);
   const [tariff, setTariff] = useState(13.47);
   const [budget, setBudget] = useState(300);
   const [allTime, setAllTime] = useState(true);
-  const [selectedFilter, setSelectedFilter] = useState('All Appliances');
+  const [selectedFilter, setSelectedFilter] = useState('Electric Fan');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dummyData, setDummyData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -120,16 +179,16 @@ function App() {
         const response = await fetch('/data/dummydataset.json');
         const data = await response.json();
         setDummyData(data);
-
-        // Initialize tariff and budget from JSON if available
+        
         if (data.settings) {
           if (data.settings.defaultTariff) setTariff(data.settings.defaultTariff);
           if (data.settings.defaultBudget) setBudget(data.settings.defaultBudget);
-          // No longer overriding selectedFilter here to keep 'All Appliances' as default or let user choose
+          if (data.settings.appliances && data.settings.appliances.length > 0) {
+            setSelectedFilter(data.settings.appliances[0]);
+          }
         }
       } catch (error) {
         console.error('Error loading dummy dataset:', error);
-        // Continue with default values if JSON fails to load
       } finally {
         setLoading(false);
       }
@@ -146,194 +205,103 @@ function App() {
   // Get period key for JSON lookup
   const periodKey = useMemo(() => {
     return selectedPeriod === 1 ? '1hour' :
-      selectedPeriod === 4 ? '4hours' :
-        selectedPeriod === 8 ? '8hours' :
-          selectedPeriod === 24 ? '24hours' : null;
+           selectedPeriod === 4 ? '4hours' :
+           selectedPeriod === 8 ? '8hours' :
+           selectedPeriod === 24 ? '24hours' : null;
   }, [selectedPeriod]);
 
-  // Generate data based on labels, using dummy dataset if available
+  // Generate data based on labels
   const chartData = useMemo(() => {
     if (loading) {
-      // Return empty data while loading
       return {
         prevActualData: [],
         prevForecastData: [],
         nextForecastData: [],
-        nextForecastData_Total: [],
         forecastSeries: [],
         actualData: [],
-        nextApplianceForecasts: { ac: [], ref: [], wm: [], ef: [] },
+        nextApplianceForecasts: { fan: [], ac: [], ref: [] },
       };
     }
 
-    // Check if we have sample data for the selected forecast period
     let nextApplianceForecasts;
     if (dummyData && dummyData.sampleData && periodKey && dummyData.sampleData[periodKey]?.forecast) {
       const sampleForecast = dummyData.sampleData[periodKey].forecast;
-      const forecastLength = sampleForecast.ac.length;
-
+      const forecastLength = sampleForecast.ac?.length || 0;
+      
       if (forecastLength >= labels.nextPoints) {
-        // Use sample data, trim to match
         nextApplianceForecasts = {
+          fan: sampleForecast.electricFan?.slice(0, labels.nextPoints) || generateApplianceForecast(labels.nextPoints, dummyData).fan,
           ac: sampleForecast.ac.slice(0, labels.nextPoints),
           ref: sampleForecast.refrigerator.slice(0, labels.nextPoints),
-          wm: sampleForecast.washingMachine.slice(0, labels.nextPoints),
-          ef: Array(labels.nextPoints).fill(0).map(() => 0.15 + Math.random() * 0.1), // Generate EF for sample too
         };
       } else {
-        // Use sample as base, generate additional
         nextApplianceForecasts = generateApplianceForecast(labels.nextPoints, dummyData);
-        // Overwrite first part with sample data
-        nextApplianceForecasts.ac = [...sampleForecast.ac, ...nextApplianceForecasts.ac.slice(forecastLength)];
-        nextApplianceForecasts.ref = [...sampleForecast.refrigerator, ...nextApplianceForecasts.ref.slice(forecastLength)];
-        nextApplianceForecasts.wm = [...sampleForecast.washingMachine, ...nextApplianceForecasts.wm.slice(forecastLength)];
-        // For EF, if sampleForecast had it, we'd use it, but for now, it's generated by generateApplianceForecast
+        if (sampleForecast.electricFan) {
+          nextApplianceForecasts.fan = [...sampleForecast.electricFan, ...nextApplianceForecasts.fan.slice(forecastLength)];
+        }
+        if (sampleForecast.ac) {
+          nextApplianceForecasts.ac = [...sampleForecast.ac, ...nextApplianceForecasts.ac.slice(forecastLength)];
+        }
+        if (sampleForecast.refrigerator) {
+          nextApplianceForecasts.ref = [...sampleForecast.refrigerator, ...nextApplianceForecasts.ref.slice(forecastLength)];
+        }
       }
     } else {
-      // Generate using ranges from JSON or fallback
       nextApplianceForecasts = generateApplianceForecast(labels.nextPoints, dummyData);
     }
 
-    const prevActualDataTotal = generateActual(labels.prevPoints, dummyData, periodKey);
-    const prevForecastDataTotal = generateForecastPast(labels.prevPoints, dummyData, periodKey);
-
-    // Filter Logic
-    let prevActualData, prevForecastData, nextForecastData;
-    let customDatasets = null;
-
-    if (selectedFilter === 'All Appliances') {
-      prevActualData = prevActualDataTotal;
-      prevForecastData = prevForecastDataTotal;
-      nextForecastData = nextApplianceForecasts.ac.map((v, i) =>
-        v + nextApplianceForecasts.ref[i] + nextApplianceForecasts.wm[i] + nextApplianceForecasts.ef[i]
-      );
-    } else if (selectedFilter === 'All Appliances (Breakdown)') {
-      // Keep the totals for the summary calculations
-      prevActualData = prevActualDataTotal;
-      prevForecastData = prevForecastDataTotal;
-      nextForecastData = nextApplianceForecasts.ac.map((v, i) => v + nextApplianceForecasts.ref[i] + nextApplianceForecasts.wm[i] + nextApplianceForecasts.ef[i]);
-
-      // Create custom datasets for the chart
-      customDatasets = [
-        {
-          label: 'Air Conditioner',
-          data: [...prevActualDataTotal.map(v => v * 0.55), ...nextApplianceForecasts.ac],
-          borderColor: '#3b82f6', // blue
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          borderWidth: 2,
-          fill: false,
-          tension: 0.4,
-          pointRadius: 0,
-          pointHoverRadius: 5
-        },
-        {
-          label: 'Refrigerator',
-          data: [...prevActualDataTotal.map(v => v * 0.25), ...nextApplianceForecasts.ref],
-          borderColor: '#10b981', // green
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          borderWidth: 2,
-          fill: false,
-          tension: 0.4,
-          pointRadius: 0,
-          pointHoverRadius: 5
-        },
-        {
-          label: 'Electric Fan',
-          data: [...prevActualDataTotal.map(v => v * 0.10), ...nextApplianceForecasts.ef],
-          borderColor: '#8b5cf6', // purple
-          backgroundColor: 'rgba(139, 92, 246, 0.1)',
-          borderWidth: 2,
-          fill: false,
-          tension: 0.4,
-          pointRadius: 0,
-          pointHoverRadius: 5
-        },
-        {
-          label: 'Others',
-          data: [...prevActualDataTotal.map(v => v * 0.05), ...Array(labels.nextPoints).fill(0).map(() => 0.05 + Math.random() * 0.05)],
-          borderColor: '#9ca3af', // gray
-          backgroundColor: 'rgba(156, 163, 175, 0.1)',
-          borderWidth: 2,
-          fill: false,
-          tension: 0.4,
-          pointRadius: 0,
-          pointHoverRadius: 5
-        }
-      ];
-
-    } else if (selectedFilter === 'Air Conditioner') {
-      // Estimate historical data for AC (approx 55%)
-      prevActualData = prevActualDataTotal.map(v => v * 0.55);
-      prevForecastData = prevForecastDataTotal.map(v => v * 0.55);
-      nextForecastData = nextApplianceForecasts.ac;
-    } else if (selectedFilter === 'Refrigerator') {
-      // Estimate historical data for Ref (approx 25%)
-      prevActualData = prevActualDataTotal.map(v => v * 0.25);
-      prevForecastData = prevForecastDataTotal.map(v => v * 0.25);
-      nextForecastData = nextApplianceForecasts.ref;
-    } else if (selectedFilter === 'Electric Fan') {
-      // Estimate historical data for EF (approx 10%)
-      prevActualData = prevActualDataTotal.map(v => v * 0.10);
-      prevForecastData = prevForecastDataTotal.map(v => v * 0.10);
-      nextForecastData = nextApplianceForecasts.ef;
-    } else {
-      // Fallback logic for other appliances (approx 5%)
-      prevActualData = prevActualDataTotal.map(v => v * 0.05);
-      prevForecastData = prevForecastDataTotal.map(v => v * 0.05);
-      // Small random forecast for others
-      nextForecastData = Array(labels.nextPoints).fill(0).map(() => 0.1 + Math.random() * 0.1);
-    }
-
+    const prevActualData = generateActual(labels.prevPoints, dummyData, periodKey);
+    const prevForecastData = generateForecastPast(labels.prevPoints, dummyData, periodKey);
+    const nextForecastData = nextApplianceForecasts.fan.map((v, i) =>
+      v + nextApplianceForecasts.ac[i] + nextApplianceForecasts.ref[i]
+    );
     const forecastSeries = [...prevForecastData, ...nextForecastData];
     const actualData = [...prevActualData, ...Array(labels.nextPoints).fill(null)];
 
     return {
-      prevActualData: prevActualDataTotal, // Keep total for other calculations if needed
-      prevForecastData: prevForecastDataTotal,
-      nextForecastData_Total: nextApplianceForecasts.ac.map((v, i) => v + nextApplianceForecasts.ref[i] + nextApplianceForecasts.wm[i] + nextApplianceForecasts.ef[i]),
+      prevActualData,
+      prevForecastData,
+      nextForecastData,
       forecastSeries,
       actualData,
       nextApplianceForecasts,
-      customDatasets // Return this new property
     };
-  }, [labels, dummyData, periodKey, loading, selectedFilter]);
+  }, [labels, dummyData, periodKey, loading]);
 
   // Calculate totals and costs
   const calculations = useMemo(() => {
-    // We want the Summary and Rankings to ALWAYS be based on the Totals, not the filtered view
     const prevTotal = chartData.prevActualData.reduce((a, b) => (b || 0) + a, 0);
-    // Use the total forecast data we stored
-    const nextTotal = chartData.nextForecastData_Total.reduce((a, b) => (b || 0) + a, 0);
+    const nextTotal = chartData.nextForecastData.reduce((a, b) => (b || 0) + a, 0);
     const prevCost = prevTotal * tariff;
     const nextCost = nextTotal * tariff;
 
-    // Appliance calculations
+    const fanKwh = chartData.nextApplianceForecasts.fan.reduce((a, b) => a + b, 0);
     const acKwh = chartData.nextApplianceForecasts.ac.reduce((a, b) => a + b, 0);
     const refKwh = chartData.nextApplianceForecasts.ref.reduce((a, b) => a + b, 0);
-    // const wmKwh = chartData.nextApplianceForecasts.wm.reduce((a, b) => a + b, 0);
-    const efKwh = chartData.nextApplianceForecasts.ef.reduce((a, b) => a + b, 0);
 
+    const fanPhp = fanKwh * tariff;
     const acPhp = acKwh * tariff;
     const refPhp = refKwh * tariff;
-    // const wmPhp = wmKwh * tariff;
-    const efPhp = efKwh * tariff;
 
+    // Only these three appliances
     const appliances = [
+      { name: 'Electric Fan', kwh: fanKwh, php: fanPhp },
       { name: 'Air Conditioner', kwh: acKwh, php: acPhp },
       { name: 'Refrigerator', kwh: refKwh, php: refPhp },
-      { name: 'Electric Fan', kwh: efKwh, php: efPhp },
     ];
 
+    // Determine top appliance
+    const maxPhp = Math.max(fanPhp, acPhp, refPhp);
     const topAppliance =
-      acPhp >= refPhp && acPhp >= efPhp ? 'Air Conditioner' :
-        refPhp >= acPhp && refPhp >= efPhp ? 'Refrigerator' : 'Electric Fan';
+      acPhp === maxPhp ? 'Air Conditioner' :
+      refPhp === maxPhp ? 'Refrigerator' : 'Electric Fan';
 
     const budgetStatus = nextCost < budget ? 'OK' : 'At-Risk';
 
     const selectedPeriodText =
       selectedPeriod === 1 ? 'Next 1 Hour' :
-        selectedPeriod === 4 ? 'Next 4 Hours' :
-          selectedPeriod === 8 ? 'Next 8 Hours' : 'Next 24 Hours';
+      selectedPeriod === 4 ? 'Next 4 Hours' :
+      selectedPeriod === 8 ? 'Next 8 Hours' : 'Next 24 Hours';
 
     return {
       prevTotal,
@@ -344,6 +312,12 @@ function App() {
       topAppliance,
       budgetStatus,
       selectedPeriodText,
+      // Individual appliance data for charts
+      applianceData: {
+        'Electric Fan': { kwh: fanKwh, php: fanPhp, data: chartData.nextApplianceForecasts.fan },
+        'Air Conditioner': { kwh: acKwh, php: acPhp, data: chartData.nextApplianceForecasts.ac },
+        'Refrigerator': { kwh: refKwh, php: refPhp, data: chartData.nextApplianceForecasts.ref },
+      },
     };
   }, [chartData, tariff, budget, selectedPeriod]);
 
@@ -365,73 +339,34 @@ function App() {
     setCurrentDate(newDate);
   }, [currentDate]);
 
+  // Scroll to charts section
+  const handleViewDetails = useCallback(() => {
+    const chartsSection = document.getElementById('charts-section');
+    if (chartsSection) {
+      chartsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
+
+  // Show loading state
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center animate-fade-in">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <svg className="w-8 h-8 text-blue-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-          </div>
-          <p className="text-gray-600 font-medium text-lg mt-4">Loading dashboard data...</p>
-          <p className="text-gray-400 text-sm mt-2">Please wait a moment</p>
-        </div>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/30 py-8 px-4">
-      <div className="container mx-auto max-w-7xl">
-        <DashboardHeader
-          date={formattedDate}
-          selectedDate={currentDate}
-          onDateChange={setCurrentDate}
-          onPrevClick={handlePrevDate}
-          onNextClick={handleNextDate}
-        />
+    <div className="min-h-screen bg-surface-50">
+      {/* Sticky Header */}
+      <DashboardHeader
+        date={formattedDate}
+        onPrevClick={handlePrevDate}
+        onNextClick={handleNextDate}
+      />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-2">
-            <ActualForecastChart
-              labels={[...labels.prevLabels, ...labels.nextLabels]}
-              actualData={chartData.actualData}
-              forecastData={chartData.forecastSeries}
-              allTime={allTime}
-              onAllTimeChange={setAllTime}
-              selectedFilter={selectedFilter}
-              onFilterChange={setSelectedFilter}
-              applianceFilters={['All Appliances', 'All Appliances (Breakdown)', 'Electric Fan', 'Air Conditioner', 'Refrigerator']}
-              customDatasets={chartData.customDatasets}
-            />
-          </div>
-
-          <div>
-            <PreviousForecastChart
-              previousValue={calculations.prevTotal}
-              forecastValue={calculations.nextTotal}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <ForecastControls
-            historyPeriod={selectedLookback}
-            forecastPeriod={selectedPeriod}
-            tariff={tariff}
-            budget={budget}
-            onHistoryChange={setSelectedLookback}
-            onForecastChange={setSelectedPeriod}
-            onTariffChange={setTariff}
-            onBudgetChange={setBudget}
-          />
-
-          <ConsumptionRanking appliances={calculations.appliances} />
-
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        {/* =====================================================================
+            SECTION 1: FORECAST SUMMARY (ABOVE THE FOLD)
+            ===================================================================== */}
+        <section className="mb-8 animate-fade-in">
           <EnergyForecastSummary
             nextKwh={calculations.nextTotal}
             nextPhp={calculations.nextCost}
@@ -442,12 +377,204 @@ function App() {
             topAppliance={calculations.topAppliance}
             budgetStatus={calculations.budgetStatus}
             selectedPeriodText={calculations.selectedPeriodText}
+            budget={budget}
+            onViewDetails={handleViewDetails}
           />
-        </div>
-      </div>
+        </section>
+
+        {/* =====================================================================
+            SECTION 2: TODAY'S QUICK STATS
+            ===================================================================== */}
+        <section className="mb-8 animate-slide-up">
+          <h2 className="text-heading-md text-surface-700 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Today at a Glance
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Card>
+              <CardBody className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-caption text-surface-500">Current Rate</p>
+                    <p className="text-heading-md text-surface-900 tabular-nums">₱{tariff.toFixed(2)}</p>
+                    <p className="text-caption text-surface-400">per kWh</p>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+            
+            <Card>
+              <CardBody className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-caption text-surface-500">Top Consumer</p>
+                    <p className="text-body-md font-semibold text-surface-900 truncate">{calculations.topAppliance}</p>
+                    <p className="text-caption text-surface-400">highest usage</p>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+            
+            <Card>
+              <CardBody className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                    calculations.budgetStatus === 'OK' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
+                  }`}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-caption text-surface-500">Budget</p>
+                    <p className="text-heading-md text-surface-900 tabular-nums">₱{budget}</p>
+                    <p className={`text-caption ${calculations.budgetStatus === 'OK' ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {calculations.budgetStatus === 'OK' ? 'On track' : 'At risk'}
+                    </p>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+            
+            <Card>
+              <CardBody className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-caption text-surface-500">Forecast Period</p>
+                    <p className="text-body-md font-semibold text-surface-900">{calculations.selectedPeriodText}</p>
+                    <p className="text-caption text-surface-400">analysis range</p>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </div>
+        </section>
+
+        {/* =====================================================================
+            SECTION 3: OVERALL CHARTS
+            ===================================================================== */}
+        <section id="charts-section" className="mb-8 scroll-mt-20">
+          <h2 className="text-heading-md text-surface-700 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Overall Energy Analytics
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <ActualForecastChart
+                labels={[...labels.prevLabels, ...labels.nextLabels]}
+                actualData={chartData.actualData}
+                forecastData={chartData.forecastSeries}
+                allTime={allTime}
+                onAllTimeChange={setAllTime}
+                selectedFilter={selectedFilter}
+                onFilterChange={setSelectedFilter}
+                applianceFilters={['All Appliances', ...APPLIANCES]}
+                riskStatus={calculations.budgetStatus}
+              />
+            </div>
+            <div>
+              <PreviousForecastChart
+                previousValue={calculations.prevTotal}
+                forecastValue={calculations.nextTotal}
+                budgetThreshold={budget / tariff}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* =====================================================================
+            SECTION 4: INDIVIDUAL APPLIANCE CHARTS
+            ===================================================================== */}
+        <section className="mb-8">
+          <h2 className="text-heading-md text-surface-700 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Appliance Breakdown
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {APPLIANCES.map((appliance) => {
+              const appData = calculations.applianceData[appliance];
+              // Generate per-appliance actual data (proportional to forecast)
+              const applianceActual = chartData.prevActualData.map((val, i) => {
+                if (val === null) return null;
+                // Distribute actual based on appliance's proportion
+                const proportion = appData.kwh / (calculations.nextTotal || 1);
+                return val * proportion;
+              });
+              const applianceForecast = [...applianceActual.slice(0, labels.prevPoints), ...appData.data];
+              
+              return (
+                <ApplianceChart
+                  key={appliance}
+                  applianceName={appliance}
+                  labels={[...labels.prevLabels, ...labels.nextLabels]}
+                  actualData={[...applianceActual, ...Array(labels.nextPoints).fill(null)]}
+                  forecastData={applianceForecast}
+                  kwh={appData.kwh}
+                  cost={appData.php}
+                  budgetStatus={calculations.budgetStatus}
+                />
+              );
+            })}
+          </div>
+        </section>
+
+        {/* =====================================================================
+            SECTION 5: CONTROLS & CONSUMPTION RANKING
+            ===================================================================== */}
+        <section className="mb-8">
+          <h2 className="text-heading-md text-surface-700 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+            Settings & Consumption Ranking
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ForecastControls
+              historyPeriod={selectedLookback}
+              forecastPeriod={selectedPeriod}
+              tariff={tariff}
+              budget={budget}
+              onHistoryChange={setSelectedLookback}
+              onForecastChange={setSelectedPeriod}
+              onTariffChange={setTariff}
+              onBudgetChange={setBudget}
+            />
+            <ConsumptionRanking appliances={calculations.appliances} />
+          </div>
+        </section>
+
+        {/* =====================================================================
+            FOOTER
+            ===================================================================== */}
+        <footer className="text-center py-6 border-t border-surface-100">
+          <p className="text-body-sm text-surface-400">
+            Energy Forecast Dashboard • Powered by SARIMAX Model
+          </p>
+        </footer>
+      </main>
     </div>
   );
 }
 
 export default App;
-

@@ -9,6 +9,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { Card, CardBody, SectionHeader, ChartLegend } from './ui';
 
 ChartJS.register(
   CategoryScale,
@@ -19,37 +20,58 @@ ChartJS.register(
   Legend
 );
 
-function PreviousForecastChart({ previousValue, forecastValue }) {
+// Chart color tokens
+const CHART_COLORS = {
+  actual: '#3B82F6',      // Blue - Actual/Previous
+  forecast: '#8B5CF6',    // Purple - Forecast
+  healthy: '#10B981',     // Green
+  atRisk: '#EF4444',      // Red
+};
+
+function PreviousForecastChart({ previousValue, forecastValue, budgetThreshold = null }) {
+  // Determine if forecast exceeds threshold (at risk)
+  const isForecastAtRisk = budgetThreshold && forecastValue > budgetThreshold;
+  
   const chartData = useMemo(() => ({
-    labels: ['Previous', 'Forecast'],
+    labels: ['Previous Period', 'Forecast'],
     datasets: [
       {
         label: 'Usage (kWh)',
         data: [previousValue, forecastValue],
         backgroundColor: (context) => {
           if (!context.chart.chartArea) {
-            return context.dataIndex === 0 ? '#10b981' : '#f97316';
+            return context.dataIndex === 0 ? CHART_COLORS.actual : CHART_COLORS.forecast;
           }
           const ctx = context.chart.ctx;
           const chartArea = context.chart.chartArea;
           const index = context.dataIndex;
+          
           if (index === 0) {
+            // Previous - Blue gradient
             const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            gradient.addColorStop(0, '#10b981');
-            gradient.addColorStop(1, '#059669');
+            gradient.addColorStop(0, CHART_COLORS.actual);
+            gradient.addColorStop(1, '#2563EB');
             return gradient;
           } else {
+            // Forecast - Purple or Red if at risk
             const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            gradient.addColorStop(0, '#f97316');
-            gradient.addColorStop(1, '#ea580c');
+            if (isForecastAtRisk) {
+              gradient.addColorStop(0, CHART_COLORS.atRisk);
+              gradient.addColorStop(1, '#DC2626');
+            } else {
+              gradient.addColorStop(0, CHART_COLORS.forecast);
+              gradient.addColorStop(1, '#7C3AED');
+            }
             return gradient;
           }
         },
-        borderRadius: 12,
+        borderRadius: 10,
         borderSkipped: false,
+        barThickness: 48,
+        maxBarThickness: 64,
       },
     ],
-  }), [previousValue, forecastValue]);
+  }), [previousValue, forecastValue, isForecastAtRisk]);
 
   const options = useMemo(() => ({
     responsive: true,
@@ -59,21 +81,25 @@ function PreviousForecastChart({ previousValue, forecastValue }) {
         display: false,
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        padding: 12,
+        backgroundColor: 'rgba(23, 23, 23, 0.95)',
+        padding: { x: 14, y: 10 },
         titleFont: {
-          size: 14,
-          weight: 'bold',
+          size: 13,
+          weight: '600',
+          family: 'Inter, sans-serif',
         },
         bodyFont: {
-          size: 13,
+          size: 12,
+          family: 'Inter, sans-serif',
         },
+        titleColor: '#ffffff',
+        bodyColor: 'rgba(255, 255, 255, 0.8)',
         borderColor: 'rgba(255, 255, 255, 0.1)',
         borderWidth: 1,
-        cornerRadius: 8,
+        cornerRadius: 10,
         callbacks: {
           label: function(context) {
-            return `${context.label}: ${context.parsed.y.toFixed(2)} kWh`;
+            return ` ${context.label}: ${context.parsed.y.toFixed(2)} kWh`;
           },
         },
       },
@@ -83,62 +109,105 @@ function PreviousForecastChart({ previousValue, forecastValue }) {
         grid: {
           display: false,
         },
+        border: {
+          display: false,
+        },
         ticks: {
-          color: '#6b7280',
+          color: '#525252',
           font: {
             size: 12,
-            weight: '600',
+            weight: '500',
+            family: 'Inter, sans-serif',
           },
+          padding: 8,
         },
       },
       y: {
         beginAtZero: true,
         grid: {
-          color: 'rgba(0, 0, 0, 0.05)',
+          color: 'rgba(0, 0, 0, 0.04)',
           drawBorder: false,
         },
+        border: {
+          display: false,
+        },
         ticks: {
-          color: '#6b7280',
+          color: '#737373',
           font: {
             size: 11,
+            family: 'Inter, sans-serif',
           },
+          padding: 12,
           callback: function(value) {
-            return value + ' kWh';
+            return value.toFixed(1) + ' kWh';
           },
         },
       },
     },
   }), []);
 
+  // Comparison stats
+  const difference = forecastValue - previousValue;
+  const percentChange = previousValue > 0 ? ((difference / previousValue) * 100) : 0;
+  const isIncrease = difference > 0;
+
+  // Legend items
+  const legendItems = [
+    { color: CHART_COLORS.actual, label: 'Previous Period' },
+    { color: isForecastAtRisk ? CHART_COLORS.atRisk : CHART_COLORS.forecast, label: isForecastAtRisk ? 'Forecast (At Risk)' : 'Forecast' },
+  ];
+
   return (
-    <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-8 h-full hover-lift animate-slide-up">
-      <div className="mb-6">
-        <h4 className="text-2xl font-bold text-gray-800 m-0 mb-1 flex items-center gap-2">
-          <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-          Previous VS Forecasted
-        </h4>
-        <p className="text-sm text-gray-500 mt-1">Period comparison</p>
-      </div>
+    <Card className="h-full">
+      <CardBody>
+        <SectionHeader
+          icon={
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+          }
+          title="Period Comparison"
+          subtitle="Previous vs forecasted usage"
+        />
 
-      <div className="h-[280px] mt-4">
-        <Bar data={chartData} options={options} />
-      </div>
+        {/* Quick stats */}
+        <div className="flex items-center gap-4 mb-5 p-3 bg-surface-50 rounded-xl border border-surface-100">
+          <div className="flex-1">
+            <p className="text-caption text-surface-500 mb-0.5">Difference</p>
+            <p className={`text-body-md font-semibold tabular-nums ${isIncrease ? 'text-red-600' : 'text-emerald-600'}`}>
+              {isIncrease ? '+' : ''}{difference.toFixed(2)} kWh
+            </p>
+          </div>
+          <div className="w-px h-8 bg-surface-200" />
+          <div className="flex-1">
+            <p className="text-caption text-surface-500 mb-0.5">Change</p>
+            <div className="flex items-center gap-1.5">
+              <span className={`text-body-md font-semibold tabular-nums ${isIncrease ? 'text-red-600' : 'text-emerald-600'}`}>
+                {isIncrease ? '+' : ''}{percentChange.toFixed(1)}%
+              </span>
+              {isIncrease ? (
+                <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              )}
+            </div>
+          </div>
+        </div>
 
-      <div className="flex gap-6 mt-6 pt-4 border-t border-gray-100">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-gradient-to-br from-green-500 to-green-600 shadow-sm inline-block"></div>
-          <span className="text-sm font-medium text-gray-700">Previous</span>
+        {/* Chart */}
+        <div className="h-[200px] sm:h-[220px]">
+          <Bar data={chartData} options={options} />
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 shadow-sm inline-block"></div>
-          <span className="text-sm font-medium text-gray-700">Forecasted</span>
-        </div>
-      </div>
-    </div>
+
+        {/* Custom Legend */}
+        <ChartLegend items={legendItems} />
+      </CardBody>
+    </Card>
   );
 }
 
 export default PreviousForecastChart;
-
