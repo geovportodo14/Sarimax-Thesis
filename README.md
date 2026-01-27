@@ -1,35 +1,34 @@
 # SARIMAX Energy Dashboard
 
-A React.js dashboard for smart energy consumption monitoring and forecasting using SARIMAX time series analysis.
+A project for smart energy consumption monitoring and forecasting using SARIMAX time series analysis and TimeGAN models.
 
-## 🎯 Features
+## 📁 Project Structure
 
-- **Actual vs Forecast Chart**: Interactive line chart showing actual energy consumption vs forecasted values
-- **Previous vs Forecasted Chart**: Bar chart comparing previous and forecasted consumption
-- **Forecast Controls**: Adjustable parameters including history period, forecast period, tariff rate, and budget
-- **Consumption Ranking**: Appliance-level consumption breakdown with kWh usage and PHP costs
-- **Energy Forecast Summary**: Summary statistics including next period forecast, previous period comparison, actual usage, top consuming appliance, and budget status
-
-## 🛠️ Tech Stack
-
-- **React 18**: UI framework
-- **Tailwind CSS**: Modern utility-first CSS framework
-- **Chart.js + react-chartjs-2**: Interactive data visualization
-- **React Scripts**: Build tooling and development server
+```text
+Sarimax-Thesis/
+├── frontend/                # React application
+│   ├── public/              # Static files
+│   ├── src/                 # React source code
+│   ├── package.json         # Frontend dependencies
+│   └── ...
+├── backend/                 # Python logic & core scripts
+│   ├── collection/          # Data collection scripts (Tuya IoT)
+│   ├── models/              # ML models (GAN, SARIMAX)
+│   ├── utils/               # Diagnostics and helper scripts
+│   └── tests/               # Verification and test scripts
+├── data/                    # Centralized data storage
+│   ├── energy_data/         # Original energy dataset
+│   └── logs/                # CSV log files
+├── .gitignore
+├── requirements.txt         # Consolidated Python dependencies
+└── README.md                # This file
+```
 
 ## 📦 Frontend Setup
 
-### Prerequisites
-
-- Node.js (v14 or higher)
-- npm (v6 or higher)
-
-### Installation
-
-1. **Clone the repository:**
+1. **Navigate to the frontend directory:**
    ```bash
-   git clone <your-repo-url>
-   cd Sarimax-Thesis
+   cd frontend
    ```
 
 2. **Install dependencies:**
@@ -42,78 +41,9 @@ A React.js dashboard for smart energy consumption monitoring and forecasting usi
    npm start
    ```
 
-   The app will automatically open at [http://localhost:3000](http://localhost:3000)
+The app will automatically open at [http://localhost:3000](http://localhost:3000)
 
-### Building for Production
-
-```bash
-npm run build
-```
-
-This creates an optimized production build in the `build` folder, ready for deployment.
-
-## 📁 Project Structure
-
-```
-Sarimax-Thesis/
-├── public/                          # Static files
-├── src/
-│   ├── components/
-│   │   ├── DashboardHeader.js       # Header with date navigation
-│   │   ├── ActualForecastChart.js   # Line chart component
-│   │   ├── PreviousForecastChart.js # Bar chart component
-│   │   ├── ForecastControls.js      # Forecast parameter controls
-│   │   ├── ConsumptionRanking.js    # Appliance ranking table
-│   │   └── EnergyForecastSummary.js # Summary statistics card
-│   ├── App.js                       # Main application component
-│   ├── index.js                     # Application entry point
-│   └── index.css                    # Global styles + Tailwind imports
-├── package.json                     # Frontend dependencies
-└── README.md                        # This file
-```
-
-## 🐛 Troubleshooting
-
-### npm install fails
-
-If you encounter errors during `npm install`:
-
-1. **Clean install:**
-   ```bash
-   rm -rf node_modules package-lock.json
-   npm cache clean --force
-   npm install
-   ```
-
-2. **Check Node version:**
-   ```bash
-   node --version  # Should be v14+
-   npm --version   # Should be v6+
-   ```
-
-### Port 3000 already in use
-
-**On macOS/Linux:**
-```bash
-lsof -ti:3000 | xargs kill -9
-```
-
-**On Windows:**
-```bash
-netstat -ano | findstr :3000
-taskkill /PID <PID> /F
-```
-
-Then restart:
-```bash
-npm start
-```
-
-## 🐍 Backend / Data Collection (Optional)
-
-This repository also includes Python scripts for collecting energy data from Tuya IoT devices. These are **not required** to run the React dashboard.
-
-If you want to run the data collection scripts:
+## 🐍 Backend / Data Collection
 
 1. **Install Python dependencies:**
    ```bash
@@ -122,15 +52,18 @@ If you want to run the data collection scripts:
 
 2. **Run data collection:**
    ```bash
-   python tuyaandweather.py
-   # or
-   python Data_Colletion.py
+   # From the root directory
+   python backend/collection/tuyaandweather.py
+   ```
+
+3. **Run model validation:**
+   ```bash
+   python backend/tests/verify_stage4_generation.py
    ```
 
 ## 📄 License
-
 MIT
 
 ## 👥 Contributors
-
 Thesis Project - Smart Energy Consumption Monitoring
+
