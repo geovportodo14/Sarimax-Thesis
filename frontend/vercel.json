@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "public": true,
+  "name": "sarimax-dashboard",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

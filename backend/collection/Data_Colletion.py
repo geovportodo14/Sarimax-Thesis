@@ -6,18 +6,15 @@ import csv
 from datetime import datetime
 import os
 
-
 # ==================================================
 # 🔑 CREDENTIALS
 # ==================================================
-ACCESS_ID = "trfs5ycjmhh4cs9sehnr"
-ACCESS_SECRET = "367f3cd4abf8457a8116de9b2ed28f70"
-ENDPOINT = "https://openapi-sg.iotbing.com"  # your Tuya endpoint
+ACCESS_ID = "nrf89gjrxe3wrqjnr5tc"
+ACCESS_SECRET = "d170c9dd96204a4cbf79d7bece7a37cb"
+ENDPOINT = "https://openapi-sg.iotbing.com"
 
 OPENWEATHER_API_KEY = "12a933cfc49aae1d814dd6407120d524"
 OPENWEATHER_CITY = "Manila"
-
-
 # ==================================================
 # CONFIGURATION
 # ==================================================
@@ -30,7 +27,6 @@ DEVICES = {
 LOG_INTERVAL = 600  # 10 minutes
 CSV_FOLDER = "energy_data"
 CSV_FILE = os.path.join(CSV_FOLDER, f"energy_log_{datetime.now().strftime('%Y%m%d')}.csv")
-
 
 # ==================================================
 # FOLDER + CSV HEADER
@@ -51,7 +47,6 @@ if not os.path.isfile(CSV_FILE):
             "pressure"
         ])
 
-
 # ==================================================
 # TUYA SIGNING + TOKEN
 # ==================================================
@@ -67,7 +62,6 @@ def generate_sign(method, path, token=""):
     ).hexdigest().upper()
     return sign, t
 
-
 def get_token():
     path = "/v1.0/token?grant_type=1"
     sign, t = generate_sign("GET", path)
@@ -80,6 +74,7 @@ def get_token():
     try:
         r = requests.get(f"{ENDPOINT}{path}", headers=headers, timeout=10)
         data = r.json()
+        print("TOKEN DEBUG:", data)
         if data.get("success"):
             return data["result"]["access_token"]
         print("Token error:", data.get("msg", "unknown"), data.get("code"))
@@ -88,9 +83,8 @@ def get_token():
         print("Token request failed:", e)
         return None
 
-
 # ==================================================
-# TUYA DEVICE STATUS
+# TUYA DEVICE STATUS - WITH DEBUG PRINTS
 # ==================================================
 def get_device_status(token, device_id):
     path = f"/v1.0/devices/{device_id}/status"
@@ -105,14 +99,20 @@ def get_device_status(token, device_id):
     try:
         r = requests.get(f"{ENDPOINT}{path}", headers=headers, timeout=10)
         data = r.json()
+        
+        # 🔍 DEBUG: Print full Tuya response
+        print(f"\nTUYA DEBUG for {device_id}:")
+        print(data)
+        
         if data.get("success") and data.get("result"):
             return {it["code"]: it["value"] for it in data["result"]}
-        # will be None if offline or no permission
+        
+        # Also log error details
+        print(f"Device status not OK - success: {data.get('success')}, code: {data.get('code')}, msg: {data.get('msg')}")
         return None
     except Exception as e:
         print("Device request failed:", e)
         return None
-
 
 # ==================================================
 # OPENWEATHER CURRENT WEATHER
@@ -125,11 +125,11 @@ def get_weather():
     try:
         r = requests.get(url, timeout=10)
         data = r.json()
-        print("WEATHER DEBUG:", data)  # <— add this
-
+        print("WEATHER DEBUG:", data)
+        
         if r.status_code != 200:
             return {"temp": None, "humidity": None, "pressure": None}
-
+        
         main = data.get("main", {})
         return {
             "temp": main.get("temp"),
@@ -139,7 +139,6 @@ def get_weather():
     except Exception as e:
         print("Weather request failed:", e)
         return {"temp": None, "humidity": None, "pressure": None}
-
 
 # ==================================================
 # CSV LOGGING
@@ -157,7 +156,6 @@ def log_row(timestamp, device, prop, value, weather):
             weather.get("pressure")
         ])
 
-
 # ==================================================
 # MAIN LOOP
 # ==================================================
@@ -166,7 +164,7 @@ def start_logging():
     token = None
     token_expiry = 0
     entry = 0
-
+    
     try:
         while True:
             now = time.time()
@@ -178,13 +176,13 @@ def start_logging():
                     time.sleep(60)
                     continue
                 token_expiry = now + 3600
-
+            
             ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             print(f"[{ts}] Logging...")
-
+            
             weather = get_weather()
             print("  Weather:", weather)
-
+            
             for name, dev_id in DEVICES.items():
                 status = get_device_status(token, dev_id)
                 if status:
@@ -194,16 +192,15 @@ def start_logging():
                 else:
                     log_row(ts, name, "NO_DATA", None, weather)
                     print(f"  {name}: NO_DATA (offline / no permission).")
-
+                
                 time.sleep(0.5)
-
+            
             entry += 1
             print(f"Entry #{entry} complete. Sleeping 10 minutes...\n")
             time.sleep(LOG_INTERVAL)
-
+    
     except KeyboardInterrupt:
         print("\nStopped by user. Data stored in:", CSV_FILE)
-
 
 if __name__ == "__main__":
     start_logging()
