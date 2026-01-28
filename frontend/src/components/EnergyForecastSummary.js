@@ -49,7 +49,7 @@ function EnergyForecastSummary({
     },
     {
       icon: (
-        <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
         </svg>
       ),
@@ -61,7 +61,7 @@ function EnergyForecastSummary({
     <Card className="overflow-hidden">
       <CardBody className="p-0">
         {/* Hero Header */}
-        <div className={`px-6 py-5 ${isAtRisk ? 'bg-gradient-to-r from-red-50 to-orange-50 border-b border-red-100' : 'bg-gradient-to-r from-primary-50 to-purple-50 border-b border-primary-100'}`}>
+        <div className={`px-6 py-5 ${isAtRisk ? 'bg-gradient-to-r from-red-50 to-orange-50 border-b border-red-100' : 'bg-gradient-to-r from-primary-50 to-amber-50 border-b border-primary-100'}`}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -167,7 +167,7 @@ function EnergyForecastSummary({
               <div className="h-3 bg-surface-100 rounded-full overflow-hidden">
                 <div 
                   className={`h-full rounded-full transition-all duration-500 ${
-                    isAtRisk ? 'bg-gradient-to-r from-red-500 to-orange-500' : 'bg-gradient-to-r from-primary-500 to-purple-500'
+                    isAtRisk ? 'bg-gradient-to-r from-red-500 to-orange-500' : 'bg-gradient-to-r from-primary-500 to-amber-500'
                   }`}
                   style={{ width: `${Math.min((nextPhp / budget) * 100, 100)}%` }}
                 />

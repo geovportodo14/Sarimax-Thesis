@@ -7,7 +7,7 @@ export function Card({ children, className = '', hover = true, ...props }) {
   return (
     <div
       className={`
-        bg-white rounded-2xl border border-surface-100
+        bg-[var(--color-bg-elevated)] rounded-2xl border border-surface-100
         ${hover ? 'shadow-card hover:shadow-card-hover transition-shadow duration-200' : 'shadow-card'}
         ${className}
       `}
@@ -40,8 +40,8 @@ export function CardBody({ children, className = '' }) {
 // =============================================================================
 export function SectionHeader({ icon, title, subtitle, action, className = '' }) {
   return (
-    <div className={`flex items-start justify-between gap-4 mb-5 ${className}`}>
-      <div className="flex items-center gap-3">
+    <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5 ${className}`}>
+      <div className="flex items-center gap-3 min-w-0">
         {icon && (
           <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-50 text-primary-600">
             {icon}
@@ -54,7 +54,7 @@ export function SectionHeader({ icon, title, subtitle, action, className = '' })
           )}
         </div>
       </div>
-      {action && <div className="flex-shrink-0">{action}</div>}
+      {action && <div className="w-full sm:w-auto">{action}</div>}
     </div>
   );
 }
@@ -78,7 +78,7 @@ export function StatTile({
     success: 'bg-emerald-50 border-emerald-100',
     warning: 'bg-amber-50 border-amber-100',
     danger: 'bg-red-50 border-red-100',
-    info: 'bg-blue-50 border-blue-100',
+    info: 'bg-sky-50 border-sky-100',
     primary: 'bg-primary-50 border-primary-100',
   };
 
@@ -87,7 +87,7 @@ export function StatTile({
     success: 'text-emerald-700',
     warning: 'text-amber-700',
     danger: 'text-red-700',
-    info: 'text-blue-700',
+    info: 'text-sky-700',
     primary: 'text-primary-700',
   };
 
@@ -96,7 +96,7 @@ export function StatTile({
     success: 'text-emerald-500',
     warning: 'text-amber-500',
     danger: 'text-red-500',
-    info: 'text-blue-500',
+    info: 'text-sky-500',
     primary: 'text-primary-500',
   };
 
@@ -209,7 +209,7 @@ export function StatusBadge({ status, label, size = 'md', pulse = false, classNa
     success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     warning: 'bg-amber-50 text-amber-700 border-amber-200',
     danger: 'bg-red-50 text-red-700 border-red-200',
-    info: 'bg-blue-50 text-blue-700 border-blue-200',
+    info: 'bg-sky-50 text-sky-700 border-sky-200',
     neutral: 'bg-surface-100 text-surface-600 border-surface-200',
   };
 
@@ -217,7 +217,7 @@ export function StatusBadge({ status, label, size = 'md', pulse = false, classNa
     success: 'bg-emerald-500',
     warning: 'bg-amber-500',
     danger: 'bg-red-500',
-    info: 'bg-blue-500',
+    info: 'bg-sky-500',
     neutral: 'bg-surface-400',
   };
 

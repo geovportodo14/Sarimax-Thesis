@@ -26,18 +26,20 @@ ChartJS.register(
 
 // Chart color tokens
 const CHART_COLORS = {
-  actual: '#3B82F6',      // Blue
-  forecast: '#8B5CF6',    // Purple
+  actual: '#0EA5E9',      // Sky
+  forecast: '#F59E0B',    // Amber
   healthy: '#10B981',     // Green
   atRisk: '#EF4444',      // Red
 };
 
 // Appliance-specific colors
 const APPLIANCE_COLORS = {
-  'Electric Fan': { primary: '#06B6D4', secondary: '#0891B2' },       // Cyan
-  'Air Conditioner': { primary: '#3B82F6', secondary: '#2563EB' },    // Blue
-  'Refrigerator': { primary: '#8B5CF6', secondary: '#7C3AED' },       // Purple
+  'Electric Fan': { primary: '#14B8A6', secondary: '#0F766E' },       // Teal
+  'Air Conditioner': { primary: '#0EA5E9', secondary: '#0284C7' },    // Sky
+  'Refrigerator': { primary: '#F59E0B', secondary: '#D97706' },       // Amber
 };
+
+const FONT_FAMILY = "'IBM Plex Sans', sans-serif";
 
 // Appliance icons
 const APPLIANCE_ICONS = {
@@ -78,11 +80,11 @@ function ApplianceChart({
         data: actualData,
         borderColor: CHART_COLORS.actual,
         backgroundColor: (context) => {
-          if (!context.chart.chartArea) return 'rgba(59, 130, 246, 0.08)';
+          if (!context.chart.chartArea) return 'rgba(14, 165, 233, 0.08)';
           const ctx = context.chart.ctx;
           const gradient = ctx.createLinearGradient(0, context.chart.chartArea.top, 0, context.chart.chartArea.bottom);
-          gradient.addColorStop(0, 'rgba(59, 130, 246, 0.15)');
-          gradient.addColorStop(1, 'rgba(59, 130, 246, 0.02)');
+          gradient.addColorStop(0, 'rgba(14, 165, 233, 0.16)');
+          gradient.addColorStop(1, 'rgba(14, 165, 233, 0.02)');
           return gradient;
         },
         borderWidth: 2,
@@ -139,11 +141,11 @@ function ApplianceChart({
         titleFont: {
           size: 12,
           weight: '600',
-          family: 'Inter, sans-serif',
+          family: FONT_FAMILY,
         },
         bodyFont: {
           size: 11,
-          family: 'Inter, sans-serif',
+          family: FONT_FAMILY,
         },
         titleColor: '#ffffff',
         bodyColor: 'rgba(255, 255, 255, 0.8)',
@@ -177,7 +179,7 @@ function ApplianceChart({
           color: '#737373',
           font: {
             size: 10,
-            family: 'Inter, sans-serif',
+            family: FONT_FAMILY,
           },
           maxRotation: 45,
           minRotation: 45,
@@ -199,7 +201,7 @@ function ApplianceChart({
           color: '#737373',
           font: {
             size: 10,
-            family: 'Inter, sans-serif',
+            family: FONT_FAMILY,
           },
           padding: 8,
           callback: function (value) {

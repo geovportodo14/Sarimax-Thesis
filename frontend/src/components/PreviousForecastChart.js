@@ -22,11 +22,13 @@ ChartJS.register(
 
 // Chart color tokens
 const CHART_COLORS = {
-  actual: '#3B82F6',      // Blue - Actual/Previous
-  forecast: '#8B5CF6',    // Purple - Forecast
+  actual: '#0EA5E9',      // Sky - Actual/Previous
+  forecast: '#F59E0B',    // Amber - Forecast
   healthy: '#10B981',     // Green
   atRisk: '#EF4444',      // Red
 };
+
+const FONT_FAMILY = "'IBM Plex Sans', sans-serif";
 
 function PreviousForecastChart({ previousValue, forecastValue, budgetThreshold = null }) {
   // Determine if forecast exceeds threshold (at risk)
@@ -50,17 +52,17 @@ function PreviousForecastChart({ previousValue, forecastValue, budgetThreshold =
             // Previous - Blue gradient
             const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
             gradient.addColorStop(0, CHART_COLORS.actual);
-            gradient.addColorStop(1, '#2563EB');
+            gradient.addColorStop(1, '#0284C7');
             return gradient;
           } else {
-            // Forecast - Purple or Red if at risk
+            // Forecast - Amber or Red if at risk
             const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
             if (isForecastAtRisk) {
               gradient.addColorStop(0, CHART_COLORS.atRisk);
               gradient.addColorStop(1, '#DC2626');
             } else {
               gradient.addColorStop(0, CHART_COLORS.forecast);
-              gradient.addColorStop(1, '#7C3AED');
+              gradient.addColorStop(1, '#D97706');
             }
             return gradient;
           }
@@ -86,11 +88,11 @@ function PreviousForecastChart({ previousValue, forecastValue, budgetThreshold =
         titleFont: {
           size: 13,
           weight: '600',
-          family: 'Inter, sans-serif',
+          family: FONT_FAMILY,
         },
         bodyFont: {
           size: 12,
-          family: 'Inter, sans-serif',
+          family: FONT_FAMILY,
         },
         titleColor: '#ffffff',
         bodyColor: 'rgba(255, 255, 255, 0.8)',
@@ -117,7 +119,7 @@ function PreviousForecastChart({ previousValue, forecastValue, budgetThreshold =
           font: {
             size: 12,
             weight: '500',
-            family: 'Inter, sans-serif',
+            family: FONT_FAMILY,
           },
           padding: 8,
         },
@@ -135,7 +137,7 @@ function PreviousForecastChart({ previousValue, forecastValue, budgetThreshold =
           color: '#737373',
           font: {
             size: 11,
-            family: 'Inter, sans-serif',
+            family: FONT_FAMILY,
           },
           padding: 12,
           callback: function(value) {

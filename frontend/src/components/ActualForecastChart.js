@@ -26,12 +26,14 @@ ChartJS.register(
 
 // Chart color tokens (matching tailwind.config.js)
 const CHART_COLORS = {
-  actual: '#3B82F6',      // Blue
-  forecast: '#8B5CF6',    // Purple
+  actual: '#0EA5E9',      // Sky
+  forecast: '#F59E0B',    // Amber
   healthy: '#10B981',     // Green
   atRisk: '#EF4444',      // Red
   stable: '#6B7280',      // Gray
 };
+
+const FONT_FAMILY = "'IBM Plex Sans', sans-serif";
 
 function ActualForecastChart({ 
   labels, 
@@ -56,11 +58,11 @@ function ActualForecastChart({
         data: actualData,
         borderColor: CHART_COLORS.actual,
         backgroundColor: (context) => {
-          if (!context.chart.chartArea) return 'rgba(59, 130, 246, 0.08)';
+          if (!context.chart.chartArea) return 'rgba(14, 165, 233, 0.08)';
           const ctx = context.chart.ctx;
           const gradient = ctx.createLinearGradient(0, context.chart.chartArea.top, 0, context.chart.chartArea.bottom);
-          gradient.addColorStop(0, 'rgba(59, 130, 246, 0.15)');
-          gradient.addColorStop(1, 'rgba(59, 130, 246, 0.02)');
+          gradient.addColorStop(0, 'rgba(14, 165, 233, 0.16)');
+          gradient.addColorStop(1, 'rgba(14, 165, 233, 0.02)');
           return gradient;
         },
         borderWidth: 2.5,
@@ -81,11 +83,11 @@ function ActualForecastChart({
         data: forecastData,
         borderColor: CHART_COLORS.forecast,
         backgroundColor: (context) => {
-          if (!context.chart.chartArea) return 'rgba(139, 92, 246, 0.08)';
+          if (!context.chart.chartArea) return 'rgba(245, 158, 11, 0.08)';
           const ctx = context.chart.ctx;
           const gradient = ctx.createLinearGradient(0, context.chart.chartArea.top, 0, context.chart.chartArea.bottom);
-          gradient.addColorStop(0, 'rgba(139, 92, 246, 0.15)');
-          gradient.addColorStop(1, 'rgba(139, 92, 246, 0.02)');
+          gradient.addColorStop(0, 'rgba(245, 158, 11, 0.18)');
+          gradient.addColorStop(1, 'rgba(245, 158, 11, 0.03)');
           return gradient;
         },
         borderWidth: 2.5,
@@ -123,11 +125,11 @@ function ActualForecastChart({
         titleFont: {
           size: 13,
           weight: '600',
-          family: 'Inter, sans-serif',
+          family: FONT_FAMILY,
         },
         bodyFont: {
           size: 12,
-          family: 'Inter, sans-serif',
+          family: FONT_FAMILY,
         },
         titleColor: '#ffffff',
         bodyColor: 'rgba(255, 255, 255, 0.8)',
@@ -170,7 +172,7 @@ function ActualForecastChart({
           color: '#737373',
           font: {
             size: 11,
-            family: 'Inter, sans-serif',
+            family: FONT_FAMILY,
           },
           maxRotation: 45,
           minRotation: 45,
@@ -192,7 +194,7 @@ function ActualForecastChart({
           color: '#737373',
           font: {
             size: 11,
-            family: 'Inter, sans-serif',
+            family: FONT_FAMILY,
           },
           padding: 12,
           callback: function(value) {

@@ -249,10 +249,10 @@ function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center">
+            <div className="min-h-screen bg-transparent flex items-center justify-center">
                 <div className="text-center animate-fade-in">
                     <div className="relative">
-                        <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600 mx-auto mb-4"></div>
                     </div>
                     <p className="text-[var(--color-text-secondary)] font-medium text-lg mt-4">Loading dashboard data...</p>
                 </div>
@@ -261,7 +261,7 @@ function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[var(--color-bg-primary)] py-8 px-4 transition-colors duration-300">
+        <div className="min-h-screen bg-transparent py-8 px-4 transition-colors duration-300">
             <div className="container mx-auto max-w-7xl animate-fade-in">
                 <DashboardHeader
                     date={formattedDate}

@@ -89,10 +89,10 @@ const LandingPage = () => {
     }, [dummyData, loading, tariff, budget]);
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[var(--color-bg-primary)] transition-colors duration-300">
+        <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-transparent transition-colors duration-300">
             <div className="max-w-md w-full space-y-8 animate-fade-in flex flex-col items-center">
                 <div className="text-center space-y-2">
-                    <div className="inline-flex p-3 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 mb-4">
+                    <div className="inline-flex p-3 rounded-full bg-primary-100 text-primary-700 mb-4 shadow-inner-soft">
                         <Zap size={32} />
                     </div>
                     <h1 className="text-4xl font-bold tracking-tight text-[var(--color-text-primary)]">
@@ -104,8 +104,8 @@ const LandingPage = () => {
                 </div>
 
                 {loading || !calculations ? (
-                    <div className="card-base w-full h-64 flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <div className="card w-full h-64 flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
                     </div>
                 ) : (
                     <div className="w-full">
