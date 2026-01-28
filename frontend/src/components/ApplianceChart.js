@@ -11,7 +11,7 @@ import {
   Filler,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { Card, CardBody, SectionHeader, ChartLegend } from './ui';
+import { Card, CardBody, ChartLegend } from './ui';
 
 ChartJS.register(
   CategoryScale,
@@ -58,18 +58,17 @@ const APPLIANCE_ICONS = {
   ),
 };
 
-function ApplianceChart({ 
+function ApplianceChart({
   applianceName,
-  labels, 
-  actualData, 
+  labels,
+  actualData,
   forecastData,
   kwh,
   cost,
   budgetStatus = 'OK'
 }) {
-  const colors = APPLIANCE_COLORS[applianceName] || { primary: '#6B7280', secondary: '#4B5563' };
+  const colors = useMemo(() => APPLIANCE_COLORS[applianceName] || { primary: '#6B7280', secondary: '#4B5563' }, [applianceName]);
   const icon = APPLIANCE_ICONS[applianceName];
-  const isAtRisk = budgetStatus === 'At-Risk';
 
   const chartData = useMemo(() => ({
     labels: labels,
@@ -154,10 +153,10 @@ function ApplianceChart({
         displayColors: true,
         boxPadding: 4,
         callbacks: {
-          title: function(context) {
+          title: function (context) {
             return context[0].label;
           },
-          label: function(context) {
+          label: function (context) {
             const value = context.parsed.y;
             if (value === null) return null;
             return ` ${context.dataset.label}: ${value.toFixed(3)} kWh`;
@@ -203,7 +202,7 @@ function ApplianceChart({
             family: 'Inter, sans-serif',
           },
           padding: 8,
-          callback: function(value) {
+          callback: function (value) {
             return value.toFixed(2);
           },
         },
@@ -222,7 +221,7 @@ function ApplianceChart({
       <CardBody className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-center gap-3">
-            <div 
+            <div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{ backgroundColor: `${colors.primary}15`, color: colors.primary }}
             >
