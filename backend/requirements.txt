@@ -4,3 +4,5 @@
 tuya-connector-python==0.1.2
 requests>=2.31.0
 python-dateutil>=2.8.2
+fastapi==0.115.0
+uvicorn==0.30.6
