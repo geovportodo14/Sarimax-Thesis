@@ -6,7 +6,8 @@ import ForecastControls from './components/ForecastControls';
 import ConsumptionRanking from './components/ConsumptionRanking';
 import EnergyForecastSummary from './components/EnergyForecastSummary';
 import ApplianceChart from './components/ApplianceChart';
-import { Card, CardBody, Skeleton } from './components/ui';
+import DateNavigator from './components/DateNavigator';
+import { Card, CardBody, Skeleton } from './components/ui/index';
 import IntroductionModal from './components/onboarding/IntroductionModal';
 import GuidedTour from './components/onboarding/GuidedTour';
 
@@ -36,8 +37,8 @@ function generateApplianceForecast(points, dummyData = null) {
   return { fan, ac, ref };
 }
 
-function generateLabels(forecastHours, lookbackHours) {
-  const now = new Date();
+function generateLabels(baseDate, forecastHours, lookbackHours) {
+  const now = new Date(baseDate);
   const prevPoints = Math.max(1, lookbackHours);
   const nextPoints = Math.max(1, forecastHours);
 
@@ -232,8 +233,8 @@ function App() {
 
   // Generate labels based on selected periods
   const labels = useMemo(() => {
-    return generateLabels(selectedPeriod, selectedLookback);
-  }, [selectedPeriod, selectedLookback]);
+    return generateLabels(currentDate, selectedPeriod, selectedLookback);
+  }, [currentDate, selectedPeriod, selectedLookback]);
 
   // Get period key for JSON lookup
   const periodKey = useMemo(() => {
@@ -354,11 +355,7 @@ function App() {
     };
   }, [chartData, tariff, budget, selectedPeriod]);
 
-  // Format current date for header
-  const formattedDate = useMemo(() => {
-    const options = { month: 'long', day: 'numeric', year: 'numeric' };
-    return currentDate.toLocaleDateString('en-US', options);
-  }, [currentDate]);
+  // No longer formatting date for header here, DateNavigator handles formatting
 
   const handlePrevDate = useCallback(() => {
     const newDate = new Date(currentDate);
@@ -389,9 +386,6 @@ function App() {
     <div className="min-h-screen bg-transparent">
       {/* Sticky Header */}
       <DashboardHeader
-        date={formattedDate}
-        onPrevClick={handlePrevDate}
-        onNextClick={handleNextDate}
         onHelpClick={handleRevisitGuide}
       />
 
@@ -437,7 +431,8 @@ function App() {
             </svg>
             Today at a Glance
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
             <Card>
               <CardBody className="p-4">
                 <div className="flex items-center gap-3">
@@ -509,6 +504,13 @@ function App() {
               </CardBody>
             </Card>
           </div>
+
+          <DateNavigator
+            selectedDate={currentDate}
+            onDateChange={setCurrentDate}
+            onPrevClick={handlePrevDate}
+            onNextClick={handleNextDate}
+          />
         </section>
 
         {/* =====================================================================

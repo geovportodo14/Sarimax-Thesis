@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardBody, StatTile, StatusBadge, Button } from './ui';
+import { Card, CardBody, StatTile, StatusBadge, Button } from './ui/index';
 
 function EnergyForecastSummary({
   nextKwh,
@@ -18,7 +18,7 @@ function EnergyForecastSummary({
   const formatCurrency = (num) => `₱${formatNumber(num)}`;
 
   const isAtRisk = budgetStatus === 'At-Risk';
-  
+
   // Calculate trend
   const costDifference = nextPhp - prevPhp;
   const costTrend = prevPhp > 0 ? ((costDifference / prevPhp) * 100) : 0;
@@ -76,8 +76,8 @@ function EnergyForecastSummary({
                 </div>
               </div>
             </div>
-            <StatusBadge 
-              status={isAtRisk ? 'danger' : 'success'} 
+            <StatusBadge
+              status={isAtRisk ? 'danger' : 'success'}
               label={isAtRisk ? 'At Risk' : 'On Track'}
               size="lg"
               pulse={isAtRisk}
@@ -88,9 +88,10 @@ function EnergyForecastSummary({
         {/* Main Content */}
         <div className="p-6">
           {/* Key Metrics Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <StatTile
               label="Forecast Cost"
+              description="Projected expenditure for your energy consumption in the upcoming period, calculated based on current utility rates."
               value={`₱${Math.round(nextPhp)}`}
               icon={
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,6 +103,7 @@ function EnergyForecastSummary({
             />
             <StatTile
               label="Forecast Usage"
+              description="Estimated total energy consumption (kWh) predicted by the SARIMAX model for the next selected duration."
               value={formatNumber(nextKwh)}
               unit="kWh"
               icon={
@@ -114,6 +116,7 @@ function EnergyForecastSummary({
             />
             <StatTile
               label="Previous Cost"
+              description="The verified monetary cost of energy consumed during the period immediately preceding this one for direct comparison."
               value={`₱${Math.round(prevPhp)}`}
               icon={
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,9 +124,11 @@ function EnergyForecastSummary({
                 </svg>
               }
               variant="default"
+              size="lg"
             />
             <StatTile
               label="Actual Usage"
+              description="Real-time recorded energy consumption (kWh) from your monitoring sensors for the historical period displayed."
               value={formatNumber(actualKwh)}
               unit="kWh"
               icon={
@@ -132,6 +137,7 @@ function EnergyForecastSummary({
                 </svg>
               }
               variant="success"
+              size="lg"
             />
           </div>
 
@@ -140,7 +146,7 @@ function EnergyForecastSummary({
             <h4 className="text-body-sm font-semibold text-surface-600 mb-3 uppercase tracking-wide">Quick Insights</h4>
             <div className="space-y-2">
               {insights.map((insight, index) => (
-                <div 
+                <div
                   key={index}
                   className={`flex items-center gap-3 p-3 rounded-xl ${insight.highlight ? 'bg-primary-50 border border-primary-100' : 'bg-surface-50'}`}
                 >
@@ -165,16 +171,15 @@ function EnergyForecastSummary({
                 </span>
               </div>
               <div className="h-3 bg-surface-100 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    isAtRisk ? 'bg-gradient-to-r from-red-500 to-orange-500' : 'bg-gradient-to-r from-primary-500 to-amber-500'
-                  }`}
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${isAtRisk ? 'bg-gradient-to-r from-red-500 to-orange-500' : 'bg-gradient-to-r from-primary-500 to-amber-500'
+                    }`}
                   style={{ width: `${Math.min((nextPhp / budget) * 100, 100)}%` }}
                 />
               </div>
               <p className="text-caption text-surface-500 mt-2">
-                {isAtRisk 
-                  ? `₱${Math.round(nextPhp - budget)} over budget` 
+                {isAtRisk
+                  ? `₱${Math.round(nextPhp - budget)} over budget`
                   : `₱${Math.round(budget - nextPhp)} remaining`
                 }
               </p>

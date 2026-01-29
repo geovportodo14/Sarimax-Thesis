@@ -62,16 +62,17 @@ export function SectionHeader({ icon, title, subtitle, action, className = '' })
 // =============================================================================
 // STAT TILE COMPONENT
 // =============================================================================
-export function StatTile({ 
-  label, 
-  value, 
-  unit, 
-  icon, 
-  trend, 
+export function StatTile({
+  label,
+  value,
+  unit,
+  icon,
+  trend,
   trendLabel,
   variant = 'default', // default, success, warning, danger, info
   size = 'md', // sm, md, lg
-  className = '' 
+  description,
+  className = ''
 }) {
   const variantStyles = {
     default: 'bg-surface-50 border-surface-100',
@@ -135,9 +136,14 @@ export function StatTile({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <p className={`${sizeStyles[size].label} text-surface-500 font-medium mb-1`}>
+          <p className={`${sizeStyles[size].label} text-surface-500 font-medium mb-0.5`}>
             {label}
           </p>
+          {description && (
+            <p className="text-[11px] leading-tight text-surface-400 mb-2 italic">
+              {description}
+            </p>
+          )}
           <div className="flex items-baseline gap-1">
             <span className={`${sizeStyles[size].value} font-bold tabular-nums ${valueStyles[variant]}`}>
               {value}
@@ -147,9 +153,8 @@ export function StatTile({
             )}
           </div>
           {(trend || trendLabel) && (
-            <div className={`flex items-center gap-1 mt-2 text-caption ${
-              trend === 'up' ? 'text-red-500' : trend === 'down' ? 'text-emerald-500' : 'text-surface-500'
-            }`}>
+            <div className={`flex items-center gap-1 mt-2 text-caption ${trend === 'up' ? 'text-red-500' : trend === 'down' ? 'text-emerald-500' : 'text-surface-500'
+              }`}>
               {getTrendIcon()}
               <span>{trendLabel}</span>
             </div>
@@ -170,7 +175,7 @@ export function StatTile({
 // =============================================================================
 export function ChartContainer({ children, height = 300, className = '' }) {
   return (
-    <div 
+    <div
       className={`relative w-full ${className}`}
       style={{ height: typeof height === 'number' ? `${height}px` : height }}
     >
@@ -189,7 +194,7 @@ export function ChartLegend({ items, className = '' }) {
         <div key={index} className="flex items-center gap-2 text-body-sm text-surface-600">
           <span
             className={`w-3 h-3 rounded-full flex-shrink-0 ${item.dashed ? 'border-2' : ''}`}
-            style={{ 
+            style={{
               backgroundColor: item.dashed ? 'transparent' : item.color,
               borderColor: item.dashed ? item.color : 'transparent',
             }}
@@ -245,16 +250,16 @@ export function StatusBadge({ status, label, size = 'md', pulse = false, classNa
 // =============================================================================
 // BUTTON COMPONENT
 // =============================================================================
-export function Button({ 
-  children, 
-  variant = 'primary', 
-  size = 'md', 
-  icon, 
+export function Button({
+  children,
+  variant = 'primary',
+  size = 'md',
+  icon,
   iconPosition = 'left',
   loading = false,
   disabled = false,
   className = '',
-  ...props 
+  ...props
 }) {
   const variantStyles = {
     primary: 'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 focus-visible:ring-primary-500',
@@ -302,12 +307,12 @@ export function Button({
 // =============================================================================
 // ICON BUTTON COMPONENT
 // =============================================================================
-export function IconButton({ 
-  children, 
-  variant = 'ghost', 
+export function IconButton({
+  children,
+  variant = 'ghost',
   size = 'md',
   className = '',
-  ...props 
+  ...props
 }) {
   const variantStyles = {
     primary: 'bg-primary-600 text-white hover:bg-primary-700',
@@ -341,15 +346,15 @@ export function IconButton({
 // =============================================================================
 // INPUT COMPONENT
 // =============================================================================
-export function Input({ 
-  label, 
-  prefix, 
-  suffix, 
-  error, 
-  className = '', 
+export function Input({
+  label,
+  prefix,
+  suffix,
+  error,
+  className = '',
   inputClassName = '',
   size = 'md',
-  ...props 
+  ...props
 }) {
   const sizeStyles = {
     sm: 'px-3 py-2 text-body-sm rounded-lg',
@@ -400,14 +405,14 @@ export function Input({
 // =============================================================================
 // SELECT COMPONENT
 // =============================================================================
-export function Select({ 
-  label, 
-  options, 
-  error, 
+export function Select({
+  label,
+  options,
+  error,
   className = '',
   selectClassName = '',
   size = 'md',
-  ...props 
+  ...props
 }) {
   const sizeStyles = {
     sm: 'px-3 py-2 text-body-sm rounded-lg',

@@ -92,11 +92,11 @@ const LandingPage = () => {
         <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-transparent transition-colors duration-300">
             <div className="max-w-md w-full space-y-8 animate-fade-in flex flex-col items-center">
                 <div className="text-center space-y-2">
-                    <div className="inline-flex p-3 rounded-full bg-primary-100 text-primary-700 mb-4 shadow-inner-soft">
-                        <Zap size={32} />
+                    <div className="w-auto h-16 flex items-center justify-center mb-4">
+                        <img src="/logo.png" alt="Smart Home Monitoring" className="h-full object-contain" />
                     </div>
                     <h1 className="text-4xl font-bold tracking-tight text-[var(--color-text-primary)]">
-                        Smart Energy
+                        Smart Home Monitoring
                     </h1>
                     <p className="text-[var(--color-text-secondary)] text-lg">
                         Intelligent forecasting for your home
