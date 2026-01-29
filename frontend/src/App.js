@@ -179,6 +179,16 @@ function App() {
   const [showIntroduction, setShowIntroduction] = useState(false);
   const [runTour, setRunTour] = useState(false);
 
+  // Settings & Notifications state
+  const [settings, setSettings] = useState({
+    emailEnabled: false,
+    emailAddress: '',
+    thresholdApproaching: 80,
+    thresholdCritical: 100,
+    currency: 'PHP',
+  });
+  const [notifications, setNotifications] = useState([]);
+
   // Check for new user
   useEffect(() => {
     const hasCompletedOnboarding = localStorage.getItem('hasCompletedOnboarding');
@@ -355,6 +365,43 @@ function App() {
     };
   }, [chartData, tariff, budget, selectedPeriod]);
 
+  // Handle dynamic budget alerts
+  useEffect(() => {
+    if (loading) return;
+
+    const newNotifications = [];
+    const budgetUsagePercent = (calculations.nextCost / budget) * 100;
+
+    if (budgetUsagePercent >= settings.thresholdCritical) {
+      newNotifications.push({
+        id: 'budget-critical',
+        type: 'at-risk',
+        priority: 'high',
+        title: 'Budget Exceeded!',
+        message: `Your forecasted spend (${settings.currency === 'PHP' ? '₱' : '$'}${Math.round(calculations.nextCost)}) exceeds your budget limit.`,
+        time: 'Just now',
+        action: 'Adjust Budget'
+      });
+    } else if (budgetUsagePercent >= settings.thresholdApproaching) {
+      newNotifications.push({
+        id: 'budget-approaching',
+        type: 'approaching',
+        priority: 'medium',
+        title: 'Approaching Budget Limit',
+        message: `You've reached ${Math.round(budgetUsagePercent)}% of your set energy budget for this period.`,
+        time: 'Just now',
+        action: 'View Details'
+      });
+    }
+
+    setNotifications(newNotifications);
+  }, [calculations.nextCost, budget, settings, loading]);
+
+  const handleSaveSettings = (newSettings) => {
+    setSettings(newSettings);
+    // Future: Persist to localStorage or API
+  };
+
   // No longer formatting date for header here, DateNavigator handles formatting
 
   const handlePrevDate = useCallback(() => {
@@ -387,6 +434,9 @@ function App() {
       {/* Sticky Header */}
       <DashboardHeader
         onHelpClick={handleRevisitGuide}
+        notifications={notifications}
+        settings={settings}
+        onSaveSettings={handleSaveSettings}
       />
 
       <IntroductionModal

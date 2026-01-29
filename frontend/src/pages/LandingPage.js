@@ -1,6 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap } from 'lucide-react';
+import {
+    Target,
+    BarChart3,
+    TrendingUp,
+    Lightbulb,
+    ArrowRight,
+    Shield,
+    Layout,
+    Calculator,
+    AppWindow,
+    CreditCard,
+    ChevronDown
+} from 'lucide-react';
 import EnergyForecastSummary from '../components/EnergyForecastSummary';
 import { generateApplianceForecast, generateActual } from '../utils/forecastUtils';
 

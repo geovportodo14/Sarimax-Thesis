@@ -540,3 +540,5 @@ export function QuickAction({ icon, title, description, onClick, className = '' 
     </button>
   );
 }
+
+export { default as DualRangeSlider } from './DualRangeSlider';
