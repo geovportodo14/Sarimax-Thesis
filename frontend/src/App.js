@@ -7,6 +7,8 @@ import ConsumptionRanking from './components/ConsumptionRanking';
 import EnergyForecastSummary from './components/EnergyForecastSummary';
 import ApplianceChart from './components/ApplianceChart';
 import { Card, CardBody, Skeleton } from './components/ui';
+import IntroductionModal from './components/onboarding/IntroductionModal';
+import GuidedTour from './components/onboarding/GuidedTour';
 
 // Fixed appliance list - only these three appliances
 const APPLIANCES = ['Electric Fan', 'Air Conditioner', 'Refrigerator'];
@@ -16,7 +18,7 @@ const APPLIANCES = ['Electric Fan', 'Air Conditioner', 'Refrigerator'];
 // =============================================================================
 function generateApplianceForecast(points, dummyData = null) {
   let fan = [], ac = [], ref = [];
-  
+
   if (dummyData && dummyData.applianceRanges) {
     const ranges = dummyData.applianceRanges;
     for (let i = 0; i < points; i++) {
@@ -68,7 +70,7 @@ function generateActual(points, dummyData = null, periodKey = null) {
       const baseValue = dummyData.actualBaseValue || 4.2;
       const increment = dummyData.actualIncrement || 0.15;
       const randomRange = dummyData.actualRandomRange || 0.8;
-      return [...sample, ...Array(points - sample.length).fill().map((_, i) => 
+      return [...sample, ...Array(points - sample.length).fill().map((_, i) =>
         baseValue + (sample.length + i) * increment + Math.random() * randomRange
       )];
     }
@@ -88,7 +90,7 @@ function generateForecastPast(points, dummyData = null, periodKey = null) {
       const baseValue = dummyData.forecastBaseValue || 4.1;
       const increment = dummyData.forecastIncrement || 0.15;
       const randomRange = dummyData.forecastRandomRange || 0.9;
-      return [...sample, ...Array(points - sample.length).fill().map((_, i) => 
+      return [...sample, ...Array(points - sample.length).fill().map((_, i) =>
         baseValue + (sample.length + i) * increment + Math.random() * randomRange
       )];
     }
@@ -172,6 +174,37 @@ function App() {
   const [dummyData, setDummyData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Onboarding state
+  const [showIntroduction, setShowIntroduction] = useState(false);
+  const [runTour, setRunTour] = useState(false);
+
+  // Check for new user
+  useEffect(() => {
+    const hasCompletedOnboarding = localStorage.getItem('hasCompletedOnboarding');
+    if (!hasCompletedOnboarding && !loading) {
+      setShowIntroduction(true);
+    }
+  }, [loading]);
+
+  const handleSkipIntroduction = () => {
+    setShowIntroduction(false);
+    localStorage.setItem('hasCompletedOnboarding', 'true');
+  };
+
+  const handleStartTour = () => {
+    setShowIntroduction(false);
+    setRunTour(true);
+  };
+
+  const handleTourComplete = () => {
+    setRunTour(false);
+    localStorage.setItem('hasCompletedOnboarding', 'true');
+  };
+
+  const handleRevisitGuide = () => {
+    setShowIntroduction(true);
+  };
+
   // Load dummy dataset from JSON file
   useEffect(() => {
     const loadDummyData = async () => {
@@ -179,7 +212,7 @@ function App() {
         const response = await fetch('/data/dummydataset.json');
         const data = await response.json();
         setDummyData(data);
-        
+
         if (data.settings) {
           if (data.settings.defaultTariff) setTariff(data.settings.defaultTariff);
           if (data.settings.defaultBudget) setBudget(data.settings.defaultBudget);
@@ -205,9 +238,9 @@ function App() {
   // Get period key for JSON lookup
   const periodKey = useMemo(() => {
     return selectedPeriod === 1 ? '1hour' :
-           selectedPeriod === 4 ? '4hours' :
-           selectedPeriod === 8 ? '8hours' :
-           selectedPeriod === 24 ? '24hours' : null;
+      selectedPeriod === 4 ? '4hours' :
+        selectedPeriod === 8 ? '8hours' :
+          selectedPeriod === 24 ? '24hours' : null;
   }, [selectedPeriod]);
 
   // Generate data based on labels
@@ -227,7 +260,7 @@ function App() {
     if (dummyData && dummyData.sampleData && periodKey && dummyData.sampleData[periodKey]?.forecast) {
       const sampleForecast = dummyData.sampleData[periodKey].forecast;
       const forecastLength = sampleForecast.ac?.length || 0;
-      
+
       if (forecastLength >= labels.nextPoints) {
         nextApplianceForecasts = {
           fan: sampleForecast.electricFan?.slice(0, labels.nextPoints) || generateApplianceForecast(labels.nextPoints, dummyData).fan,
@@ -294,14 +327,14 @@ function App() {
     const maxPhp = Math.max(fanPhp, acPhp, refPhp);
     const topAppliance =
       acPhp === maxPhp ? 'Air Conditioner' :
-      refPhp === maxPhp ? 'Refrigerator' : 'Electric Fan';
+        refPhp === maxPhp ? 'Refrigerator' : 'Electric Fan';
 
     const budgetStatus = nextCost < budget ? 'OK' : 'At-Risk';
 
     const selectedPeriodText =
       selectedPeriod === 1 ? 'Next 1 Hour' :
-      selectedPeriod === 4 ? 'Next 4 Hours' :
-      selectedPeriod === 8 ? 'Next 8 Hours' : 'Next 24 Hours';
+        selectedPeriod === 4 ? 'Next 4 Hours' :
+          selectedPeriod === 8 ? 'Next 8 Hours' : 'Next 24 Hours';
 
     return {
       prevTotal,
@@ -359,6 +392,18 @@ function App() {
         date={formattedDate}
         onPrevClick={handlePrevDate}
         onNextClick={handleNextDate}
+        onHelpClick={handleRevisitGuide}
+      />
+
+      <IntroductionModal
+        isOpen={showIntroduction}
+        onSkip={handleSkipIntroduction}
+        onNext={handleStartTour}
+      />
+
+      <GuidedTour
+        run={runTour}
+        onComplete={handleTourComplete}
       />
 
       {/* Main Content */}
@@ -366,7 +411,7 @@ function App() {
         {/* =====================================================================
             SECTION 1: FORECAST SUMMARY (ABOVE THE FOLD)
             ===================================================================== */}
-        <section className="mb-8 animate-fade-in">
+        <section className="mb-8 animate-fade-in" id="tour-summary">
           <EnergyForecastSummary
             nextKwh={calculations.nextTotal}
             nextPhp={calculations.nextCost}
@@ -409,7 +454,7 @@ function App() {
                 </div>
               </CardBody>
             </Card>
-            
+
             <Card>
               <CardBody className="p-4">
                 <div className="flex items-center gap-3">
@@ -426,13 +471,12 @@ function App() {
                 </div>
               </CardBody>
             </Card>
-            
+
             <Card>
               <CardBody className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    calculations.budgetStatus === 'OK' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
-                  }`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${calculations.budgetStatus === 'OK' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
+                    }`}>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
@@ -447,7 +491,7 @@ function App() {
                 </div>
               </CardBody>
             </Card>
-            
+
             <Card>
               <CardBody className="p-4">
                 <div className="flex items-center gap-3">
@@ -478,7 +522,7 @@ function App() {
             Overall Energy Analytics
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2" id="tour-main-chart">
               <ActualForecastChart
                 labels={[...labels.prevLabels, ...labels.nextLabels]}
                 actualData={chartData.actualData}
@@ -511,7 +555,7 @@ function App() {
             </svg>
             Appliance Breakdown
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6" id="tour-appliance-breakdown">
             {APPLIANCES.map((appliance) => {
               const appData = calculations.applianceData[appliance];
               // Generate per-appliance actual data (proportional to forecast)
@@ -522,7 +566,7 @@ function App() {
                 return val * proportion;
               });
               const applianceForecast = [...applianceActual.slice(0, labels.prevPoints), ...appData.data];
-              
+
               return (
                 <ApplianceChart
                   key={appliance}
@@ -559,8 +603,11 @@ function App() {
               onForecastChange={setSelectedPeriod}
               onTariffChange={setTariff}
               onBudgetChange={setBudget}
+              containerId="tour-controls"
             />
-            <ConsumptionRanking appliances={calculations.appliances} />
+            <div id="tour-ranking" className="h-full">
+              <ConsumptionRanking appliances={calculations.appliances} />
+            </div>
           </div>
         </section>
 

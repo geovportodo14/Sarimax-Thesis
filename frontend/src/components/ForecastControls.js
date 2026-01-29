@@ -10,6 +10,7 @@ function ForecastControls({
   onForecastChange,
   onTariffChange,
   onBudgetChange,
+  containerId,
 }) {
   const historyOptions = [
     { value: 1, label: 'Past 1 Hour' },
@@ -26,7 +27,7 @@ function ForecastControls({
   ];
 
   return (
-    <Card className="h-full">
+    <Card className="h-full" id={containerId}>
       <CardBody>
         <SectionHeader
           icon={
