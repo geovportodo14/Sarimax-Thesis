@@ -5,28 +5,28 @@ const GuidedTour = ({ run, onComplete }) => {
     const steps = [
         {
             target: '#tour-summary',
-            content: 'Here is your forecast summary. It shows you exactly how much you can expect to spend and how many kWh you might consume in your selected period.',
+            content: 'Forecast summary: See your projected cost and kWh consumption.',
             disableBeacon: true,
             placement: 'bottom',
         },
         {
             target: '#tour-controls',
-            content: 'Use these controls to adjust your budget, electricity tariff, and the forecast period. Smart Home Monitoring recalibrates instantly when you change these.',
+            content: 'Adjust budget, tariff, and period here. Forecasts update instantly.',
             placement: 'top',
         },
         {
             target: '#tour-main-chart',
-            content: 'This chart shows your actual usage (solid line) and forecasted usage (dashed line). If the line turns red, you are at risk of exceeding your budget!',
+            content: 'Red lines mean you might exceed your budget. Keep track!',
             placement: 'bottom',
         },
         {
             target: '#tour-appliance-breakdown',
-            content: 'We break down the forecast by appliance. See exactly what your Aircon, Refrigerator, and Fan are contributing to your bill.',
+            content: 'See which appliances (Aircon, Fan, etc.) use the most power.',
             placement: 'top',
         },
         {
             target: '#tour-ranking',
-            content: 'This ranking helps you identify your biggest energy hogs. Use this to focus your saving efforts where they matter most.',
+            content: 'Identify top energy consumers to save efficiently.',
             placement: 'left',
         },
     ];
@@ -53,20 +53,27 @@ const GuidedTour = ({ run, onComplete }) => {
                     zIndex: 1000,
                     backgroundColor: '#ffffff',
                     textColor: '#0f172a',
+                    overlayColor: 'rgba(15, 23, 42, 0.6)',
                 },
                 tooltipContainer: {
                     textAlign: 'left',
                     borderRadius: '16px',
-                    padding: '12px',
+                    padding: '8px',
+                    fontSize: '14px',
                 },
                 buttonNext: {
-                    borderRadius: '10px',
+                    borderRadius: '8px',
+                    fontSize: '14px',
                     fontWeight: '600',
+                    padding: '8px 16px',
                 },
                 buttonBack: {
+                    fontSize: '14px',
                     fontWeight: '500',
+                    marginRight: '8px',
                 },
                 buttonSkip: {
+                    fontSize: '14px',
                     color: '#64748b',
                 }
             }}

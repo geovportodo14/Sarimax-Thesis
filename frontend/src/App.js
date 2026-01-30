@@ -170,7 +170,6 @@ function App() {
   const [tariff, setTariff] = useState(13.47);
   const [budget, setBudget] = useState(300);
   const [allTime, setAllTime] = useState(true);
-  const [selectedFilter, setSelectedFilter] = useState('Electric Fan');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dummyData, setDummyData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -227,9 +226,8 @@ function App() {
         if (data.settings) {
           if (data.settings.defaultTariff) setTariff(data.settings.defaultTariff);
           if (data.settings.defaultBudget) setBudget(data.settings.defaultBudget);
-          if (data.settings.appliances && data.settings.appliances.length > 0) {
-            setSelectedFilter(data.settings.appliances[0]);
-          }
+          if (data.settings.defaultBudget) setBudget(data.settings.defaultBudget);
+
         }
       } catch (error) {
         console.error('Error loading dummy dataset:', error);
@@ -468,6 +466,8 @@ function App() {
             selectedPeriodText={calculations.selectedPeriodText}
             budget={budget}
             onViewDetails={handleViewDetails}
+            thresholdApproaching={settings.thresholdApproaching}
+            thresholdCritical={settings.thresholdCritical}
           />
         </section>
 
@@ -581,9 +581,6 @@ function App() {
                 forecastData={chartData.forecastSeries}
                 allTime={allTime}
                 onAllTimeChange={setAllTime}
-                selectedFilter={selectedFilter}
-                onFilterChange={setSelectedFilter}
-                applianceFilters={['All Appliances', ...APPLIANCES]}
                 riskStatus={calculations.budgetStatus}
               />
             </div>
