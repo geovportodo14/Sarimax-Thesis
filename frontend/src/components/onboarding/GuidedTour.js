@@ -4,6 +4,11 @@ import Joyride, { STATUS } from 'react-joyride';
 const GuidedTour = ({ run, onComplete }) => {
     const steps = [
         {
+            target: '#tour-scenario',
+            content: 'Simulation & "What-If" Analysis: Start here to test how changes in electricity rates or your household load affect your future costs. Perfect for simulation and planning.',
+            placement: 'bottom',
+        },
+        {
             target: '#tour-summary',
             content: 'Forecast Summary: Get an immediate overview of your projected energy usage and costs for the selected period.',
             placement: 'bottom',
@@ -14,13 +19,8 @@ const GuidedTour = ({ run, onComplete }) => {
             placement: 'top',
         },
         {
-            target: '#tour-scenario',
-            content: 'Scenario Simulator: Test "What-If" scenarios by adjusting tariffs or load. Perfect for planning future consumption.',
-            placement: 'top',
-        },
-        {
             target: '#tour-main-chart',
-            content: 'Energy Analytics: Visualize actual vs forecasted patterns. The pulsing red indicator warns you when usage exceeds your threshold.',
+            content: 'Actual vs Forecast: Visualize energy consumption patterns. The pulsing red indicator warns you when usage exceeds your threshold. Click "View Details" in the summary to jump here instantly.',
             placement: 'bottom',
         },
         {
@@ -30,7 +30,7 @@ const GuidedTour = ({ run, onComplete }) => {
         },
         {
             target: '#tour-controls',
-            content: 'Fine-tune your dashboard: Adjust your budget limits, electricity tariff, and the lookback/lookahead range.',
+            content: 'Parameters & Limits: Adjust your budget limits, electricity tariff, and the forecast lookahead range.',
             placement: 'top',
         },
         {

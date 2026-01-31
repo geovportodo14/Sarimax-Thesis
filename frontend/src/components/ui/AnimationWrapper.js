@@ -43,7 +43,8 @@ export function AnimationWrapper({
     variant = 'fadeIn',
     className = '',
     layout = false,
-    delay = 0
+    delay = 0,
+    ...props
 }) {
     const selectedVariant = variants[variant] || variants.fadeIn;
 
@@ -61,6 +62,7 @@ export function AnimationWrapper({
             transition={transition}
             layout={layout}
             className={className}
+            {...props}
         >
             {children}
         </motion.div>

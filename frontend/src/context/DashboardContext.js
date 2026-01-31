@@ -28,12 +28,15 @@ export const DashboardProvider = ({ children }) => {
     const [runTour, setRunTour] = useState(false);
 
     // Settings & Notifications state
-    const [settings, setSettings] = useState({
-        emailEnabled: false,
-        emailAddress: '',
-        thresholdApproaching: 80,
-        thresholdCritical: 100,
-        currency: 'PHP',
+    const [settings, setSettings] = useState(() => {
+        const saved = localStorage.getItem('dashboardSettings');
+        return saved ? JSON.parse(saved) : {
+            emailEnabled: false,
+            emailAddress: '',
+            thresholdApproaching: 80,
+            thresholdCritical: 100,
+            currency: 'PHP',
+        };
     });
     const [notifications, setNotifications] = useState([]);
 
@@ -121,10 +124,25 @@ export const DashboardProvider = ({ children }) => {
         });
     }, []);
 
-    const handleSaveSettings = useCallback((newSettings) => {
+    const handleSaveSettings = useCallback(async (newSettings) => {
+        const emailChanged = newSettings.emailAddress !== settings.emailAddress && newSettings.emailAddress.endsWith('@gmail.com');
+
         setSettings(newSettings);
-        // Future: Persist to localStorage
-    }, []);
+        localStorage.setItem('dashboardSettings', JSON.stringify(newSettings));
+
+        if (emailChanged) {
+            try {
+                await fetch('/api/alerts/welcome', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: newSettings.emailAddress })
+                });
+                console.log('Welcome email triggered for:', newSettings.emailAddress);
+            } catch (error) {
+                console.error('Failed to trigger welcome email:', error);
+            }
+        }
+    }, [settings.emailAddress]);
 
     // ===========================================================================
     // VALUE

@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useRef } from 'react';
 import DashboardHeader from './components/DashboardHeader';
 import ForecastControls from './components/ForecastControls';
 import ConsumptionRanking from './components/ConsumptionRanking';
@@ -259,13 +259,49 @@ function DashboardContent() {
     };
   }, [chartData, tariff, budget, selectedPeriod, isScenarioMode, scenarioParams]);
 
-  // Handle dynamic budget alerts
+  // Handle dynamic budget alerts & email notifications
+  const lastEmailSent = useRef({ type: null, timestamp: 0 });
+
   useEffect(() => {
-    if (loading) return;
+    if (loading || !settings.emailEnabled || !settings.emailAddress) return;
 
+    const budgetUsagePercent = Math.round((calculations.nextCost / budget) * 100);
+    const now = Date.now();
+    const COOLDOWN = 4 * 60 * 60 * 1000; // 4 hours
+
+    let alertType = null;
+    if (budgetUsagePercent >= settings.thresholdCritical) {
+      alertType = 'critical';
+    } else if (budgetUsagePercent >= settings.thresholdApproaching) {
+      alertType = 'warning';
+    }
+
+    // Trigger email if threshold met and not on cooldown for this type
+    if (alertType && (lastEmailSent.current.type !== alertType || (now - lastEmailSent.current.timestamp) > COOLDOWN)) {
+      const sendEmailAlert = async () => {
+        try {
+          await fetch('/api/alerts/threshold', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: settings.emailAddress,
+              usage_percent: budgetUsagePercent,
+              budget: budget,
+              cost: calculations.nextCost
+            })
+          });
+          lastEmailSent.current = { type: alertType, timestamp: now };
+          console.log(`Email alert (${alertType}) sent to:`, settings.emailAddress);
+        } catch (error) {
+          console.error('Failed to send email alert:', error);
+        }
+      };
+
+      sendEmailAlert();
+    }
+
+    // Update UI Notifications
     const newNotifications = [];
-    const budgetUsagePercent = (calculations.nextCost / budget) * 100;
-
     if (budgetUsagePercent >= settings.thresholdCritical) {
       newNotifications.push({
         id: 'budget-critical',
@@ -282,7 +318,7 @@ function DashboardContent() {
         type: 'approaching',
         priority: 'medium',
         title: 'Approaching Budget Limit',
-        message: `You've reached ${Math.round(budgetUsagePercent)}% of your set energy budget for this period.`,
+        message: `You've reached ${budgetUsagePercent}% of your set energy budget for this period.`,
         time: 'Just now',
         action: 'View Details'
       });
@@ -291,11 +327,11 @@ function DashboardContent() {
     setNotifications(newNotifications);
   }, [calculations.nextCost, budget, settings, loading, setNotifications]);
 
-  // Scroll to charts section
+  // Scroll to main chart
   const handleViewDetails = () => {
-    const chartsSection = document.getElementById('charts-section');
-    if (chartsSection) {
-      chartsSection.scrollIntoView({ behavior: 'smooth' });
+    const mainChart = document.getElementById('tour-main-chart');
+    if (mainChart) {
+      mainChart.scrollIntoView({ behavior: 'smooth' });
     }
   };
 

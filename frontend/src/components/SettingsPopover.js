@@ -6,6 +6,12 @@ const SettingsPopover = ({ isOpen, onClose, settings, onSave }) => {
     const [localSettings, setLocalSettings] = useState(settings);
     const [isValidGmail, setIsValidGmail] = useState(false);
 
+    const validateGmail = (email) => {
+        const isValid = email && email.toLowerCase().endsWith('@gmail.com');
+        setIsValidGmail(!!isValid);
+        return isValid;
+    };
+
     // Sync local state when props change
     useEffect(() => {
         setLocalSettings(settings);
@@ -15,12 +21,6 @@ const SettingsPopover = ({ isOpen, onClose, settings, onSave }) => {
     }, [settings]);
 
     if (!isOpen) return null;
-
-    const validateGmail = (email) => {
-        const isValid = email && email.toLowerCase().endsWith('@gmail.com');
-        setIsValidGmail(!!isValid);
-        return isValid;
-    };
 
     const handleEmailChange = (value) => {
         const isValid = validateGmail(value);
@@ -94,7 +94,7 @@ const SettingsPopover = ({ isOpen, onClose, settings, onSave }) => {
                                 )}
                                 {isValidGmail && (
                                     <p className="mt-2 text-[11px] text-surface-500">
-                                        You'll receive alerts when your budget hits the thresholds below.
+                                        You'll receive automated alerts and your dashboard link directly to this inbox.
                                     </p>
                                 )}
                             </div>
