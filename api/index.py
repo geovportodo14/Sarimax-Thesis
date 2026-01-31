@@ -2,10 +2,10 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 from dotenv import load_dotenv
-from api.utils.email_utils import send_welcome_email, send_threshold_alert
+from utils.email_utils import send_welcome_email, send_threshold_alert
 
-# Load environment variables from (.env) in the root directory
-load_dotenv(dotenv_path="../.env")
+# Load environment variables from .env in the root directory
+load_dotenv()
 
 app = FastAPI()
 
