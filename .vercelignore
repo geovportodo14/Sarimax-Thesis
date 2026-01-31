@@ -1,0 +1,15 @@
+# Exclude local development bloat from Vercel deployment
+venv/
+node_modules/
+.git/
+.venv/
+data/
+*.md
+TH1 SARIMAX V2.md
+backend/
+frontend/
+api/__pycache__/
+api/utils/__pycache__/
+api/utils/tuya_*.py
+api/utils/check_deps.py
+api/utils/generate_token.py
