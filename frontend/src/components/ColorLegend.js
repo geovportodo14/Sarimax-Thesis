@@ -19,9 +19,9 @@ function ColorLegend({ className = '' }) {
             description: 'Usage has exceeded the set budget (> 100%)',
         },
         {
-            color: 'bg-primary-500',
-            label: 'Forecast / Projection',
-            description: 'Predicted usage based on historical data',
+            color: 'bg-[#0EA5E9]', // CHART_COLORS.actual (Sky)
+            label: 'Actual / Previous',
+            description: 'Recorded energy consumption',
         },
     ];
 

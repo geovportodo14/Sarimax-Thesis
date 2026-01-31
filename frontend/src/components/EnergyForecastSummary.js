@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardBody, StatTile, StatusBadge, Button } from './ui/index';
 import ColorLegend from './ColorLegend';
+import { UITrendIcon } from './ui/icons';
 
 function EnergyForecastSummary({
   nextKwh,
@@ -14,13 +15,12 @@ function EnergyForecastSummary({
   selectedPeriodText,
   budget,
   onViewDetails,
-  thresholdApproaching = 80, // Default to 80%
-  thresholdCritical = 100    // Default to 100%
+  thresholdApproaching = 80,
+  thresholdCritical = 100
 }) {
   const formatNumber = (num) => (Math.round(num * 100) / 100).toFixed(2);
-  const formatCurrency = (num) => `₱${Math.round(num).toLocaleString()}`; // Concise currency
+  const formatCurrency = (num) => `₱${Math.round(num).toLocaleString()}`;
 
-  // Contextual Status Logic
   const getStatusContext = () => {
     if (!budget) return { status: 'neutral', label: 'No Budget Set', color: 'bg-surface-100', text: 'text-surface-600' };
 
@@ -28,11 +28,10 @@ function EnergyForecastSummary({
     const criticalRatio = thresholdCritical / 100;
     const approachingRatio = thresholdApproaching / 100;
 
-    // Logic aligned with App.js alerts: >= critical is Red
     if (ratio >= criticalRatio) {
       return {
         status: 'danger',
-        label: 'Budget Exceeded', // or 'Critical Limit'
+        label: 'Budget Exceeded',
         color: 'bg-red-100',
         text: 'text-red-600',
         gradient: 'from-red-50 to-orange-50',
@@ -60,13 +59,10 @@ function EnergyForecastSummary({
   };
 
   const statusContext = getStatusContext();
-
-  // Calculate trend
   const costDifference = nextPhp - prevPhp;
   const costTrend = prevPhp > 0 ? ((costDifference / prevPhp) * 100) : 0;
   const isIncreasing = costDifference > 0;
 
-  // Concise Insights
   const insights = [
     {
       icon: (
@@ -74,20 +70,12 @@ function EnergyForecastSummary({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
         </svg>
       ),
-      text: `Forecast: ${formatCurrency(nextPhp)}`, // Concise
+      text: `Forecast: ${formatCurrency(nextPhp)}`,
       highlight: true,
     },
     {
-      icon: isIncreasing ? (
-        <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-        </svg>
-      ) : (
-        <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      ),
-      text: `${Math.abs(costTrend).toFixed(1)}% ${isIncreasing ? 'increase' : 'decrease'}`, // Concise
+      icon: UITrendIcon(isIncreasing),
+      text: `${Math.abs(costTrend).toFixed(1)}% ${isIncreasing ? 'increase' : 'decrease'}`,
     },
     {
       icon: (
@@ -95,7 +83,7 @@ function EnergyForecastSummary({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
         </svg>
       ),
-      text: `Top: ${topAppliance}`, // Concise
+      text: `Top: ${topAppliance}`,
     },
   ];
 

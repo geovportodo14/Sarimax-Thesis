@@ -6,10 +6,12 @@ function ForecastControls({
   forecastPeriod,
   tariff,
   budget,
+  forecastHorizon,
   onHistoryChange,
   onForecastChange,
   onTariffChange,
   onBudgetChange,
+  onHorizonChange,
   containerId,
 }) {
   const historyOptions = [
@@ -24,6 +26,12 @@ function ForecastControls({
     { value: 4, label: 'Next 4 Hours' },
     { value: 8, label: 'Next 8 Hours' },
     { value: 24, label: 'Next 24 Hours' },
+  ];
+
+  const horizonOptions = [
+    { value: 6, label: '6 Hours' },
+    { value: 12, label: '12 Hours' },
+    { value: 24, label: '24 Hours' },
   ];
 
   return (
@@ -73,6 +81,25 @@ function ForecastControls({
               value={forecastPeriod}
               onChange={(e) => onForecastChange(parseInt(e.target.value))}
               options={forecastOptions}
+              size="sm"
+              selectClassName="w-full xs:w-auto min-w-[130px]"
+            />
+          </div>
+
+          {/* Forecast Horizon (Thesis 3.6.4.C) */}
+          <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100 hover:bg-teal-100/50 transition-colors">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <span className="text-body-md font-medium text-surface-700 truncate">Chart Range</span>
+            </div>
+            <Select
+              value={forecastHorizon}
+              onChange={(e) => onHorizonChange(parseInt(e.target.value))}
+              options={horizonOptions}
               size="sm"
               selectClassName="w-full xs:w-auto min-w-[130px]"
             />

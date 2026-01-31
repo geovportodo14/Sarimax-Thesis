@@ -5,28 +5,37 @@ const GuidedTour = ({ run, onComplete }) => {
     const steps = [
         {
             target: '#tour-summary',
-            content: 'Forecast summary: See your projected cost and kWh consumption.',
-            disableBeacon: true,
+            content: 'Forecast Summary: Get an immediate overview of your projected energy usage and costs for the selected period.',
             placement: 'bottom',
         },
         {
-            target: '#tour-controls',
-            content: 'Adjust budget, tariff, and period here. Forecasts update instantly.',
+            target: '#tour-comparison',
+            content: 'Period Comparison: Compare your previous usage vs the upcoming forecast. Watch for red bars—they indicate a budget risk!',
+            placement: 'top',
+        },
+        {
+            target: '#tour-scenario',
+            content: 'Scenario Simulator: Test "What-If" scenarios by adjusting tariffs or load. Perfect for planning future consumption.',
             placement: 'top',
         },
         {
             target: '#tour-main-chart',
-            content: 'Red lines mean you might exceed your budget. Keep track!',
+            content: 'Energy Analytics: Visualize actual vs forecasted patterns. The pulsing red indicator warns you when usage exceeds your threshold.',
             placement: 'bottom',
         },
         {
             target: '#tour-appliance-breakdown',
-            content: 'See which appliances (Aircon, Fan, etc.) use the most power.',
+            content: 'Appliance Breakdown: Deep dive into individual consumer consumption with real-time actual vs forecast overlays.',
+            placement: 'top',
+        },
+        {
+            target: '#tour-controls',
+            content: 'Fine-tune your dashboard: Adjust your budget limits, electricity tariff, and the lookback/lookahead range.',
             placement: 'top',
         },
         {
             target: '#tour-ranking',
-            content: 'Identify top energy consumers to save efficiently.',
+            content: 'Consumption Ranking: Quickly identify which appliances are costing you the most this period.',
             placement: 'left',
         },
     ];

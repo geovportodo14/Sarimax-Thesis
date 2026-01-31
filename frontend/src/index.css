@@ -35,7 +35,12 @@
   }
 
   /* Typography defaults */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display font-semibold text-surface-900;
   }
 
@@ -64,6 +69,7 @@
 }
 
 @layer components {
+
   /* Card component */
   .card {
     @apply bg-[var(--color-bg-elevated)] rounded-2xl shadow-card border border-surface-100;
@@ -277,6 +283,7 @@
 }
 
 @layer utilities {
+
   /* Tabular numbers for consistent alignment */
   .tabular-nums {
     font-variant-numeric: tabular-nums;
