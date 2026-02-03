@@ -29,10 +29,44 @@ The energy data is managed by a modular collection pipeline that ensures high-fi
 - **Historical Consistency**: A dedicated historical management system ensures that previous days are complete, with full support for centivolt/deciwatt normalization.
 - **Cloud Ready**: Optimized for lightweight Linux VMs (Azure/AWS) using Docker and Swap optimization.
 
-### Quick Start (Cloud/Local)
-To start the collection and API services:
+## 🚀 Getting Started
+
+You can run this project either using **Docker** (recommended) or **Manually**.
+
+### Option A: Docker Setup (Fastest)
+This starts the Data Collector and the Forecast API in the background.
 ```bash
+# 1. Clone & Enter
+git clone https://github.com/geovportodo14/Sarimax-Thesis.git
+cd Sarimax-Thesis
+
+# 2. Setup .env
+# Create a .env file and paste the credentials provided in the walkthrough.
+
+# 3. Launch Services
 docker-compose up --build -d
+
+# 4. Start Frontend (on your host machine)
+npm install
+npm start
+```
+
+### Option B: Manual Setup (Development)
+If you prefer to run services individually:
+
+#### 1. Frontend (React)
+```bash
+npm install
+npm start
+```
+#### 2. Forecast API (FastAPI)
+```bash
+pip install -r requirements.txt
+uvicorn api.index:app --reload
+```
+#### 3. Data Collector
+```bash
+python collector/data_collector.py
 ```
 
 ## 📊 Historical Dataset
