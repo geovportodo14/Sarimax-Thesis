@@ -4,6 +4,3 @@ logs/
 tests/
 .env
 .git/
-node_modules/
-public/
-src/
