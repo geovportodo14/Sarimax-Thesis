@@ -6,6 +6,9 @@ services:
     container_name: tuya-data-collector
     restart: always
     env_file: .env
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
