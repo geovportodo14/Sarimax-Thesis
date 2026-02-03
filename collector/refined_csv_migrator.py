@@ -160,15 +160,26 @@ class RefinedCSVMigrator:
                     processed = self.profiles[name][i].copy()
                     weather = {"temp": None, "humidity": None, "pressure": None}
                     
-                    # Generate realistic Tuya raw values
+                    # Generate realistic Tuya raw values (Matches the device's extended schema)
                     raw = {
                         "switch_1": True,
-                        "cur_voltage": int(processed.get("voltage_v", 230) * 10),
+                        "countdown_1": 0,
+                        "add_ele": int(processed.get("total_kwh_accumulated", 0) * 100),
                         "cur_current": int(processed.get("current_a", 0) * 1000),
                         "cur_power": int(processed.get("power_w", 0) * 10),
-                        "add_ele": int(processed.get("total_kwh_accumulated", 0) * 100),
-                        "countdown_1": 0,
-                        "relay_status": "last"
+                        "cur_voltage": int(processed.get("voltage_v", 230) * 10),
+                        "voltage_coe": 567,
+                        "electric_coe": 29676,
+                        "power_coe": 15976,
+                        "electricity_coe": 2610,
+                        "fault": 0,
+                        "relay_status": "last",
+                        "overcharge_switch": False,
+                        "light_mode": "relay",
+                        "child_lock": False,
+                        "cycle_time": "",
+                        "random_time": "",
+                        "switch_inching": ""
                     }
                 
                 reading = {
