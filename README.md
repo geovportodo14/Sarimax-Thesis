@@ -2,73 +2,54 @@
 
 A comprehensive smart energy consumption monitoring and forecasting dashboard. Built with a focus on predictive analytics using SARIMAX time series models and automated notifications via Gmail OAuth2.
 
-## 📁 Monorepo Structure
+## 📁 Project Structure
 
 ```text
 Sarimax-Thesis/
-├── api/                     # Python Backend (Serverless)
-│   ├── index.py             # FastAPI entry point
-│   └── utils/               # Email & Notification utilities
-├── src/                     # React Frontend source
-├── public/                  # Frontend static assets
-├── data/                    # Local energy datasets (ignored by Git)
-├── package.json             # Root-level dependencies (React + Proxy)
-├── requirements.txt         # Backend Python dependencies
-├── vercel.json              # Vercel monorepo configuration
-└── .env                     # Local credentials (ignored)
+├── collector/               # LIVE Data Collection Pipeline (Dockerized)
+│   ├── storage/             # MongoDB Client & Schemas
+│   ├── utils/               # Data Normalizers & Historical Backfillers
+│   └── data_collector.py    # Main 10-minute interval engine
+├── api/                     # Python Forecast API (FastAPI)
+│   ├── index.py             # Entry point
+│   └── utils/               # Email & Forecast utilities
+├── src/                     # React Frontend Dashboard
+├── data/                    # Local CSV energy logs
+├── Dockerfile               # Containerization for collector
+├── docker-compose.yml       # Orchestration for cloud deployment
+└── .env                     # Credentials & API Keys
 ```
 
-## 🚀 Local Development
+## 🚀 Data Pipeline (Dockerized)
 
-Follow these steps to run the dashboard on your machine:
+The energy data is managed by a modular collection pipeline that ensures high-fidelity datasets:
 
-### 1. Prerequisites
-- **Node.js**: [v18 or higher](https://nodejs.org/)
-- **Python**: [v3.10 or higher](https://python.org/)
+- **Live Collection**: Fetches real-time Volts, Amps, and Watts from Tuya devices every 10 minutes.
+- **Strict Alignment**: Automatically aligns data to exactly **144 points per day** (:00, :10, :20...).
+- **Historical Consistency**: A dedicated historical management system ensures that previous days are complete, with full support for centivolt/deciwatt normalization.
+- **Cloud Ready**: Optimized for lightweight Linux VMs (Azure/AWS) using Docker and Swap optimization.
 
-### 2. Frontend Setup
+### Quick Start (Cloud/Local)
+To start the collection and API services:
 ```bash
-# Install dependencies from the root
-npm install
-
-# Start the React dashboard
-npm start
+docker-compose up --build -d
 ```
-The dashboard will open at [http://localhost:3000](http://localhost:3000).
 
-### 3. Backend (Notifications) Setup
-Wait for Step 2 to finish, then in a **second terminal**:
-```bash
-# Install Python libraries
-pip install -r requirements.txt
+## 📊 Historical Dataset
+The project maintains a high-quality dataset starting from **January 3rd**, categorized into:
+- **Baseline Period**: High-resolution logs capturing appliance behaviors.
+- **Monitoring Period**: Live synchronized data streamed to MongoDB Atlas.
+- **Data Format**: Standardized units (**V, A, W, kWh**) for seamless integration with SARIMAX modeling.
 
-# Start the FastAPI server
-uvicorn api.index:app --reload
-```
-The API handles automated **Welcome Emails** and **Budget Alerts**.
-
-## 📧 Gmail Notification Setup (OAuth2)
-
-To enable email notifications, you must configure a Google Cloud project:
-1.  **Google Cloud Console**: Enable the Gmail API.
-2.  **OAuth Consent**: Add your email as a "Test User".
-3.  **Credentials**: Create a "Desktop App" Client ID and Secret.
-4.  **Refresh Token**: Run `python api/utils/generate_token.py` to generate your refresh token.
-5.  **Environment Variables**: Add the following to your `.env` file:
-
-```env
-GOOGLE_CLIENT_ID="your_id"
-GOOGLE_CLIENT_SECRET="your_secret"
-GOOGLE_REFRESH_TOKEN="your_refresh_token"
-DASHBOARD_URL="http://localhost:3000"
-```
+## 📧 Gmail Notifications
+Automated notifications are sent via Gmail OAuth2:
+1.  **Welcome Emails**: Sent upon successful connection.
+2.  **Budget Alerts**: Triggered when consumption exceeds predicted SARIMAX thresholds.
 
 ## ☁️ Deployment
-
-This project is optimized for deployment on **Vercel**:
-- **Automatic Monorepo**: Vercel detects the `api/` folder for backend functions and the root for the frontend.
-- **Environment Variables**: Add your `.env` keys to the Vercel Dashboard.
-- **Root Directory**: Ensure the "Root Directory" in Vercel settings is left **Empty**.
+- **Collector & API**: Deployed on Azure VM via Docker Compose.
+- **Frontend**: Deployed on Vercel for fast global access.
+- **Database**: Hosted on MongoDB Atlas.
 
 ## 📄 License
 MIT - Part of the TH1 SARIMAX V2 Thesis Project.
