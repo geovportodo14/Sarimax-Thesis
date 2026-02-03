@@ -1,0 +1,428 @@
+2026-02-03 10:09:16,185 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-02-03 10:09:16,186 - __main__ - INFO - Next collection in 44 seconds
+2026-02-03 10:10:00,192 - __main__ - INFO - Starting collection at 2026-02-03 10:10:00
+2026-02-03 10:10:01,028 - storage.db_client - ERROR - Failed to store reading for Aircon
+Traceback (most recent call last):
+  File "/app/collector/storage/db_client.py", line 34, in store_reading
+    result = collection.update_one(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/collection.py", line 1336, in update_one
+    self._update_retryable(
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/collection.py", line 1118, in _update_retryable
+    return self._database.client._retryable_write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2083, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 1968, in _retry_with_session
+    return self._retry_internal(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2763, in run
+    return self._read() if self._is_read else self._write()
+                                              ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2874, in _write
+    with self._client._checkout(self._server, self._session) as conn:
+  File "/usr/local/lib/python3.11/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 1777, in _checkout
+    with server.checkout(handler=err_handler) as conn:
+  File "/usr/local/lib/python3.11/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 1101, in checkout
+    conn = self._get_conn(checkout_started_time, handler=handler)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 1263, in _get_conn
+    conn = self.connect(handler=handler)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 1055, in connect
+    conn.authenticate()
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 510, in authenticate
+    auth.authenticate(creds, self, reauthenticate=reauthenticate)
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/auth.py", line 450, in authenticate
+    auth_func(credentials, conn)
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/auth.py", line 355, in _authenticate_default
+    return _authenticate_scram(credentials, conn, "SCRAM-SHA-1")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/auth.py", line 135, in _authenticate_scram
+    res = conn.command(source, cmd)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 398, in command
+    return command(
+           ^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/network.py", line 212, in command
+    helpers_shared._check_command_response(
+  File "/usr/local/lib/python3.11/site-packages/pymongo/helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: bad auth : authentication failed, full error: {'ok': 0, 'errmsg': 'bad auth : authentication failed', 'code': 8000, 'codeName': 'AtlasError'}
+2026-02-03 10:10:06,743 - storage.db_client - ERROR - Failed to store reading for Refrigerator
+Traceback (most recent call last):
+  File "/app/collector/storage/db_client.py", line 34, in store_reading
+    result = collection.update_one(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/collection.py", line 1336, in update_one
+    self._update_retryable(
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/collection.py", line 1118, in _update_retryable
+    return self._database.client._retryable_write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2083, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 1968, in _retry_with_session
+    return self._retry_internal(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2763, in run
+    return self._read() if self._is_read else self._write()
+                                              ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2874, in _write
+    with self._client._checkout(self._server, self._session) as conn:
+  File "/usr/local/lib/python3.11/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 1777, in _checkout
+    with server.checkout(handler=err_handler) as conn:
+  File "/usr/local/lib/python3.11/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 1101, in checkout
+    conn = self._get_conn(checkout_started_time, handler=handler)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 1263, in _get_conn
+    conn = self.connect(handler=handler)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 1055, in connect
+    conn.authenticate()
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 510, in authenticate
+    auth.authenticate(creds, self, reauthenticate=reauthenticate)
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/auth.py", line 450, in authenticate
+    auth_func(credentials, conn)
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/auth.py", line 355, in _authenticate_default
+    return _authenticate_scram(credentials, conn, "SCRAM-SHA-1")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/auth.py", line 135, in _authenticate_scram
+    res = conn.command(source, cmd)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 398, in command
+    return command(
+           ^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/network.py", line 212, in command
+    helpers_shared._check_command_response(
+  File "/usr/local/lib/python3.11/site-packages/pymongo/helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: bad auth : authentication failed, full error: {'ok': 0, 'errmsg': 'bad auth : authentication failed', 'code': 8000, 'codeName': 'AtlasError'}
+2026-02-03 10:10:16,663 - storage.db_client - ERROR - Failed to store reading for Electric_Fan
+Traceback (most recent call last):
+  File "/app/collector/storage/db_client.py", line 34, in store_reading
+    result = collection.update_one(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/collection.py", line 1336, in update_one
+    self._update_retryable(
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/collection.py", line 1118, in _update_retryable
+    return self._database.client._retryable_write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2083, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 1968, in _retry_with_session
+    return self._retry_internal(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2763, in run
+    return self._read() if self._is_read else self._write()
+                                              ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2874, in _write
+    with self._client._checkout(self._server, self._session) as conn:
+  File "/usr/local/lib/python3.11/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 1777, in _checkout
+    with server.checkout(handler=err_handler) as conn:
+  File "/usr/local/lib/python3.11/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 1101, in checkout
+    conn = self._get_conn(checkout_started_time, handler=handler)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 1263, in _get_conn
+    conn = self.connect(handler=handler)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 1055, in connect
+    conn.authenticate()
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 510, in authenticate
+    auth.authenticate(creds, self, reauthenticate=reauthenticate)
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/auth.py", line 450, in authenticate
+    auth_func(credentials, conn)
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/auth.py", line 355, in _authenticate_default
+    return _authenticate_scram(credentials, conn, "SCRAM-SHA-1")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/auth.py", line 135, in _authenticate_scram
+    res = conn.command(source, cmd)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/pool.py", line 398, in command
+    return command(
+           ^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/network.py", line 212, in command
+    helpers_shared._check_command_response(
+  File "/usr/local/lib/python3.11/site-packages/pymongo/helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: bad auth : authentication failed, full error: {'ok': 0, 'errmsg': 'bad auth : authentication failed', 'code': 8000, 'codeName': 'AtlasError'}
+2026-02-03 10:10:17,669 - __main__ - INFO - Next collection in 583 seconds
+2026-02-03 10:20:00,677 - __main__ - INFO - Starting collection at 2026-02-03 10:20:00
+2026-02-03 10:20:31,193 - storage.db_client - ERROR - Failed to store reading for Aircon
+Traceback (most recent call last):
+  File "/app/collector/storage/db_client.py", line 34, in store_reading
+    result = collection.update_one(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/collection.py", line 1336, in update_one
+    self._update_retryable(
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/collection.py", line 1118, in _update_retryable
+    return self._database.client._retryable_write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2083, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 1968, in _retry_with_session
+    return self._retry_internal(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2763, in run
+    return self._read() if self._is_read else self._write()
+                                              ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2873, in _write
+    self._server = self._get_server()
+                   ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2856, in _get_server
+    return self._client._select_server(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 1833, in _select_server
+    server = topology.select_server(
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/topology.py", line 428, in select_server
+    server = self._select_server(
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/topology.py", line 402, in _select_server
+    servers = self.select_servers(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/topology.py", line 298, in select_servers
+    server_descriptions = self._select_servers_loop(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/topology.py", line 359, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: SSL handshake failed: ac-xsw5raz-shard-00-01.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),SSL handshake failed: ac-xsw5raz-shard-00-00.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),SSL handshake failed: ac-xsw5raz-shard-00-02.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 698158cc6a891dabda6397b3, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-xsw5raz-shard-00-00.ipzdzyo.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-xsw5raz-shard-00-00.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xsw5raz-shard-00-01.ipzdzyo.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-xsw5raz-shard-00-01.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xsw5raz-shard-00-02.ipzdzyo.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-xsw5raz-shard-00-02.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2026-02-03 10:21:02,556 - storage.db_client - ERROR - Failed to store reading for Refrigerator
+Traceback (most recent call last):
+  File "/app/collector/storage/db_client.py", line 34, in store_reading
+    result = collection.update_one(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/collection.py", line 1336, in update_one
+    self._update_retryable(
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/collection.py", line 1118, in _update_retryable
+    return self._database.client._retryable_write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2083, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 1968, in _retry_with_session
+    return self._retry_internal(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2763, in run
+    return self._read() if self._is_read else self._write()
+                                              ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2873, in _write
+    self._server = self._get_server()
+                   ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2856, in _get_server
+    return self._client._select_server(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 1833, in _select_server
+    server = topology.select_server(
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/topology.py", line 428, in select_server
+    server = self._select_server(
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/topology.py", line 402, in _select_server
+    servers = self.select_servers(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/topology.py", line 298, in select_servers
+    server_descriptions = self._select_servers_loop(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/topology.py", line 359, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: SSL handshake failed: ac-xsw5raz-shard-00-01.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),SSL handshake failed: ac-xsw5raz-shard-00-00.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),SSL handshake failed: ac-xsw5raz-shard-00-02.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 698158cc6a891dabda6397b3, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-xsw5raz-shard-00-00.ipzdzyo.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-xsw5raz-shard-00-00.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xsw5raz-shard-00-01.ipzdzyo.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-xsw5raz-shard-00-01.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xsw5raz-shard-00-02.ipzdzyo.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-xsw5raz-shard-00-02.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2026-02-03 10:21:33,856 - storage.db_client - ERROR - Failed to store reading for Electric_Fan
+Traceback (most recent call last):
+  File "/app/collector/storage/db_client.py", line 34, in store_reading
+    result = collection.update_one(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/collection.py", line 1336, in update_one
+    self._update_retryable(
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/collection.py", line 1118, in _update_retryable
+    return self._database.client._retryable_write(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2083, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 1968, in _retry_with_session
+    return self._retry_internal(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2763, in run
+    return self._read() if self._is_read else self._write()
+                                              ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2873, in _write
+    self._server = self._get_server()
+                   ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 2856, in _get_server
+    return self._client._select_server(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/mongo_client.py", line 1833, in _select_server
+    server = topology.select_server(
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/topology.py", line 428, in select_server
+    server = self._select_server(
+             ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/topology.py", line 402, in _select_server
+    servers = self.select_servers(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/topology.py", line 298, in select_servers
+    server_descriptions = self._select_servers_loop(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pymongo/synchronous/topology.py", line 359, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: SSL handshake failed: ac-xsw5raz-shard-00-01.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),SSL handshake failed: ac-xsw5raz-shard-00-00.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),SSL handshake failed: ac-xsw5raz-shard-00-02.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 698158cc6a891dabda6397b3, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-xsw5raz-shard-00-00.ipzdzyo.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-xsw5raz-shard-00-00.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xsw5raz-shard-00-01.ipzdzyo.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-xsw5raz-shard-00-01.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xsw5raz-shard-00-02.ipzdzyo.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-xsw5raz-shard-00-02.ipzdzyo.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1016) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2026-02-03 10:21:34,860 - __main__ - INFO - Next collection in 506 seconds
+2026-02-03 10:29:43,199 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-02-03 10:29:43,199 - __main__ - INFO - Next collection in 17 seconds
+2026-02-03 10:30:00,202 - __main__ - INFO - Starting collection at 2026-02-03 10:30:00
+2026-02-03 10:30:04,997 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 10:40:01,003 - __main__ - INFO - Starting collection at 2026-02-03 10:40:01
+2026-02-03 10:40:04,987 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 10:48:14,601 - storage.db_client - INFO - Indexes verified for aircon
+2026-02-03 10:48:15,057 - storage.db_client - INFO - Indexes verified for refrigerator
+2026-02-03 10:48:15,356 - storage.db_client - INFO - Indexes verified for electric_fan
+2026-02-03 10:48:15,357 - __main__ - INFO - Checking data completeness for 2026-02-02
+2026-02-03 10:48:15,409 - __main__ - INFO - Backfilling 144 intervals for Aircon on 2026-02-02
+2026-02-03 10:48:18,037 - __main__ - INFO - Daily summary for Aircon on 2026-02-02: {'total_readings': 32, 'is_complete': False, 'peak_power_w': 497.7, 'total_kwh': None, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 10, 48, 17, 981581)}
+2026-02-03 10:48:18,090 - __main__ - INFO - Backfilling 144 intervals for Refrigerator on 2026-02-02
+2026-02-03 10:48:20,474 - __main__ - INFO - Daily summary for Refrigerator on 2026-02-02: {'total_readings': 32, 'is_complete': False, 'peak_power_w': 179.5, 'total_kwh': None, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 10, 48, 20, 418799)}
+2026-02-03 10:48:20,597 - __main__ - INFO - Backfilling 144 intervals for Electric_Fan on 2026-02-02
+2026-02-03 10:48:21,864 - __main__ - INFO - Daily summary for Electric_Fan on 2026-02-02: {'total_readings': 14, 'is_complete': False, 'peak_power_w': 43.0, 'total_kwh': 0.21, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 10, 48, 21, 808449)}
+2026-02-03 10:48:21,864 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-02-03 10:48:21,865 - __main__ - INFO - Next collection in 99 seconds
+2026-02-03 10:50:00,868 - __main__ - INFO - Starting collection at 2026-02-03 10:50:00
+2026-02-03 10:50:04,944 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 10:53:50,883 - storage.db_client - INFO - Indexes verified for aircon
+2026-02-03 10:53:51,004 - storage.db_client - INFO - Indexes verified for refrigerator
+2026-02-03 10:53:51,134 - storage.db_client - INFO - Indexes verified for electric_fan
+2026-02-03 10:53:51,134 - __main__ - INFO - Checking data completeness for 2026-02-02
+2026-02-03 10:53:51,184 - __main__ - INFO - Backfilling 112 intervals for Aircon on 2026-02-02
+2026-02-03 10:53:51,712 - __main__ - INFO - Daily summary for Aircon on 2026-02-02: {'total_readings': 32, 'is_complete': False, 'peak_power_w': 497.7, 'total_kwh': None, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 10, 53, 51, 650579)}
+2026-02-03 10:53:51,764 - __main__ - INFO - Backfilling 112 intervals for Refrigerator on 2026-02-02
+2026-02-03 10:53:52,122 - __main__ - INFO - Daily summary for Refrigerator on 2026-02-02: {'total_readings': 32, 'is_complete': False, 'peak_power_w': 179.5, 'total_kwh': None, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 10, 53, 52, 65593)}
+2026-02-03 10:53:52,177 - __main__ - INFO - Backfilling 130 intervals for Electric_Fan on 2026-02-02
+2026-02-03 10:53:52,561 - __main__ - INFO - Daily summary for Electric_Fan on 2026-02-02: {'total_readings': 14, 'is_complete': False, 'peak_power_w': 43.0, 'total_kwh': 0.21, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 10, 53, 52, 501083)}
+2026-02-03 10:53:52,562 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-02-03 10:53:52,562 - __main__ - INFO - Next collection in 368 seconds
+2026-02-03 11:00:00,566 - __main__ - INFO - Starting collection at 2026-02-03 11:00:00
+2026-02-03 11:00:04,721 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 11:10:00,724 - __main__ - INFO - Starting collection at 2026-02-03 11:10:00
+2026-02-03 11:10:04,720 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 11:14:26,853 - storage.db_client - INFO - Indexes verified for aircon
+2026-02-03 11:14:26,933 - storage.db_client - INFO - Indexes verified for refrigerator
+2026-02-03 11:14:27,109 - storage.db_client - INFO - Indexes verified for electric_fan
+2026-02-03 11:14:27,110 - __main__ - INFO - Checking data completeness for 2026-02-02
+2026-02-03 11:14:27,149 - __main__ - INFO - Backfilling 112 intervals for Aircon on 2026-02-02
+2026-02-03 11:14:27,633 - __main__ - INFO - Daily summary for Aircon on 2026-02-02: {'total_readings': 32, 'is_complete': False, 'peak_power_w': 497.7, 'total_kwh': None, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 11, 14, 27, 539772)}
+2026-02-03 11:14:27,672 - __main__ - INFO - Backfilling 112 intervals for Refrigerator on 2026-02-02
+2026-02-03 11:14:27,962 - __main__ - INFO - Daily summary for Refrigerator on 2026-02-02: {'total_readings': 33, 'is_complete': False, 'peak_power_w': 179.5, 'total_kwh': 0.21, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 11, 14, 27, 921571)}
+2026-02-03 11:14:27,999 - __main__ - INFO - Backfilling 130 intervals for Electric_Fan on 2026-02-02
+2026-02-03 11:14:28,299 - __main__ - INFO - Daily summary for Electric_Fan on 2026-02-02: {'total_readings': 14, 'is_complete': False, 'peak_power_w': 43.0, 'total_kwh': 0.21, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 11, 14, 28, 259696)}
+2026-02-03 11:14:28,300 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-02-03 11:14:28,300 - __main__ - INFO - Next collection in 332 seconds
+2026-02-03 11:20:00,304 - __main__ - INFO - Starting collection at 2026-02-03 11:20:00
+2026-02-03 11:20:04,795 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 11:30:00,798 - __main__ - INFO - Starting collection at 2026-02-03 11:30:00
+2026-02-03 11:30:05,016 - __main__ - INFO - Next collection in 595 seconds
+2026-02-03 11:40:00,021 - __main__ - INFO - Starting collection at 2026-02-03 11:40:00
+2026-02-03 11:40:04,024 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 11:50:00,029 - __main__ - INFO - Starting collection at 2026-02-03 11:50:00
+2026-02-03 11:50:07,782 - __main__ - INFO - Next collection in 593 seconds
+2026-02-03 12:00:00,778 - __main__ - INFO - Starting collection at 2026-02-03 12:00:00
+2026-02-03 12:00:04,658 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 12:01:53,895 - storage.db_client - INFO - Indexes verified for aircon
+2026-02-03 12:01:54,055 - storage.db_client - INFO - Indexes verified for refrigerator
+2026-02-03 12:01:54,222 - storage.db_client - INFO - Indexes verified for electric_fan
+2026-02-03 12:01:54,223 - __main__ - INFO - Checking data completeness for 2026-02-02
+2026-02-03 12:01:54,499 - __main__ - INFO - No missing intervals for Aircon on 2026-02-02
+2026-02-03 12:01:54,652 - __main__ - INFO - Daily summary for Aircon on 2026-02-02: {'total_readings': 144, 'is_complete': True, 'peak_power_w': 497.7, 'total_kwh': 0.27, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 12, 1, 54, 567300)}
+2026-02-03 12:01:54,732 - __main__ - INFO - No missing intervals for Refrigerator on 2026-02-02
+2026-02-03 12:01:54,945 - __main__ - INFO - Daily summary for Refrigerator on 2026-02-02: {'total_readings': 144, 'is_complete': True, 'peak_power_w': 181.2, 'total_kwh': 0.21, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 12, 1, 54, 802438)}
+2026-02-03 12:01:55,027 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-02-02
+2026-02-03 12:01:55,190 - __main__ - INFO - Daily summary for Electric_Fan on 2026-02-02: {'total_readings': 144, 'is_complete': True, 'peak_power_w': 43.0, 'total_kwh': 0.21, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 12, 1, 55, 105764)}
+2026-02-03 12:01:55,191 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-02-03 12:01:55,192 - __main__ - INFO - Next collection in 485 seconds
+2026-02-03 12:10:00,196 - __main__ - INFO - Starting collection at 2026-02-03 12:10:00
+2026-02-03 12:10:04,353 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 12:33:43,756 - __main__ - INFO - Starting collection at 2026-02-03 12:33:43
+2026-02-03 12:33:48,400 - __main__ - INFO - Next collection in 372 seconds
+2026-02-03 12:40:00,402 - __main__ - INFO - Starting collection at 2026-02-03 12:40:00
+2026-02-03 12:40:04,333 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 12:50:00,336 - __main__ - INFO - Starting collection at 2026-02-03 12:50:00
+2026-02-03 12:50:04,246 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 13:00:00,249 - __main__ - INFO - Starting collection at 2026-02-03 13:00:00
+2026-02-03 13:00:04,314 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 13:10:00,318 - __main__ - INFO - Starting collection at 2026-02-03 13:10:00
+2026-02-03 13:10:04,322 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 13:20:00,326 - __main__ - INFO - Starting collection at 2026-02-03 13:20:00
+2026-02-03 13:20:04,820 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 13:30:00,833 - __main__ - INFO - Starting collection at 2026-02-03 13:30:00
+2026-02-03 13:30:04,985 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 13:40:00,991 - __main__ - INFO - Starting collection at 2026-02-03 13:40:00
+2026-02-03 13:40:04,871 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 13:50:00,876 - __main__ - INFO - Starting collection at 2026-02-03 13:50:00
+2026-02-03 13:50:04,918 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 14:00:00,923 - __main__ - INFO - Starting collection at 2026-02-03 14:00:00
+2026-02-03 14:00:04,966 - __main__ - INFO - Next collection in 596 seconds
