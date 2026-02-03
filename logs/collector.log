@@ -426,3 +426,57 @@ pymongo.errors.ServerSelectionTimeoutError: SSL handshake failed: ac-xsw5raz-sha
 2026-02-03 13:50:04,918 - __main__ - INFO - Next collection in 596 seconds
 2026-02-03 14:00:00,923 - __main__ - INFO - Starting collection at 2026-02-03 14:00:00
 2026-02-03 14:00:04,966 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 14:10:00,975 - __main__ - INFO - Starting collection at 2026-02-03 14:10:00
+2026-02-03 14:10:05,045 - __main__ - INFO - Next collection in 595 seconds
+2026-02-03 14:20:28,431 - storage.db_client - INFO - Indexes verified for aircon
+2026-02-03 14:20:28,502 - storage.db_client - INFO - Indexes verified for refrigerator
+2026-02-03 14:20:28,651 - storage.db_client - INFO - Indexes verified for electric_fan
+2026-02-03 14:20:28,653 - __main__ - INFO - Checking data completeness for 2026-02-02
+2026-02-03 14:20:28,745 - __main__ - INFO - No missing intervals for Aircon on 2026-02-02
+2026-02-03 14:20:28,811 - __main__ - INFO - Daily summary for Aircon on 2026-02-02: {'total_readings': 144, 'is_complete': True, 'peak_power_w': 497.7, 'total_kwh': 0.27, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 14, 20, 28, 779088)}
+2026-02-03 14:20:28,845 - __main__ - INFO - No missing intervals for Refrigerator on 2026-02-02
+2026-02-03 14:20:28,912 - __main__ - INFO - Daily summary for Refrigerator on 2026-02-02: {'total_readings': 144, 'is_complete': True, 'peak_power_w': 181.2, 'total_kwh': 0.21, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 14, 20, 28, 878930)}
+2026-02-03 14:20:28,947 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-02-02
+2026-02-03 14:20:29,013 - __main__ - INFO - Daily summary for Electric_Fan on 2026-02-02: {'total_readings': 144, 'is_complete': True, 'peak_power_w': 43.0, 'total_kwh': 0.21, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 14, 20, 28, 980702)}
+2026-02-03 14:20:29,014 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-02-03 14:20:29,014 - __main__ - INFO - Next collection in 571 seconds
+2026-02-03 14:30:00,016 - __main__ - INFO - Starting collection at 2026-02-03 14:30:00
+2026-02-03 14:30:04,234 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 14:40:00,233 - __main__ - INFO - Starting collection at 2026-02-03 14:40:00
+2026-02-03 14:40:04,299 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 14:50:00,304 - __main__ - INFO - Starting collection at 2026-02-03 14:50:00
+2026-02-03 14:50:04,345 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 15:00:00,347 - __main__ - INFO - Starting collection at 2026-02-03 15:00:00
+2026-02-03 15:00:04,389 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 15:10:00,389 - __main__ - INFO - Starting collection at 2026-02-03 15:10:00
+2026-02-03 15:10:04,515 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 15:20:00,517 - __main__ - INFO - Starting collection at 2026-02-03 15:20:00
+2026-02-03 15:20:05,077 - __main__ - INFO - Next collection in 595 seconds
+2026-02-03 15:30:00,080 - __main__ - INFO - Starting collection at 2026-02-03 15:30:00
+2026-02-03 15:30:04,258 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 15:40:00,259 - __main__ - INFO - Starting collection at 2026-02-03 15:40:00
+2026-02-03 15:40:04,188 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 15:50:00,190 - __main__ - INFO - Starting collection at 2026-02-03 15:50:00
+2026-02-03 15:50:04,037 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 16:00:00,039 - __main__ - INFO - Starting collection at 2026-02-03 16:00:00
+2026-02-03 16:00:04,215 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 16:10:00,218 - __main__ - INFO - Starting collection at 2026-02-03 16:10:00
+2026-02-03 16:10:04,266 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 16:11:32,454 - storage.db_client - INFO - Indexes verified for aircon
+2026-02-03 16:11:32,562 - storage.db_client - INFO - Indexes verified for refrigerator
+2026-02-03 16:11:32,670 - storage.db_client - INFO - Indexes verified for electric_fan
+2026-02-03 16:11:32,719 - __main__ - INFO - Checking data completeness for 2026-02-02
+2026-02-03 16:11:32,916 - __main__ - INFO - No missing intervals for Aircon on 2026-02-02
+2026-02-03 16:11:33,020 - __main__ - INFO - Daily summary for Aircon on 2026-02-02: {'total_readings': 144, 'is_complete': True, 'peak_power_w': 497.7, 'total_kwh': 0.27, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 16, 11, 32, 969122)}
+2026-02-03 16:11:33,078 - __main__ - INFO - No missing intervals for Refrigerator on 2026-02-02
+2026-02-03 16:11:33,178 - __main__ - INFO - Daily summary for Refrigerator on 2026-02-02: {'total_readings': 144, 'is_complete': True, 'peak_power_w': 181.2, 'total_kwh': 0.21, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 16, 11, 33, 128224)}
+2026-02-03 16:11:33,229 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-02-02
+2026-02-03 16:11:33,333 - __main__ - INFO - Daily summary for Electric_Fan on 2026-02-02: {'total_readings': 144, 'is_complete': True, 'peak_power_w': 43.0, 'total_kwh': 0.21, 'active_minutes': 0, 'validated_at': datetime.datetime(2026, 2, 3, 16, 11, 33, 282277)}
+2026-02-03 16:11:33,334 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-02-03 16:11:33,334 - __main__ - INFO - Next collection in 507 seconds
+2026-02-03 16:20:00,338 - __main__ - INFO - Starting collection at 2026-02-03 16:20:00
+2026-02-03 16:20:05,274 - __main__ - INFO - Next collection in 595 seconds
+2026-02-03 16:30:00,279 - __main__ - INFO - Starting collection at 2026-02-03 16:30:00
+2026-02-03 16:30:04,816 - __main__ - INFO - Next collection in 596 seconds
+2026-02-03 16:40:00,821 - __main__ - INFO - Starting collection at 2026-02-03 16:40:00
+2026-02-03 16:40:05,282 - __main__ - INFO - Next collection in 595 seconds
