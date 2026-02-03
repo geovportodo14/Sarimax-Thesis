@@ -27,7 +27,12 @@ DEVICES = {
     "Electric_Fan": "a3c772d3fde52dbae832bi"
 }
 
-PROCESSED_DATA_DIR = "data/processed_data"
+# Daily Target Energy (kWh) for Jan 12 to Jan 25 (14 days)
+TARGET_ENERGY = {
+    "Aircon": [3.88, 3.76, 3.75, 4.10, 3.33, 3.90, 3.79, 3.58, 3.73, 3.63, 2.99, 3.17, 3.44, 4.19],
+    "Refrigerator": [2.42, 2.34, 2.25, 2.25, 2.33, 2.21, 2.46, 2.25, 2.42, 2.21, 2.14, 2.00, 1.09, 2.24],
+    "Electric_Fan": [0.29, 0.33, 0.30, 0.27, 0.27, 0.33, 0.46, 0.30, 0.32, 0.40, 0.33, 0.33, 0.39, 0.48]
+}
 
 class RefinedCSVMigrator:
     def __init__(self, folder_path, drop=False, export=False):
@@ -36,7 +41,7 @@ class RefinedCSVMigrator:
         self.preprocessor = DataPreprocessor()
         self.drop = drop
         self.export = export
-        self.profiles = {name: [[] for _ in range(144)] for name in DEVICES}
+        self.profiles = {name: [None for _ in range(144)] for name in DEVICES}
 
         if self.export and not os.path.exists(PROCESSED_DATA_DIR):
             os.makedirs(PROCESSED_DATA_DIR)
@@ -44,6 +49,8 @@ class RefinedCSVMigrator:
     def learn_patterns(self, start_date_str, end_date_str):
         """Builds average consumption profiles per appliance per interval."""
         logger.info(f"Learning patterns from {start_date_str} to {end_date_str}...")
+        
+        raw_sums = {name: [[] for _ in range(144)] for name in DEVICES}
         
         start_date = datetime.strptime(start_date_str, "%Y%m%d").date()
         end_date = datetime.strptime(end_date_str, "%Y%m%d").date()
@@ -64,30 +71,29 @@ class RefinedCSVMigrator:
                     
                     processed = self.preprocessor.normalize(device_name, data["raw"])
                     if processed and processed.get("power_w") is not None:
-                        self.profiles[device_name][idx].append(processed)
+                        raw_sums[device_name][idx].append(processed)
             
             current += timedelta(days=1)
 
         # Calculate averages for the profile
         for name in DEVICES:
             for idx in range(144):
-                if self.profiles[name][idx]:
+                if raw_sums[name][idx]:
                     # We take the representative (median or average) reading for this interval
-                    avg_power = statistics.mean([r["power_w"] for r in self.profiles[name][idx]])
-                    avg_voltage = statistics.mean([r.get("voltage_v", 230) for r in self.profiles[name][idx]])
-                    avg_current = statistics.mean([r.get("current_a", 0) for r in self.profiles[name][idx]])
+                    avg_power = statistics.mean([r["power_w"] for r in raw_sums[name][idx]])
+                    avg_voltage = statistics.mean([r.get("voltage_v", 230) for r in raw_sums[name][idx]])
+                    avg_current = statistics.mean([r.get("current_a", 0) for r in raw_sums[name][idx]])
                     
                     self.profiles[name][idx] = {
                         "power_w": avg_power,
                         "voltage_v": avg_voltage,
                         "current_a": avg_current,
-                        "is_active": any([r.get("is_active") for r in self.profiles[name][idx]]),
-                        "total_kwh_accumulated": self.profiles[name][idx][-1].get("total_kwh_accumulated", 0) # Fallback
+                        "is_active": any([r.get("is_active") for r in raw_sums[name][idx]])
                     }
                 else:
                     # Fallback if no data at all for an interval
                     self.profiles[name][idx] = {
-                        "power_w": 0, "voltage_v": 230, "current_a": 0, "is_active": False, "total_kwh_accumulated": 0
+                        "power_w": 0, "voltage_v": 230, "current_a": 0, "is_active": False
                     }
         logger.info("Pattern learning complete.")
 
@@ -136,8 +142,24 @@ class RefinedCSVMigrator:
 
             daily_readings = []
             
+            # --- Scaling Logic for Jan 12 - Jan 25 ---
+            scaling_factor = 1.0
+            target_range_start = datetime(2026, 1, 12).date()
+            target_range_end = datetime(2026, 1, 25).date()
+            
+            if target_range_start <= date_obj <= target_range_end:
+                day_offset = (date_obj - target_range_start).days
+                target_kwh = TARGET_ENERGY[name][day_offset]
+                
+                # Calculate baseline energy for the pattern
+                baseline_energy = sum([p["power_w"] for p in self.profiles[name]]) / 6000.0 # (P/6) / 1000
+                if baseline_energy > 0:
+                    scaling_factor = target_kwh / baseline_energy
+                    logger.info(f"Day {date_str} {name}: Target={target_kwh}kWh, Baseline={baseline_energy:.3f}kWh, Scaling={scaling_factor:.3f}")
+            
             # Generate 144 intervals
             base_time = datetime.combine(date_obj, time.min).replace(tzinfo=MANILA_TZ)
+            accumulated_kwh = 0.0
             
             for i in range(144):
                 target_time = base_time + timedelta(minutes=i * 10)
@@ -146,8 +168,6 @@ class RefinedCSVMigrator:
                 # 1. Try to find real data in the window
                 found_data = None
                 if name in real_day_data:
-                    # Look for exact or very close matches
-                    # For simplicity, we check the exact 10-minute mark first
                     if ts_key in real_day_data[name]:
                         found_data = real_day_data[name][ts_key]
                 
@@ -155,19 +175,36 @@ class RefinedCSVMigrator:
                     processed = self.preprocessor.normalize(name, found_data["raw"])
                     weather = found_data["weather"]
                     raw = found_data["raw"]
+                    # For real data, we still update the accumulated sum if we use it for reconstruction later
+                    accumulated_kwh += (processed.get("power_w", 0) / 6.0) / 1000.0
                 else:
-                    # 2. Use Pattern-Based Smart Fill
-                    processed = self.profiles[name][i].copy()
+                    # 2. Use Pattern-Based Smart Fill + Scaling
+                    base_profile = self.profiles[name][i].copy()
                     weather = {"temp": None, "humidity": None, "pressure": None}
                     
+                    # Scale properties
+                    scaled_power = base_profile["power_w"] * scaling_factor
+                    scaled_current = (scaled_power / base_profile["voltage_v"]) if base_profile["voltage_v"] > 0 else 0
+                    
+                    processed = {
+                        "power_w": round(scaled_power, 2),
+                        "voltage_v": round(base_profile["voltage_v"], 2),
+                        "current_a": round(scaled_current, 3),
+                        "is_active": base_profile["is_active"],
+                        "total_kwh_accumulated": round(accumulated_kwh, 3)
+                    }
+                    
+                    energy_in_interval = (scaled_power / 6.0) / 1000.0
+                    accumulated_kwh += energy_in_interval
+
                     # Generate realistic Tuya raw values (Matches the device's extended schema)
                     raw = {
                         "switch_1": True,
                         "countdown_1": 0,
-                        "add_ele": int(processed.get("total_kwh_accumulated", 0) * 100),
-                        "cur_current": int(processed.get("current_a", 0) * 1000),
-                        "cur_power": int(processed.get("power_w", 0) * 10),
-                        "cur_voltage": int(processed.get("voltage_v", 230) * 10),
+                        "add_ele": int(accumulated_kwh * 100), # 1 unit = 0.01 kWh
+                        "cur_current": int(scaled_current * 1000),
+                        "cur_power": int(scaled_power * 10),
+                        "cur_voltage": int(base_profile["voltage_v"] * 10),
                         "voltage_coe": 567,
                         "electric_coe": 29676,
                         "power_coe": 15976,
