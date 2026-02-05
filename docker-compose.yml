@@ -12,7 +12,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
-    command: python collector/data_collector.py
+    command: python backend/collector/data_collector.py
 
   api:
     build: .
@@ -21,7 +21,7 @@ services:
     ports:
       - "8000:8000"
     env_file: .env
-    command: uvicorn api.index:app --host 0.0.0.0 --port 8000
+    command: uvicorn backend.api.index:app --host 0.0.0.0 --port 8000
   # For local development on Windows, we can uncomment this to have a local DB
   # mongodb:
   #   image: mongo:latest

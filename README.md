@@ -1,4 +1,4 @@
-# SARIMAX Energy Dashboard
+# ⚡ SARIMAX Energy Dashboard
 
 A comprehensive smart energy consumption monitoring and forecasting dashboard. Built with a focus on predictive analytics using SARIMAX time series models and automated notifications via Gmail OAuth2.
 
@@ -6,47 +6,67 @@ A comprehensive smart energy consumption monitoring and forecasting dashboard. B
 
 ```text
 Sarimax-Thesis/
-├── collector/               # LIVE Data Collection Pipeline (Dockerized)
-│   ├── storage/             # MongoDB Client & Schemas
-│   ├── utils/               # Data Normalizers & Historical Backfillers
-│   └── data_collector.py    # Main 10-minute interval engine
-├── api/                     # Python Forecast API (FastAPI)
-│   ├── index.py             # Entry point
-│   └── utils/               # Email & Forecast utilities
+├── backend/
+│   ├── collector/           # LIVE Data Collection Pipeline
+│   │   ├── storage/         # MongoDB Client & Schemas
+│   │   └── data_collector.py # Main 10-minute interval engine
+│   ├── preprocessing/       # ML Data Pipeline (5 Phases)
+│   │   ├── TH2_Pipeline_Runner.py # Main pipeline orchestrator
+│   │   └── TH2_Mongo_Extractor.py # Data extraction from Atlas
+│   └── api/                 # Python Forecast API (FastAPI)
+│       └── index.py         # Entry point & SARIMAX logic
 ├── src/                     # React Frontend Dashboard
-├── data/                    # Local CSV energy logs
-├── Dockerfile               # Containerization for collector
-├── docker-compose.yml       # Orchestration for cloud deployment
-└── .env                     # Credentials & API Keys
+├── data/                    # Data Storage (Raw, Intermediate, Final)
+├── logs/                    # Persistent logs for Docker services
+├── Dockerfile               # Unified containerization
+└── docker-compose.yml       # Service orchestration
 ```
 
-## 🚀 Data Pipeline (Dockerized)
+## 🔄 The Entire Process
 
-The energy data is managed by a modular collection pipeline that ensures high-fidelity datasets:
+The project follows a rigorous data lifecycle from raw electrical signals to predictive insights:
 
-- **Live Collection**: Fetches real-time Volts, Amps, and Watts from Tuya devices every 10 minutes.
-- **Strict Alignment**: Automatically aligns data to exactly **144 points per day** (:00, :10, :20...).
-- **Historical Consistency**: A dedicated historical management system ensures that previous days are complete, with full support for centivolt/deciwatt normalization.
-- **Cloud Ready**: Optimized for lightweight Linux VMs (Azure/AWS) using Docker and Swap optimization.
+### 1. Data Collection (Live)
+- **Engine**: `data_collector.py` polls Tuya Smart Plugs every 10 minutes.
+- **Alignment**: Automatically aligns data to exactly **144 points per day** (:00, :10, :20...).
+- **Redundancy**: Stores data both in local CSV logs (`data/energy_data`) and MongoDB Atlas.
+- **Backfill**: Automatically checks and fills gaps from the previous day every midnight.
+
+### 2. Preprocessing Pipeline
+The `TH2_Pipeline_Runner.py` orchestrates a 5-phase data refinement process:
+- **Phase 0 (Extraction)**: Decouples raw data from MongoDB Atlas.
+- **Stage A (Standardization)**: Normalizes centivolt/deciwatt units and verifies data integrity.
+- **Stage B (Cleaning)**: Handles outliers and derives base energy metrics.
+- **Stage C (Features)**: Constructs rolling averages, lag features, and weather-dependent variables.
+- **Stage D (Export)**: Generates the final high-fidelity dataset ready for SARIMAX modeling.
+
+### 3. API & Forecasting
+- **Engine**: FastAPI backend serves real-time energy forecasts.
+- **Model**: Leverages SARIMAX (Seasonal AutoRegressive Integrated Moving Average with eXogenous factors) to predict consumption based on historical trends and external weather data.
+
+## 📊 Monitoring & Logging
+
+When running via Docker, you can monitor the health and activity of the services using:
+
+```bash
+# View live data collection logs
+docker logs -f tuya-data-collector
+
+# View API / Forecast request logs
+docker logs -f sarimax-api
+```
+> [!TIP]
+> Persistent logs are also stored in the host's `./logs/` directory for long-term auditing.
 
 ## 🚀 Getting Started
 
-You can run this project either using **Docker** (recommended) or **Manually**.
-
-### Option A: Docker Setup (Fastest)
+### Option A: Docker Setup (Recommended)
 This starts the Data Collector and the Forecast API in the background.
 ```bash
-# 1. Clone & Enter
-git clone https://github.com/geovportodo14/Sarimax-Thesis.git
-cd Sarimax-Thesis
-
-# 2. Setup .env
-# Create a .env file and paste the credentials provided in the walkthrough.
-
-# 3. Launch Services
+# 1. Launch Services
 docker-compose up --build -d
 
-# 4. Start Frontend (on your host machine)
+# 2. Start Frontend (on your host machine)
 npm install
 npm start
 ```
@@ -62,28 +82,17 @@ npm start
 #### 2. Forecast API (FastAPI)
 ```bash
 pip install -r requirements.txt
-uvicorn api.index:app --reload
+uvicorn backend.api.index:app --reload
 ```
 #### 3. Data Collector
 ```bash
-python collector/data_collector.py
+python backend/collector/data_collector.py
 ```
-
-## 📊 Historical Dataset
-The project maintains a high-quality dataset starting from **January 3rd**, categorized into:
-- **Baseline Period**: High-resolution logs capturing appliance behaviors.
-- **Monitoring Period**: Live synchronized data streamed to MongoDB Atlas.
-- **Data Format**: Standardized units (**V, A, W, kWh**) for seamless integration with SARIMAX modeling.
 
 ## 📧 Gmail Notifications
 Automated notifications are sent via Gmail OAuth2:
 1.  **Welcome Emails**: Sent upon successful connection.
 2.  **Budget Alerts**: Triggered when consumption exceeds predicted SARIMAX thresholds.
-
-## ☁️ Deployment
-- **Collector & API**: Deployed on Azure VM via Docker Compose.
-- **Frontend**: Deployed on Vercel for fast global access.
-- **Database**: Hosted on MongoDB Atlas.
 
 ## 📄 License
 MIT - Part of the TH1 SARIMAX V2 Thesis Project.

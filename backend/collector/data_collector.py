@@ -134,6 +134,25 @@ class DataCollector:
                 summary = self.db.final_daily_validation(name, yesterday_str)
                 if summary:
                     logger.info(f"Daily summary for {name} on {yesterday_str}: {summary}")
+        
+        # After all devices are backfilled and validated, trigger the preprocessing pipeline
+        self.trigger_preprocessing()
+
+    def trigger_preprocessing(self):
+        """Triggers the TH2 Preprocessing Pipeline to update modeling datasets."""
+        try:
+            logger.info("Triggering automated TH2 Preprocessing Pipeline...")
+            # Import inside function to handle potential path issues at runtime
+            import sys
+            root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+            if root_path not in sys.path:
+                sys.path.append(root_path)
+            
+            from backend.preprocessing.TH2_Pipeline_Runner import run_full_pipeline
+            run_full_pipeline()
+            logger.info("Automated Preprocessing Pipeline completed successfully.")
+        except Exception as e:
+            logger.exception(f"Failed to run automated preprocessing: {e}")
 
     def run_forever(self):
         logger.info("Collector started. Waiting for next 10-minute interval...")

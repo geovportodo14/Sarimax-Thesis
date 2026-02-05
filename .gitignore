@@ -37,3 +37,6 @@ yarn-error.log*
 *.swp
 *.swo
 *~
+# Generated Data and Logs
+data/energy_data/
+logs/

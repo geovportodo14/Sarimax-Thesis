@@ -24,5 +24,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code
 COPY . .
 
-# Command to run the application (will be overridden in docker-compose for different services)
-CMD ["python", "src/main.py"]
+# Command to run the application (overridden in docker-compose for specific services)
+CMD ["python", "main.py"]
