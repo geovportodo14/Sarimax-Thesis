@@ -12,10 +12,16 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "[2/3] Rebuilding Docker Containers..."
-# We use --build to ensure the new Dockerfile changes are picked up
-# We use -d to run in detached mode (background)
-docker-compose down
-docker-compose up --build -d
+
+# Detect which docker compose command is available
+if command -v docker-compose &> /dev/null; then
+    COMPOSE_CMD="docker-compose"
+else
+    COMPOSE_CMD="docker compose"
+fi
+
+$COMPOSE_CMD down
+$COMPOSE_CMD up --build -d
 
 if [ $? -ne 0 ]; then
     echo "Error: Docker build/startup failed."
