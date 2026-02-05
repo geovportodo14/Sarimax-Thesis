@@ -514,3 +514,5 @@ pymongo.errors.ServerSelectionTimeoutError: SSL handshake failed: ac-xsw5raz-sha
 2026-02-05 10:50:04,747 - __main__ - INFO - Next collection in 596 seconds
 2026-02-05 11:00:00,749 - __main__ - INFO - Starting collection at 2026-02-05 11:00:00
 2026-02-05 11:00:05,752 - __main__ - INFO - Next collection in 595 seconds
+2026-02-05 11:10:00,752 - __main__ - INFO - Starting collection at 2026-02-05 11:10:00
+2026-02-05 11:10:05,158 - __main__ - INFO - Next collection in 595 seconds

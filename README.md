@@ -83,6 +83,24 @@ python main.py
 npm start
 ```
 
+## 📊 Monitoring & Logs
+
+To check if the **Live Data Collection** is working or if the **API** is receiving requests, use these commands:
+
+```bash
+# View Data Collector Logs (Live stream)
+docker logs -f tuya-data-collector
+
+# View Forecast API Logs
+docker logs -f sarimax-api
+```
+
+> [!TIP]
+> The logs will show you:
+> *   "Next collection in X seconds..."
+> *   "Backfilling X intervals..."
+> *   "Automated Preprocessing Pipeline completed successfully."
+
 ## ☁️ Deployment (Azure VM)
 
 To update the live server:
