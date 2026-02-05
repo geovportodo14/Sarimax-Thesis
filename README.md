@@ -1,93 +1,98 @@
 # ⚡ SARIMAX Energy Dashboard
 
-A comprehensive smart energy consumption monitoring and forecasting dashboard. Built with a focus on predictive analytics using SARIMAX time series models and automated notifications via Gmail OAuth2.
+A comprehensive smart energy consumption monitoring and forecasting dashboard. Built with a focus on predictive analytics using SARIMAX time series models, fully automated data pipelines, and intelligent notifications via Gmail OAuth2.
 
 ## 📁 Project Structure
+
+The project follows a "Hybrid Clean" architecture, grouping backend logic while keeping the frontend accessible for easy builds.
 
 ```text
 Sarimax-Thesis/
 ├── backend/
-│   ├── collector/           # LIVE Data Collection Pipeline
+│   ├── api/                 # FastAPI Forecast Server
+│   │   └── index.py         # Entry point & SARIMAX logic
+│   ├── collector/           # LIVE IoT Data Ingestion
 │   │   ├── storage/         # MongoDB Client & Schemas
-│   │   └── data_collector.py # Main 10-minute interval engine
-│   ├── preprocessing/       # ML Data Pipeline (5 Phases)
-│   │   ├── TH2_Pipeline_Runner.py # Main pipeline orchestrator
-│   │   └── TH2_Mongo_Extractor.py # Data extraction from Atlas
-│   └── api/                 # Python Forecast API (FastAPI)
-│       └── index.py         # Entry point & SARIMAX logic
+│   │   └── data_collector.py # 24/7 Engine & Backfill Logic
+│   └── preprocessing/       # TH2 Automated Pipeline
+│       ├── TH2_Pipeline_Runner.py  # Master Orchestrator
+│       ├── TH2_Mongo_Extractor.py  # Cloud Data Fetcher
+│       └── stage_*.py              # Stages A-D (Standardize, Clean, Features, Export)
 ├── src/                     # React Frontend Dashboard
-├── data/                    # Data Storage (Raw, Intermediate, Final)
-├── logs/                    # Persistent logs for Docker services
-├── Dockerfile               # Unified containerization
-└── docker-compose.yml       # Service orchestration
+├── data/                    # Data Storage
+│   ├── raw/                 # Fresh from MongoDB Atlas
+│   ├── intermediate/        # Pipeline Processing Cache
+│   ├── final/               # Modeling-Ready Datasets (Ready for SARIMAX)
+│   └── archive/             # Historical logs
+├── docs/                    # Thesis Documentation & Analysis
+├── main.py                  # UNIFIED ENTRY POINT (Local Dev)
+├── deploy.sh                # Azure VM Auto-Deployment Script
+├── Dockerfile               # Production Container
+└── docker-compose.yml       # Service Orchestration
 ```
 
-## 🔄 The Entire Process
+## 🔄 The Automated Workflow
 
-The project follows a rigorous data lifecycle from raw electrical signals to predictive insights:
+Our backend is designed to run autonomously, handling everything from data outages to model preparation without human intervention.
 
-### 1. Data Collection (Live)
-- **Engine**: `data_collector.py` polls Tuya Smart Plugs every 10 minutes.
-- **Alignment**: Automatically aligns data to exactly **144 points per day** (:00, :10, :20...).
-- **Redundancy**: Stores data both in local CSV logs (`data/energy_data`) and MongoDB Atlas.
-- **Backfill**: Automatically checks and fills gaps from the previous day every midnight.
+### 1. Smart Collection & Backfilling 🛡️
+- **Engine**: `data_collector.py`
+- **Function**: Polls Tuya Smart Plugs every 10 minutes.
+- **Safety Net**: If the system goes offline (e.g., power outage), it automatically "backfills" missing historical data from the Tuya Cloud upon restart or every midnight.
 
-### 2. Preprocessing Pipeline
-The `TH2_Pipeline_Runner.py` orchestrates a 5-phase data refinement process:
-- **Phase 0 (Extraction)**: Decouples raw data from MongoDB Atlas.
-- **Stage A (Standardization)**: Normalizes centivolt/deciwatt units and verifies data integrity.
-- **Stage B (Cleaning)**: Handles outliers and derives base energy metrics.
-- **Stage C (Features)**: Constructs rolling averages, lag features, and weather-dependent variables.
-- **Stage D (Export)**: Generates the final high-fidelity dataset ready for SARIMAX modeling.
+### 2. Auto-Triggered Preprocessing 🧠
+- **Engine**: `TH2_Pipeline_Runner.py`
+- **Trigger**: Runs automatically every day at 12:00 AM (midnight) or manual trigger.
+- **Process**:
+    1.  **Extraction**: Pulls verified data from MongoDB.
+    2.  **Stage A**: Standardizes units and timestamps (UTC+8).
+    3.  **Stage B**: Cleans energy data and handles power spikes.
+    4.  **Stage C**: Computes SARIMAX features (Lags, Rolling Means).
+    5.  **Stage D**: Exports `model_ready_*.csv` to `data/final/`.
 
-### 3. API & Forecasting
-- **Engine**: FastAPI backend serves real-time energy forecasts.
-- **Model**: Leverages SARIMAX (Seasonal AutoRegressive Integrated Moving Average with eXogenous factors) to predict consumption based on historical trends and external weather data.
+### 3. Forecasting API 🔮
+- **Engine**: FastAPI (`backend/api/index.py`)
+- **Function**: Consumes the `data/final/` datasets to serve real-time consumption forecasts and budget alerts.
 
-## 📊 Monitoring & Logging
+## � Getting Started
 
-When running via Docker, you can monitor the health and activity of the services using:
+You can run the entire system in two ways.
+
+### Option A: Docker (Recommended) 🐳
+The easiest way. No Python installation required.
 
 ```bash
-# View live data collection logs
-docker logs -f tuya-data-collector
-
-# View API / Forecast request logs
-docker logs -f sarimax-api
-```
-> [!TIP]
-> Persistent logs are also stored in the host's `./logs/` directory for long-term auditing.
-
-## 🚀 Getting Started
-
-### Option A: Docker Setup (Recommended)
-This starts the Data Collector and the Forecast API in the background.
-```bash
-# 1. Launch Services
+# Start Backend Services (Collector + API)
 docker-compose up --build -d
 
-# 2. Start Frontend (on your host machine)
-npm install
-npm start
+# Start Frontend (Host)
+npm install && npm start
 ```
 
-### Option B: Manual Setup (Development)
-If you prefer to run services individually:
+### Option B: Local Python (Manual) 🐍
+For development or debugging.
 
-#### 1. Frontend (React)
 ```bash
-npm install
-npm start
-```
-#### 2. Forecast API (FastAPI)
-```bash
+# 1. Install Dependencies
 pip install -r requirements.txt
-uvicorn backend.api.index:app --reload
+
+# 2. Run Unified Orchestrator (Starts API + Collector)
+python main.py
+
+# 3. Start Frontend (Separate Terminal)
+npm start
 ```
-#### 3. Data Collector
-```bash
-python backend/collector/data_collector.py
-```
+
+## ☁️ Deployment (Azure VM)
+
+To update the live server:
+1.  SHH into the VM.
+2.  Run the auto-deploy script:
+    ```bash
+    git pull
+    ./deploy.sh
+    ```
+    *(This script handles stopping containers, rebuilding, and cleaning up.)*
 
 ## 📧 Gmail Notifications
 Automated notifications are sent via Gmail OAuth2:
