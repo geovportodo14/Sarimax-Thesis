@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # Configuration
-ACCESS_ID = os.getenv("TUYA_ACCESS_ID", "n4avpsaekkrqpsqn9qpx")
-ACCESS_SECRET = os.getenv("TUYA_ACCESS_SECRET", "eb0ba2286cdf42c391374117f48c1296")
+ACCESS_ID = os.getenv("TUYA_ACCESS_ID", "hgjxtdrmwt4keqeje7q9")
+ACCESS_SECRET = os.getenv("TUYA_ACCESS_SECRET", "a82d955de68a4843bc5717b6a985661c")
 ENDPOINT = os.getenv("TUYA_ENDPOINT", "https://openapi-sg.iotbing.com")
 WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "12a933cfc49aae1d814dd6407120d524")
 MONGODB_URI = os.getenv("MONGODB_URI")
