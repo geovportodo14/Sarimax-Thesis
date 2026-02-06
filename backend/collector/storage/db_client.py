@@ -65,6 +65,41 @@ class MongoDBClient:
             logger.exception(f"Failed to store reading for {appliance_name}")
             return False
 
+    def get_reading(self, appliance_name, date_str, interval_index):
+        """
+        Retrieves a specific reading from a daily document by interval_index.
+        """
+        collection = self.db[appliance_name.lower()]
+        # Using $elemMatch to find the document that contains the matching reading in the array
+        doc = collection.find_one(
+            {"date": date_str, "readings.interval_index": interval_index},
+            {"readings.$": 1} # Project only the matched element from the 'readings' array
+        )
+        if doc and "readings" in doc and len(doc["readings"]) > 0:
+            return doc["readings"][0] # Only one should match due to the query and projection
+        return None
+
+    def update_reading_weather(self, appliance_name, date_str, interval_index, weather_data):
+        """
+        Updates only the weather data for a specific reading within a daily document.
+        """
+        collection = self.db[appliance_name.lower()]
+        try:
+            # Use positional operator $ to update the matched element in the array
+            result = collection.update_one(
+                {"date": date_str, "readings.interval_index": interval_index},
+                {"$set": {"readings.$.weather": weather_data}}
+            )
+            if result.matched_count > 0:
+                logger.debug(f"Updated weather for {appliance_name} on {date_str}, interval {interval_index}")
+                return True
+            else:
+                logger.debug(f"No matching reading found for weather update: {appliance_name} {date_str}, interval {interval_index}")
+                return False
+        except Exception as e:
+            logger.exception(f"Failed to update weather for reading {appliance_name} on {date_str}, interval {interval_index}")
+            return False
+
     def final_daily_validation(self, appliance_name, date_str):
         """
         Calculates daily summary (total kWh, peak power, etc.) once 144 points are confirmed.

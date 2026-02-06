@@ -16,7 +16,8 @@ class Stage333Config:
     temp_max_c: float = 45.0
     humidity_min: float = 0.0 
     humidity_max: float = 100.0
-    rainfall_min_mm: float = 0.0
+    pressure_min_hpa: float = 980.0 # Changed from rainfall_min_mm
+    pressure_max_hpa: float = 1050.0 # Added max for pressure
 
     temp_jump_c: float = 5.0
     humidity_jump_pct: float = 20.0
@@ -60,7 +61,7 @@ def hourly_resample_energy(df_10min: pd.DataFrame, cfg: Stage333Config) -> pd.Da
 
     d = d.sort_values(["device_id", "timestamp"]).reset_index(drop=True)
 
-    d["hour_ts"] = d["timestamp"].dt.floor("H")
+    d["hour_ts"] = d["timestamp"].dt.floor("h")
 
     hourly_sum = d.groupby(["device_id", "hour_ts"], as_index=False)["e_final_kwh"].sum()
     hourly_sum = hourly_sum.rename(columns={"e_final_kwh": "e_hour_kwh"})
@@ -88,12 +89,12 @@ def validate_and_clean_weather(weather_df: pd.DataFrame, cfg: Stage333Config) ->
     wx = _ensure_datetime_tz(wx, "timestamp")
     wx = wx.sort_values("timestamp").reset_index(drop=True)
 
-    wx["hour_ts"] = wx["timestamp"].dt.floor("H")
+    wx["hour_ts"] = wx["timestamp"].dt.floor("h")
 
     wx_h = wx.groupby("hour_ts", as_index=False).agg(
         temperature=("temperature", "mean"),
         humidity=("humidity", "mean"),
-        rainfall=("rainfall", "mean")
+        pressure=("pressure", "mean") # Changed from 'rainfall'
     )
 
     wx_h["wx_tags"] = ""
@@ -101,7 +102,7 @@ def validate_and_clean_weather(weather_df: pd.DataFrame, cfg: Stage333Config) ->
 
     t_bad = (wx_h["temperature"] < cfg.temp_min_c) | (wx_h["temperature"] > cfg.temp_max_c)
     h_bad = (wx_h["humidity"] <= cfg.humidity_min) | (wx_h["humidity"] > cfg.humidity_max)
-    r_bad = (wx_h["rainfall"] < cfg.rainfall_min_mm)
+    p_bad = (wx_h["pressure"] < cfg.pressure_min_hpa) | (wx_h["pressure"] > cfg.pressure_max_hpa) # Changed from r_bad and used pressure config
 
     def _flag(mask: pd.Series, code: str, col: str):
         if mask.any():
@@ -112,22 +113,24 @@ def validate_and_clean_weather(weather_df: pd.DataFrame, cfg: Stage333Config) ->
 
     _flag(t_bad, "WX_RANGE_TEMP", "temperature")
     _flag(h_bad, "WX_RANGE_HUM", "humidity")
-    _flag(r_bad, "WX_RANGE_RAIN", "rainfall")
+    _flag(p_bad, "WX_RANGE_PRES", "pressure") # Changed from WX_RANGE_RAIN and used pressure
 
     wx_h.loc[t_bad, "temperature"] = np.nan
     wx_h.loc[h_bad, "humidity"] = np.nan
-    wx_h.loc[r_bad, "rainfall"] = np.nan
+    wx_h.loc[p_bad, "pressure"] = np.nan # Changed from rainfall
 
     wx_h = wx_h.set_index("hour_ts")
-    wx_h[["temperature", "humidity", "rainfall"]] = wx_h[["temperature", "humidity", "rainfall"]].interpolate(method="time")
+    wx_h[["temperature", "humidity", "pressure"]] = wx_h[["temperature", "humidity", "pressure"]].interpolate(method="time") # Changed from rainfall
     wx_h = wx_h.reset_index()
 
     wx_h = wx_h.sort_values("hour_ts").reset_index(drop=True)
     wx_h["temp_delta"] = wx_h["temperature"].diff()
     wx_h["hum_delta"] = wx_h["humidity"].diff()
+    wx_h["pres_delta"] = wx_h["pressure"].diff() # Added for pressure
 
     temp_jump = wx_h["temp_delta"].abs() > cfg.temp_jump_c
     hum_jump = wx_h["hum_delta"].abs() > cfg.humidity_jump_pct
+    # No jump check for pressure, typically not as erratic
 
     _flag(temp_jump, "WX_JUMP_TEMP", "temperature")
     _flag(hum_jump, "WX_JUMP_HUM", "humidity")
@@ -136,7 +139,7 @@ def validate_and_clean_weather(weather_df: pd.DataFrame, cfg: Stage333Config) ->
     wx_h.loc[hum_jump, "humidity"] = np.nan
 
     wx_h = wx_h.set_index("hour_ts")
-    wx_h[["temperature", "humidity"]] = wx_h[["temperature", "humidity"]].interpolate(method="time")
+    wx_h[["temperature", "humidity", "pressure"]] = wx_h[["temperature", "humidity", "pressure"]].interpolate(method="time") # Changed from rainfall
     wx_h = wx_h.reset_index()
 
     if len(flags) > 0:
@@ -176,7 +179,7 @@ def add_time_lag_rolling_features(hourly_df: pd.DataFrame, cfg: Stage333Config) 
 
 def merge_hourly_with_weather(hourly_energy: pd.DataFrame, weather_hourly: pd.DataFrame) -> pd.DataFrame:
     merged = hourly_energy.merge(
-        weather_hourly[["hour_ts", "temperature", "humidity", "rainfall", "wx_tags"]],
+        weather_hourly[["hour_ts", "temperature", "humidity", "pressure", "wx_tags"]], # Changed from rainfall
         on="hour_ts",
         how="left"
     )

@@ -72,12 +72,15 @@ def extract_mongo_data():
                 if ts and ts not in seen_weather_ts:
                     weather_reading = {
                         "timestamp": ts,
-                        "temperature": weather.get("temp") or weather.get("temp_C"),
-                        "humidity": weather.get("humidity"),
-                        "rainfall": weather.get("rain", 0.0) # Default to 0 if not present
+                        "temperature": weather.get("temp"),  # Map 'temp' from Mongo to 'temperature' in CSV
+                        "humidity": weather.get("humidity"), # Map 'humidity' from Mongo to 'humidity' in CSV
+                        "pressure": weather.get("pressure")   # Map 'pressure' from Mongo to 'pressure' in CSV
+                        # 'rainfall' is not consistently available or directly mapped from the migrated CSVs, so omit.
                     }
-                    all_weather_readings.append(weather_reading)
-                    seen_weather_ts.add(ts)
+                    # Only add if at least one weather metric (temp, humidity, pressure) is present
+                    if any(v is not None for k, v in weather_reading.items() if k != "timestamp"):
+                        all_weather_readings.append(weather_reading)
+                        seen_weather_ts.add(ts)
 
     client.close()
     

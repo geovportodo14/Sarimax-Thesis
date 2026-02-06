@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # Configuration
-ACCESS_ID = os.getenv("TUYA_ACCESS_ID", "nrf89gjrxe3wrqjnr5tc")
-ACCESS_SECRET = os.getenv("TUYA_ACCESS_SECRET", "d170c9dd96204a4cbf79d7bece7a37cb")
+ACCESS_ID = os.getenv("TUYA_ACCESS_ID", "n4avpsaekkrqpsqn9qpx")
+ACCESS_SECRET = os.getenv("TUYA_ACCESS_SECRET", "eb0ba2286cdf42c391374117f48c1296")
 ENDPOINT = os.getenv("TUYA_ENDPOINT", "https://openapi-sg.iotbing.com")
 WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "12a933cfc49aae1d814dd6407120d524")
 MONGODB_URI = os.getenv("MONGODB_URI")
@@ -39,7 +39,7 @@ DEVICES = {
     "Electric_Fan": "a3c772d3fde52dbae832bi"
 }
 
-CSV_FOLDER = "data/energy_data"
+CSV_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/archive/energy_data"))
 MANILA_TZ = pytz.timezone("Asia/Manila")
 
 class DataCollector:
@@ -49,26 +49,36 @@ class DataCollector:
         self.db = MongoDBClient(MONGODB_URI, DATABASE_NAME) if MONGODB_URI else None
         self.preprocessor = DataPreprocessor()
         
+        # Ensure archive directory exists
         if not os.path.exists(CSV_FOLDER):
             os.makedirs(CSV_FOLDER)
 
     def _get_csv_file(self):
+        """Returns the path to today's CSV file, creating it with headers if missing."""
         filename = f"energy_log_{datetime.now(MANILA_TZ).strftime('%Y%m%d')}.csv"
         filepath = os.path.join(CSV_FOLDER, filename)
+        
         if not os.path.isfile(filepath):
             with open(filepath, "w", newline="", encoding="utf-8") as f:
+                # Matches legacy schema for compatibility with refined_csv_migrator.py
                 csv.writer(f).writerow(["timestamp", "device", "property", "value", "temp_C", "humidity", "pressure"])
         return filepath
 
     def log_to_csv(self, timestamp, device, status, weather):
+        """Appends a reading to the daily CSV file."""
         filepath = self._get_csv_file()
         with open(filepath, "a", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
+            # Weather fallback handling
+            temp = weather.get("temp") if weather else None
+            hum = weather.get("humidity") if weather else None
+            press = weather.get("pressure") if weather else None
+
             if status:
                 for code, val in status.items():
-                    w.writerow([timestamp, device, code, val, weather["temp"], weather["humidity"], weather["pressure"]])
+                    w.writerow([timestamp, device, code, val, temp, hum, press])
             else:
-                w.writerow([timestamp, device, "NO_DATA", None, weather["temp"], weather["humidity"], weather["pressure"]])
+                w.writerow([timestamp, device, "NO_DATA", None, temp, hum, press])
 
     def collect_once(self):
         now_manila = datetime.now(MANILA_TZ)

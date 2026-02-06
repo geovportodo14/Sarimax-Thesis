@@ -23,7 +23,7 @@ class Stage334Config:
 
     def __post_init__(self):
         if self.weather_cols is None:
-            self.weather_cols = ["temperature", "humidity", "rainfall"]
+            self.weather_cols = ["temperature", "humidity", "pressure"] # Changed 'rainfall' to 'pressure'
 
 def _ensure_datetime_tz(df: pd.DataFrame, col: str, tz: str) -> pd.DataFrame:
     df = df.copy()
@@ -68,6 +68,39 @@ def synchronize_energy_weather(hourly_features_df: pd.DataFrame, cfg: Stage334Co
 
 # B. Final Variable Structure for Modeling
 
+def check_daily_completeness(df: pd.DataFrame, cfg: Stage334Config, expected_hourly: int = 24) -> pd.DataFrame:
+    """
+    Check daily data completeness and return a report.
+    
+    Args:
+        df: DataFrame with hourly data (must have cfg.ts_col_hour column)
+        cfg: Stage334Config with device_col and timezone settings
+        expected_hourly: Expected number of hourly readings per day (default: 24)
+    
+    Returns:
+        DataFrame with daily completeness report
+    """
+    d = df.copy()
+    
+    # Ensure timezone-aware timestamps using the correct column name
+    d = _ensure_datetime_tz(d, cfg.ts_col_hour, cfg.timezone)
+    
+    # Extract date in PH timezone
+    d["date"] = d[cfg.ts_col_hour].dt.tz_convert(cfg.timezone).dt.date
+    
+    # Count readings per day per device
+    daily_counts = d.groupby([cfg.device_col, "date"]).size().reset_index(name="count")
+    daily_counts["expected"] = expected_hourly
+    daily_counts["complete"] = daily_counts["count"] >= expected_hourly
+    daily_counts["completeness_pct"] = (daily_counts["count"] / daily_counts["expected"] * 100).round(2)
+    daily_counts["status"] = daily_counts.apply(
+        lambda r: "Complete" if r["complete"] else f"Incomplete ({r['count']}/{r['expected']})",
+        axis=1
+    )
+    
+    return daily_counts
+
+
 def build_modeling_ready_dataset(df_sync: pd.DataFrame, cfg: Stage334Config) -> pd.DataFrame:
     df = df_sync.copy()
 
@@ -86,7 +119,7 @@ def build_modeling_ready_dataset(df_sync: pd.DataFrame, cfg: Stage334Config) -> 
         cfg.device_col,
         "timestamp",
         "kWh",
-        "temperature", "humidity", "rainfall",
+        "temperature", "humidity", "pressure", # Changed 'rainfall' to 'pressure'
         "hour_of_day", "day_of_week", "is_weekend", "is_holiday",
         "lag_24", "lag_168",
         "rolling_mean_24", "rolling_mean_168"
@@ -98,7 +131,7 @@ def build_modeling_ready_dataset(df_sync: pd.DataFrame, cfg: Stage334Config) -> 
 
     if cfg.enforce_full_features:
         out = out.dropna(subset=[
-            "temperature", "humidity", "rainfall",
+            "temperature", "humidity", "pressure", # Changed 'rainfall' to 'pressure'
             "lag_24", "lag_168", "rolling_mean_24", "rolling_mean_168"
         ])
 
@@ -113,6 +146,10 @@ def build_modeling_ready_dataset(df_sync: pd.DataFrame, cfg: Stage334Config) -> 
             start_ts = g.loc[first_valid, "timestamp"]
             gated.append(g[g["timestamp"] >= start_ts])
         out = pd.concat(gated, ignore_index=True)
+
+    # Normalize timezone display: keep PH time values but remove timezone suffix for cleaner CSV
+    # This makes timestamps display as "2026-01-03 15:56:00" instead of "2026-01-03 15:56:00+08:00"
+    out["timestamp"] = out["timestamp"].dt.tz_convert(cfg.timezone).dt.tz_localize(None)
 
     return out
 
@@ -142,10 +179,41 @@ def stage_334_final_transformation(
         raise ValueError(f"Expected '{cfg.ts_col_hour}' in hourly features file.")
 
     df_sync = synchronize_energy_weather(df, cfg)
+    
+    # Generate daily completeness report before final transformation
+    completeness_report = check_daily_completeness(df_sync, cfg, expected_hourly=24)
+    
     df_model = build_modeling_ready_dataset(df_sync, cfg)
     per_device_paths = export_per_appliance(df_model, output_dir, cfg)
+    
+    # Save completeness report
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    completeness_path = out_dir / "daily_completeness_report.csv"
+    completeness_report.to_csv(completeness_path, index=False)
+    
+    print(f"\n📊 Daily Completeness Report:")
+    print(f"   Saved to: {completeness_path}")
+    print(f"\n   Summary:")
+    complete_days = completeness_report["complete"].sum()
+    total_days = len(completeness_report)
+    print(f"   - Complete days: {complete_days}/{total_days} ({complete_days/total_days*100:.1f}%)")
+    
+    incomplete = completeness_report[~completeness_report["complete"]]
+    if not incomplete.empty:
+        print(f"   - Incomplete days: {len(incomplete)}")
+        print(f"\n   ⚠️  Incomplete days details:")
+        for _, row in incomplete.head(10).iterrows():
+            print(f"      {row['device_id']} on {row['date']}: {row['count']}/{row['expected']} readings ({row['completeness_pct']:.1f}%)")
+        if len(incomplete) > 10:
+            print(f"      ... and {len(incomplete) - 10} more incomplete days")
 
-    return {"df_model_ready": df_model, "per_device_paths": per_device_paths}
+    return {
+        "df_model_ready": df_model, 
+        "per_device_paths": per_device_paths,
+        "completeness_report": completeness_report,
+        "completeness_path": str(completeness_path)
+    }
 
 # Example usage
 # if __name__ == "__main__":

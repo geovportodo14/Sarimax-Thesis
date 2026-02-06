@@ -11,7 +11,7 @@ from storage.db_client import MongoDBClient
 from utils.preprocessor import DataPreprocessor
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 load_dotenv()
@@ -104,7 +104,7 @@ class RefinedCSVMigrator:
             with open(filepath, mode='r', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
-                    ts_str = row['timestamp']
+                    ts_str_raw = row['timestamp']
                     device_name = row['device']
                     prop = row['property']
                     value = row['value']
@@ -112,8 +112,14 @@ class RefinedCSVMigrator:
                     if device_name not in DEVICES or prop == "NO_DATA":
                         continue
                     
-                    if ts_str not in device_readings[device_name]:
-                        device_readings[device_name][ts_str] = {
+                    # Normalize timestamp to the nearest 10-minute mark (floor)
+                    dt_obj = datetime.strptime(ts_str_raw, "%Y-%m-%d %H:%M:%S")
+                    normalized_minute = (dt_obj.minute // 10) * 10
+                    normalized_dt = dt_obj.replace(minute=normalized_minute, second=0, microsecond=0)
+                    ts_str_normalized = normalized_dt.strftime("%Y-%m-%d %H:%M:%S")
+
+                    if ts_str_normalized not in device_readings[device_name]:
+                        device_readings[device_name][ts_str_normalized] = {
                             "raw": {},
                             "weather": {
                                 "temp": float(row['temp_C']) if row['temp_C'] else None,
@@ -121,7 +127,8 @@ class RefinedCSVMigrator:
                                 "pressure": float(row['pressure']) if row['pressure'] else None
                             }
                         }
-                    device_readings[device_name][ts_str]["raw"][prop] = value
+                        logger.debug(f"[{device_name}] Parsed weather: {device_readings[device_name][ts_str_normalized]['weather']}")
+                    device_readings[device_name][ts_str_normalized]["raw"][prop] = value
         except Exception as e:
             logger.error(f"Error parsing {filepath}: {e}")
         return device_readings
@@ -133,8 +140,12 @@ class RefinedCSVMigrator:
         
         logger.info(f"--- Reconstructing Day: {date_str} ---")
         
+        logger.debug(f"[process_day] Checking CSV file: {filepath}")
+        csv_exists = os.path.exists(filepath)
+        logger.debug(f"[process_day] CSV file exists: {csv_exists}")
+        
         # Load real data if available
-        real_day_data = self._parse_csv_file(filepath) if os.path.exists(filepath) else {}
+        real_day_data = self._parse_csv_file(filepath) if csv_exists else {}
 
         for name, dev_id in DEVICES.items():
             if self.drop and self.db:
@@ -158,26 +169,40 @@ class RefinedCSVMigrator:
                     logger.info(f"Day {date_str} {name}: Target={target_kwh}kWh, Baseline={baseline_energy:.3f}kWh, Scaling={scaling_factor:.3f}")
             
             # Generate 144 intervals
-            base_time = datetime.combine(date_obj, time.min).replace(tzinfo=MANILA_TZ)
+            base_time = datetime.combine(date_obj, time.min) # Naive
+            base_time_aware = MANILA_TZ.localize(base_time)  # Aware
             accumulated_kwh = 0.0
             
             for i in range(144):
-                target_time = base_time + timedelta(minutes=i * 10)
+                target_time = base_time_aware + timedelta(minutes=i * 10)
                 ts_key = target_time.strftime("%Y-%m-%d %H:%M:%S")
                 
                 # 1. Try to find real data in the window
                 found_data = None
+                use_real_data = False
+                
                 if name in real_day_data:
                     if ts_key in real_day_data[name]:
                         found_data = real_day_data[name][ts_key]
                 
                 if found_data:
                     processed = self.preprocessor.normalize(name, found_data["raw"])
-                    weather = found_data["weather"]
-                    raw = found_data["raw"]
-                    # For real data, we still update the accumulated sum if we use it for reconstruction later
-                    accumulated_kwh += (processed.get("power_w", 0) / 6.0) / 1000.0
-                else:
+                    if processed:
+                        use_real_data = True
+                        weather = found_data["weather"]
+                        raw = found_data["raw"]
+                        
+                        # Energy Handling: Prefer direct CSV reading (add_ele)
+                        # Only use integral if add_ele/total_kwh is missing
+                        energy_in_interval = (processed.get("power_w", 0) / 6.0) / 1000.0
+                        accumulated_kwh += energy_in_interval
+                        
+                        if processed.get("total_kwh_accumulated") is None or processed.get("total_kwh_accumulated") == 0:
+                             processed["total_kwh_accumulated"] = round(accumulated_kwh, 3) 
+                    else:
+                         logger.warning(f"Normalization failed for {name} at {ts_key}. raw={found_data['raw']}")
+
+                if not use_real_data:
                     # 2. Use Pattern-Based Smart Fill + Scaling
                     base_profile = self.profiles[name][i].copy()
                     weather = {"temp": None, "humidity": None, "pressure": None}
@@ -191,11 +216,12 @@ class RefinedCSVMigrator:
                         "voltage_v": round(base_profile["voltage_v"], 2),
                         "current_a": round(scaled_current, 3),
                         "is_active": base_profile["is_active"],
-                        "total_kwh_accumulated": round(accumulated_kwh, 3)
+                        # "total_kwh_accumulated" will be added below after accumulated_kwh is updated
                     }
                     
                     energy_in_interval = (scaled_power / 6.0) / 1000.0
                     accumulated_kwh += energy_in_interval
+                    processed["total_kwh_accumulated"] = round(accumulated_kwh, 3)
 
                     # Generate realistic Tuya raw values (Matches the device's extended schema)
                     raw = {
@@ -219,6 +245,8 @@ class RefinedCSVMigrator:
                         "switch_inching": ""
                     }
                 
+                logger.debug(f"[process_day] {name} {ts_key} Final weather before DB: {weather}") # <--- Debug log
+
                 reading = {
                     "timestamp": target_time,
                     "interval_index": i,
@@ -228,9 +256,33 @@ class RefinedCSVMigrator:
                 }
                 
                 if self.db:
-                    self.db.store_reading(name, dev_id, target_time, raw, weather, processed_data=processed)
-                
-                daily_readings.append(reading)
+                    existing_mongo_reading = self.db.get_reading(name, date_str, i)
+                    
+                    if existing_mongo_reading:
+                        # If a reading exists, update weather if there's new weather data available (not all None)
+                        # The 'weather' variable here comes from either found_data (CSV) or pattern fill.
+                        # If it came from found_data, it contains values. If pattern, it's all None.
+                        if weather and any(v is not None for k,v in weather.items() if k != "timestamp"): # Check if 'weather' contains actual data
+                            self.db.update_reading_weather(name, date_str, i, weather)
+                            logger.debug(f"[process_day] {name} {ts_key} calling update_reading_weather with: {weather}") # <--- Debug log
+                        
+                        # Use the existing reading (potentially with updated weather) for export list and accumulated_kwh
+                        final_reading_for_export = existing_mongo_reading.copy()
+                        if weather and any(v is not None for k,v in weather.items() if k != "timestamp"):
+                            final_reading_for_export["weather"] = weather # Overlay new weather
+                        
+                        daily_readings.append(final_reading_for_export)
+
+                        if "processed_data" in final_reading_for_export and "total_kwh_accumulated" in final_reading_for_export["processed_data"]:
+                            accumulated_kwh = final_reading_for_export["processed_data"]["total_kwh_accumulated"]
+                    else:
+                        # No existing reading, so push a new one
+                        self.db.store_reading(name, dev_id, target_time, raw, weather, processed_data=processed)
+                        logger.debug(f"[process_day] {name} {ts_key} calling store_reading with: {weather}") # <--- Debug log
+                        daily_readings.append(reading)
+                else:
+                    # If DB is not enabled, just append the locally constructed reading for export
+                    daily_readings.append(reading)
 
             if self.export:
                 self._export_to_csv(name, date_str, daily_readings)
