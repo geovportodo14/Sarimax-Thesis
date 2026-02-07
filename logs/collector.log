@@ -3961,3 +3961,5 @@ AttributeError: type object 'datetime.time' has no attribute 'sleep'
 2026-02-08 00:00:51,065 - __main__ - WARNING - Electric_Fan is incomplete (5/144).
 2026-02-08 00:00:51,065 - __main__ - INFO - Skipping preprocessing for 2026-02-07: Some devices are still incomplete.
 2026-02-08 00:00:51,065 - __main__ - INFO - Next collection in 595 seconds
+2026-02-08 00:10:46,083 - __main__ - INFO - Starting collection at 2026-02-08 00:10:46
+2026-02-08 00:10:50,417 - __main__ - INFO - Next collection in 550 seconds
