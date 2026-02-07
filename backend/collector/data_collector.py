@@ -173,10 +173,10 @@ class DataCollector:
                 logger.warning(f"{name} is incomplete ({self.db.get_daily_count(name, yesterday_str)}/144).")
         
         if all_complete:
-            logger.info(f"All devices complete (144/144) for {yesterday_str}. Triggering pipeline...")
-            self.trigger_preprocessing()
+            logger.info(f"All devices complete (144/144) for {yesterday_str}. Data is ready for local preprocessing.")
+            # self.trigger_preprocessing() # Disabled for Azure deployment to save resources
         else:
-            logger.info(f"Skipping preprocessing for {yesterday_str}: Some devices are still incomplete.")
+            logger.info(f"Daily check for {yesterday_str}: Some devices are still incomplete. Collector will keep backfilling.")
 
     def trigger_preprocessing(self):
         """Triggers the TH2 Preprocessing Pipeline to update modeling datasets."""

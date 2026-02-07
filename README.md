@@ -2,6 +2,17 @@
 
 A comprehensive smart energy consumption monitoring and forecasting dashboard. Built with a focus on predictive analytics using SARIMAX time series models, fully automated data pipelines, and intelligent notifications via Gmail OAuth2.
 
+## 🏗️ Architecture: Separation of Concerns
+
+To maximize reliability and iteration speed, the system is split into two specialized environments:
+
+| Component | Environment | Responsibility |
+| :--- | :--- | :--- |
+| **Data Collector** | Azure VM (Docker) | 24/7 IoT polling and "Smart Backfilling" to ensure 100% data integrity. |
+| **Preprocessing** | Local Mac | Data extraction (Atlas -> CSV), Feature Engineering, and Model Dataset preparation. |
+
+---
+
 ## 📁 Project Structure
 
 The project follows a "Hybrid Clean" architecture, grouping backend logic while keeping the frontend accessible for easy builds.
@@ -31,61 +42,61 @@ Sarimax-Thesis/
 └── docker-compose.yml       # Service Orchestration
 ```
 
-## 🔄 The Automated Workflow
+---
 
-Our backend is designed to run autonomously, handling everything from data outages to model preparation without human intervention.
+## � The Automated Workflow
+
+Our backend is designed to run autonomously, handling everything from data outages to model preparation.
 
 ### 1. Smart Collection & Backfilling 🛡️
-- **Engine**: `data_collector.py`
-- **Function**: Polls Tuya Smart Plugs every 10 minutes.
-- **Safety Net**: If the system goes offline (e.g., power outage), it automatically "backfills" missing historical data from the Tuya Cloud upon restart or every midnight.
+*   **Engine**: `data_collector.py` (Runs in Docker on Azure)
+*   **Function**: Polls Tuya Smart Plugs every 10 minutes.
+*   **Safety Net**: If the system goes offline, it automatically performs a **"Smart Backfill"** of missing intervals from the Tuya Cloud upon restart or every midnight.
 
-### 2. Auto-Triggered Preprocessing 🧠
-- **Engine**: `TH2_Pipeline_Runner.py`
-- **Trigger**: Runs automatically every day at 12:00 AM (midnight) or manual trigger.
-- **Process**:
-    1.  **Extraction**: Pulls verified data from MongoDB.
+### 2. Preprocessing Pipeline (Model Ready) 🧠
+*   **Engine**: `TH2_Pipeline_Runner.py` (Recommended to run locally on your Mac)
+*   **Workflow**:
+    1.  **Extraction**: Pulls real-time data from MongoDB Atlas to local CSV.
     2.  **Stage A**: Standardizes units and timestamps (UTC+8).
-    3.  **Stage B**: Cleans energy data and handles power spikes.
-    4.  **Stage C**: Computes SARIMAX features (Lags, Rolling Means).
+    3.  **Stage B**: Cleans energy data and derives net kWh.
+    4.  **Stage C**: Computes SARIMAX features (Lags, Rolling Means) and merges Weather data.
     5.  **Stage D**: Exports `model_ready_*.csv` to `data/final/`.
 
 ### 3. Forecasting API 🔮
-- **Engine**: FastAPI (`backend/api/index.py`)
-- **Function**: Consumes the `data/final/` datasets to serve real-time consumption forecasts and budget alerts.
+*   **Engine**: FastAPI (`backend/api/index.py`)
+*   **Function**: Consumes the final datasets to serve real-time forecasts and budget alerts.
 
-## � Getting Started
+---
 
-You can run the entire system in two ways.
+## 🚀 Getting Started
 
-### Option A: Docker (Recommended) 🐳
-The easiest way. No Python installation required.
+### Option A: Docker (Azure VM - Collection) 🐳
+The primary way to run the 24/7 data collector.
 
 ```bash
 # Start Backend Services (Collector + API)
 docker-compose up --build -d
-
-# Start Frontend (Host)
-npm install && npm start
 ```
 
-### Option B: Local Python (Manual) 🐍
-For development or debugging.
+### Option B: Local Python (Mac/Manual - Preprocessing) 🐍
+Best for iterating on your thesis models and processing the collected data.
 
 ```bash
 # 1. Install Dependencies
 pip install -r requirements.txt
 
-# 2. Run Unified Orchestrator (Starts API + Collector)
-python main.py
+# 2. Run Preprocessing Pipeline
+python3 backend/preprocessing/TH2_Pipeline_Runner.py
 
-# 3. Start Frontend (Separate Terminal)
-npm start
+# 3. Start Frontend Dashboard
+npm install && npm start
 ```
+
+---
 
 ## 📊 Monitoring & Logs
 
-To check if the **Live Data Collection** is working or if the **API** is receiving requests, use these commands:
+Check if the Live Data Collection is working using these commands:
 
 ```bash
 # View Data Collector Logs (Live stream)
@@ -95,27 +106,27 @@ docker logs -f tuya-data-collector
 docker logs -f sarimax-api
 ```
 
-> [!TIP]
-> The logs will show you:
-> *   "Next collection in X seconds..."
-> *   "Backfilling X intervals..."
-> *   "Automated Preprocessing Pipeline completed successfully."
+---
 
 ## ☁️ Deployment (Azure VM)
 
-To update the live server:
-1.  SHH into the VM.
-2.  Run the auto-deploy script:
+To update the live server after making changes:
+1.  Push changes to GitHub from your Mac.
+2.  SSH into the Azure VM.
+3.  Execute:
     ```bash
-    git pull
-    ./deploy.sh
+    git pull origin main
+    docker-compose up --build -d
     ```
-    *(This script handles stopping containers, rebuilding, and cleaning up.)*
 
-## 📧 Gmail Notifications
+---
+
+## � Gmail Notifications
 Automated notifications are sent via Gmail OAuth2:
-1.  **Welcome Emails**: Sent upon successful connection.
-2.  **Budget Alerts**: Triggered when consumption exceeds predicted SARIMAX thresholds.
+- **Welcome Emails**: Sent upon successful connection.
+- **Budget Alerts**: Triggered when consumption exceeds predicted SARIMAX thresholds.
+
+---
 
 ## 📄 License
 MIT - Part of the TH1 SARIMAX V2 Thesis Project.
