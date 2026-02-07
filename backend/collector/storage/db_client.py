@@ -43,23 +43,38 @@ class MongoDBClient:
         }
 
         try:
-            # Update the daily document: push new reading and update metadata
-            # We use $set for processed_data to allow partial updates if needed
-            collection.update_one(
-                {"date": date_str, "device_id": device_id},
+            # 1. Try to update an existing interval in the daily document
+            result = collection.update_one(
                 {
-                    "$push": {"readings": reading},
-                    "$setOnInsert": {
-                        "date": date_str,
-                        "device_id": device_id,
-                        "appliance_type": appliance_name.lower(),
-                        "created_at": datetime.now()
-                    },
-                    "$set": {"last_updated": datetime.now()},
-                    "$inc": {"reading_count": 1}
+                    "date": date_str, 
+                    "device_id": device_id, 
+                    "readings.interval_index": interval_index
                 },
-                upsert=True
+                {
+                    "$set": {
+                        "readings.$": reading,
+                        "last_updated": datetime.now()
+                    }
+                }
             )
+
+            # 2. If no matching interval was found, either push to existing doc or upsert new doc
+            if result.matched_count == 0:
+                collection.update_one(
+                    {"date": date_str, "device_id": device_id},
+                    {
+                        "$push": {"readings": reading},
+                        "$setOnInsert": {
+                            "date": date_str,
+                            "device_id": device_id,
+                            "appliance_type": appliance_name.lower(),
+                            "created_at": datetime.now()
+                        },
+                        "$set": {"last_updated": datetime.now()},
+                        "$inc": {"reading_count": 1}
+                    },
+                    upsert=True
+                )
             return True
         except Exception as e:
             logger.exception(f"Failed to store reading for {appliance_name}")

@@ -2,7 +2,7 @@ import time
 import os
 import csv
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, time as dt_time, timedelta
 import pytz
 from dotenv import load_dotenv
 
@@ -26,10 +26,10 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # Configuration
-ACCESS_ID = os.getenv("TUYA_ACCESS_ID", "hgjxtdrmwt4keqeje7q9")
-ACCESS_SECRET = os.getenv("TUYA_ACCESS_SECRET", "a82d955de68a4843bc5717b6a985661c")
+ACCESS_ID = os.getenv("TUYA_ACCESS_ID")
+ACCESS_SECRET = os.getenv("TUYA_ACCESS_SECRET")
 ENDPOINT = os.getenv("TUYA_ENDPOINT", "https://openapi-sg.iotbing.com")
-WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "12a933cfc49aae1d814dd6407120d524")
+WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 MONGODB_URI = os.getenv("MONGODB_URI")
 DATABASE_NAME = os.getenv("DATABASE_NAME", "sarimax_thesis")
 
@@ -106,23 +106,47 @@ class DataCollector:
         
         if not missing_intervals:
             logger.info(f"No missing intervals for {name} on {date_str}")
-            return
+            return True # Target met
 
         logger.info(f"Backfilling {len(missing_intervals)} intervals for {name} on {date_str}")
         
-        start_ts = int(datetime.combine(date_obj, datetime.min.time()).replace(tzinfo=MANILA_TZ).timestamp() * 1000)
-        end_ts = int(datetime.combine(date_obj, datetime.max.time()).replace(tzinfo=MANILA_TZ).timestamp() * 1000)
+        # Calculate which 2-hour chunks are actually needed
+        needed_chunks = set()
+        for idx in missing_intervals:
+            # 144 intervals over 24 hours = 6 intervals per hour
+            # Index 0-11 = 0-2am, 12-23 = 2-4am, etc.
+            chunk_hour = (idx // 6) // 2 * 2
+            needed_chunks.add(chunk_hour)
+
+        all_logs = []
+        chunk_size_hours = 2
         
-        logs = self.tuya.get_historical_logs(dev_id, start_ts, end_ts)
-        if not logs:
+        for hour in sorted(list(needed_chunks)):
+            chunk_start = datetime.combine(date_obj, dt_time(hour, 0)).replace(tzinfo=MANILA_TZ)
+            if hour + chunk_size_hours >= 24:
+                chunk_end = datetime.combine(date_obj, dt_time(23, 59, 59)).replace(tzinfo=MANILA_TZ)
+            else:
+                chunk_end = datetime.combine(date_obj, dt_time(hour + chunk_size_hours, 0)).replace(tzinfo=MANILA_TZ) - timedelta(seconds=1)
+
+            start_ts = int(chunk_start.timestamp() * 1000)
+            end_ts = int(chunk_end.timestamp() * 1000)
+            
+            logger.info(f"Smart Backfill {name}: Chunk {hour:02d}:00 to {chunk_end.strftime('%H:%M:%S')}...")
+            logs = self.tuya.get_historical_logs(dev_id, start_ts, end_ts)
+            if logs:
+                all_logs.extend(logs)
+            time.sleep(1)
+
+        if not all_logs:
             logger.warning(f"No historical logs found for {name} on {date_str}")
-            return
+            return False
 
         for idx in missing_intervals:
-            target_time = datetime.combine(date_obj, datetime.min.time()).replace(tzinfo=MANILA_TZ) + timedelta(minutes=idx * 10)
+            target_time = datetime.combine(date_obj, dt_time.min).replace(tzinfo=MANILA_TZ) + timedelta(minutes=idx * 10)
             target_ms = int(target_time.timestamp() * 1000)
             
-            interval_logs = [l for l in logs if abs(l["event_time"] - target_ms) < 300000] 
+            # Find the closest log entry (within 10 minutes)
+            interval_logs = [l for l in all_logs if abs(l["event_time"] - target_ms) < 300000] 
             if interval_logs:
                 status = {}
                 for l in interval_logs:
@@ -132,21 +156,27 @@ class DataCollector:
                 processed = self.preprocessor.normalize(name, status)
                 self.db.store_reading(name, dev_id, target_time, status, weather_placeholder, processed_data=processed)
 
+        # Final check if we reached 144
+        summary = self.db.final_daily_validation(name, date_str)
+        return summary.get("is_complete", False) if summary else False
+
     def check_and_backfill_previous_day(self):
         yesterday = datetime.now(MANILA_TZ).date() - timedelta(days=1)
         yesterday_str = yesterday.strftime("%Y-%m-%d")
-        logger.info(f"Checking data completeness for {yesterday_str}")
+        logger.info(f"Starting completeness check for {yesterday_str}")
         
+        all_complete = True
         for name, dev_id in DEVICES.items():
-            self.backfill_appliance_day(name, dev_id, yesterday)
-            # Run final validation/summary
-            if self.db:
-                summary = self.db.final_daily_validation(name, yesterday_str)
-                if summary:
-                    logger.info(f"Daily summary for {name} on {yesterday_str}: {summary}")
+            is_complete = self.backfill_appliance_day(name, dev_id, yesterday)
+            if not is_complete:
+                all_complete = False
+                logger.warning(f"{name} is incomplete ({self.db.get_daily_count(name, yesterday_str)}/144).")
         
-        # After all devices are backfilled and validated, trigger the preprocessing pipeline
-        self.trigger_preprocessing()
+        if all_complete:
+            logger.info(f"All devices complete (144/144) for {yesterday_str}. Triggering pipeline...")
+            self.trigger_preprocessing()
+        else:
+            logger.info(f"Skipping preprocessing for {yesterday_str}: Some devices are still incomplete.")
 
     def trigger_preprocessing(self):
         """Triggers the TH2 Preprocessing Pipeline to update modeling datasets."""
@@ -174,7 +204,6 @@ class DataCollector:
             
             # Day transition check (at midnight)
             if current_date > last_check_date:
-                logger.info("Day transition detected. Running backfill check...")
                 try:
                     self.check_and_backfill_previous_day()
                 except Exception as e:
@@ -200,9 +229,8 @@ class DataCollector:
 
 if __name__ == "__main__":
     collector = DataCollector()
-    # Initial check at startup to catch up on any gaps from when it was off
     try:
         collector.check_and_backfill_previous_day()
     except Exception:
-        logger.exception("Failed initial backfill check")
+        logger.exception("Failed initial smart backfill check")
     collector.run_forever()

@@ -2,7 +2,8 @@ import os
 import argparse
 import logging
 import csv
-from datetime import datetime, time, timedelta
+import time
+from datetime import datetime, time as dt_time, timedelta
 import pytz
 from dotenv import load_dotenv
 
@@ -49,7 +50,7 @@ class HistoricalBackfiller:
     def generate_day_intervals(self, date_obj):
         """Generates 144 target timestamps for a single day."""
         intervals = []
-        base_time = datetime.combine(date_obj, time.min).replace(tzinfo=MANILA_TZ)
+        base_time = datetime.combine(date_obj, dt_time.min).replace(tzinfo=MANILA_TZ)
         for i in range(144):
             intervals.append(base_time + timedelta(minutes=i * 10))
         return intervals
@@ -89,15 +90,35 @@ class HistoricalBackfiller:
 
             intervals = self.generate_day_intervals(date_obj)
             
-            # Fetch historical logs for the entire day
-            start_ts = int(intervals[0].timestamp() * 1000)
-            end_ts = int(intervals[-1].replace(hour=23, minute=59, second=59).timestamp() * 1000)
+            # Fetch historical logs in 2-hour chunks to avoid "Data volume too large" and trial limits
+            all_logs = []
+            chunk_size_hours = 2
             
-            logger.info(f"Fetching logs for {name} ({date_str})...")
-            logs = self.tuya.get_historical_logs(dev_id, start_ts, end_ts)
-            if not logs:
-                logger.warning(f"No logs found for {name} on {date_str}")
+            for hour in range(0, 24, chunk_size_hours):
+                chunk_start = datetime.combine(date_obj, dt_time(hour, 0)).replace(tzinfo=MANILA_TZ)
+                # End of chunk is either +2 hours or end of day
+                if hour + chunk_size_hours >= 24:
+                    chunk_end = datetime.combine(date_obj, dt_time(23, 59, 59)).replace(tzinfo=MANILA_TZ)
+                else:
+                    chunk_end = datetime.combine(date_obj, dt_time(hour + chunk_size_hours, 0)).replace(tzinfo=MANILA_TZ) - timedelta(seconds=1)
+
+                start_ts = int(chunk_start.timestamp() * 1000)
+                end_ts = int(chunk_end.timestamp() * 1000)
+                
+                logger.info(f"Fetching logs for {name} ({date_str} {hour:02d}:00 - {chunk_end.strftime('%H:%M:%S')})...")
+                logs = self.tuya.get_historical_logs(dev_id, start_ts, end_ts)
+                
+                if logs:
+                    all_logs.extend(logs)
+                
+                # Small sleep between chunks to be polite to the trial quota
+                time.sleep(1)
+
+            if not all_logs:
+                logger.warning(f"No logs found for {name} on {date_str} after chunked fetching")
                 continue
+
+            logs = all_logs
 
             daily_readings = []
             last_status = {}
