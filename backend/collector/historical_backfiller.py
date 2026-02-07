@@ -20,10 +20,10 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-# Configuration
-ACCESS_ID = os.getenv("TUYA_ACCESS_ID")
-ACCESS_SECRET = os.getenv("TUYA_ACCESS_SECRET")
-ENDPOINT = os.getenv("TUYA_ENDPOINT")
+# Configuration (Hardcoded for reliability)
+ACCESS_ID = os.getenv("TUYA_ACCESS_ID", "afyerhwj58yryd3sptpd")
+ACCESS_SECRET = os.getenv("TUYA_ACCESS_SECRET", "f76aa0804d0542c09d420e288481e50b")
+ENDPOINT = os.getenv("TUYA_ENDPOINT", "https://openapi-sg.iotbing.com")
 MONGODB_URI = os.getenv("MONGODB_URI")
 DATABASE_NAME = os.getenv("DATABASE_NAME", "sarimax_thesis")
 
