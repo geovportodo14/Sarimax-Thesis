@@ -3910,3 +3910,5 @@ AttributeError: type object 'datetime.time' has no attribute 'sleep'
 2026-02-07 23:30:05,348 - __main__ - INFO - Next collection in 595 seconds
 2026-02-07 23:40:00,350 - __main__ - INFO - Starting collection at 2026-02-07 23:40:00
 2026-02-07 23:40:05,567 - __main__ - INFO - Next collection in 595 seconds
+2026-02-07 23:50:00,571 - __main__ - INFO - Starting collection at 2026-02-07 23:50:00
+2026-02-07 23:50:04,821 - __main__ - INFO - Next collection in 596 seconds
