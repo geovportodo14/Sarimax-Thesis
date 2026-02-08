@@ -3,9 +3,12 @@ from pydantic import BaseModel
 from typing import Optional
 from dotenv import load_dotenv
 try:
-    from utils.email_utils import send_welcome_email, send_threshold_alert
+    from .utils.email_utils import send_welcome_email, send_threshold_alert
 except ImportError:
-    from api.utils.email_utils import send_welcome_email, send_threshold_alert
+    try:
+        from utils.email_utils import send_welcome_email, send_threshold_alert
+    except ImportError:
+        from backend.api.utils.email_utils import send_welcome_email, send_threshold_alert
 
 # Load environment variables from .env in the root directory
 load_dotenv()

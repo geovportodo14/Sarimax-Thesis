@@ -32,6 +32,7 @@ ENDPOINT = os.getenv("TUYA_ENDPOINT", "https://openapi-sg.iotbing.com")
 WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 MONGODB_URI = os.getenv("MONGODB_URI")
 DATABASE_NAME = os.getenv("DATABASE_NAME", "sarimax_thesis")
+ENABLE_INITIAL_BACKFILL = os.getenv("ENABLE_INITIAL_BACKFILL", "false").lower() == "true"
 
 DEVICES = {
     "Aircon": "a3ed2fe218a724b4fepeni",
@@ -135,6 +136,9 @@ class DataCollector:
             logs = self.tuya.get_historical_logs(dev_id, start_ts, end_ts)
             if logs:
                 all_logs.extend(logs)
+            else:
+                logger.warning(f"Aborting backfill for {name} for this chunk due to no data or quota.")
+                break
             time.sleep(1)
 
         if not all_logs:
@@ -229,8 +233,11 @@ class DataCollector:
 
 if __name__ == "__main__":
     collector = DataCollector()
-    try:
-        collector.check_and_backfill_previous_day()
-    except Exception:
-        logger.exception("Failed initial smart backfill check")
+    if ENABLE_INITIAL_BACKFILL:
+        try:
+            collector.check_and_backfill_previous_day()
+        except Exception:
+            logger.exception("Failed initial smart backfill check")
+    else:
+        logger.info("Initial backfill skipped (ENABLE_INITIAL_BACKFILL=false)")
     collector.run_forever()
