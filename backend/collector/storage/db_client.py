@@ -130,26 +130,31 @@ class MongoDBClient:
 
         # Calculate metrics from processed_data
         peak_power = 0
-        total_energy = 0
+        total_energy_kwh = 0
         active_intervals = 0
         
-        for r in readings:
-            p = r.get("processed_data")
-            if p:
-                peak_power = max(peak_power, p.get("power_w", 0))
-                if p.get("is_active"):
-                    active_intervals += 1
+        # Sort readings by interval_index to ensure temporal order for integration
+        sorted_readings = sorted(readings, key=lambda x: x.get("interval_index", 0))
         
-        # Simplified energy estimation if total_kwh wasn't reported sequentially
-        # Better: use the Tuya accumulated value if available
-        last_reading = readings[-1].get("processed_data")
-        total_energy = last_reading.get("total_kwh_accumulated") if last_reading else 0
+        for i, r in enumerate(sorted_readings):
+            p = r.get("processed_data")
+            if not p:
+                continue
+                
+            curr_p = p.get("power_w", 0)
+            peak_power = max(peak_power, curr_p)
+            
+            # Energy Estimation: (Power * Time)
+            # Only count energy if the device is active (Switch is ON)
+            if p.get("is_active"):
+                active_intervals += 1
+                total_energy_kwh += (curr_p / 6.0) / 1000.0
 
         summary = {
             "total_readings": count,
             "is_complete": count == 144,
-            "peak_power_w": peak_power,
-            "total_kwh": total_energy,
+            "peak_power_w": round(peak_power, 2),
+            "total_kwh": round(total_energy_kwh, 4),
             "active_minutes": active_intervals * 10,
             "validated_at": datetime.now()
         }

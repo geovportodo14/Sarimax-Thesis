@@ -4121,3 +4121,292 @@ AttributeError: type object 'datetime.time' has no attribute 'sleep'
 2026-02-08 23:46:26,862 - __main__ - INFO - Next collection in 214 seconds
 2026-02-08 23:50:00,867 - __main__ - INFO - Starting collection at 2026-02-08 23:50:00
 2026-02-08 23:50:05,858 - __main__ - INFO - Next collection in 595 seconds
+2026-02-09 00:23:26,097 - storage.db_client - INFO - Indexes verified for aircon
+2026-02-09 00:23:26,199 - storage.db_client - INFO - Indexes verified for refrigerator
+2026-02-09 00:23:26,282 - storage.db_client - INFO - Indexes verified for electric_fan
+2026-02-09 00:23:26,282 - __main__ - INFO - Initial backfill skipped (ENABLE_INITIAL_BACKFILL=false)
+2026-02-09 00:23:26,282 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-02-09 00:23:26,282 - __main__ - INFO - Next collection in 394 seconds
+2026-02-09 00:25:40,771 - storage.db_client - INFO - Indexes verified for aircon
+2026-02-09 00:25:40,853 - storage.db_client - INFO - Indexes verified for refrigerator
+2026-02-09 00:25:40,924 - storage.db_client - INFO - Indexes verified for electric_fan
+2026-02-09 00:25:40,925 - __main__ - INFO - Initial backfill skipped (ENABLE_INITIAL_BACKFILL=false)
+2026-02-09 00:25:40,925 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-02-09 00:25:40,925 - __main__ - INFO - Next collection in 260 seconds
+2026-02-09 00:30:00,932 - __main__ - INFO - Starting collection at 2026-02-09 00:30:00
+2026-02-09 00:30:05,581 - __main__ - INFO - Next collection in 595 seconds
+2026-02-09 00:40:00,590 - __main__ - INFO - Starting collection at 2026-02-09 00:40:00
+2026-02-09 00:40:31,718 - storage.db_client - ERROR - Failed to store reading for Aircon
+Traceback (most recent call last):
+  File "/Users/geovannyportodo/Sarimax-Thesis/backend/collector/storage/db_client.py", line 47, in store_reading
+    result = collection.update_one(
+        {
+    ...<9 lines>...
+        }
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/collection.py", line 1336, in update_one
+    self._update_retryable(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        filter,
+        ^^^^^^^
+    ...<11 lines>...
+        comment=comment,
+        ^^^^^^^^^^^^^^^^
+    ),
+    ^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/collection.py", line 1118, in _update_retryable
+    return self._database.client._retryable_write(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        (write_concern or self.write_concern).acknowledged and not multi,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        operation,
+        ^^^^^^^^^^
+    )
+    ^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2083, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 1968, in _retry_with_session
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func=func,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2763, in run
+    return self._read() if self._is_read else self._write()
+                                              ~~~~~~~~~~~^^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2873, in _write
+    self._server = self._get_server()
+                   ~~~~~~~~~~~~~~~~^^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2856, in _get_server
+    return self._client._select_server(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._server_selector,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        operation_id=self._operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 1833, in _select_server
+    server = topology.select_server(
+        server_selector,
+    ...<2 lines>...
+        operation_id=operation_id,
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/topology.py", line 428, in select_server
+    server = self._select_server(
+        selector,
+    ...<4 lines>...
+        operation_id=operation_id,
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/topology.py", line 402, in _select_server
+    servers = self.select_servers(
+        selector,
+    ...<4 lines>...
+        deprioritized_servers,
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/topology.py", line 298, in select_servers
+    server_descriptions = self._select_servers_loop(
+        selector,
+    ...<4 lines>...
+        deprioritized_servers=deprioritized_servers,
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/topology.py", line 359, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+        f"{self._error_message(selector)}, Timeout: {timeout}s, Topology Description: {self.description!r}"
+    )
+pymongo.errors.ServerSelectionTimeoutError: SSL handshake failed: ac-0cecwid-shard-00-02.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),SSL handshake failed: ac-0cecwid-shard-00-00.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),SSL handshake failed: ac-0cecwid-shard-00-01.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 6988b9046e25410728e90d9d, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-0cecwid-shard-00-00.p6tv8ia.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-0cecwid-shard-00-00.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-0cecwid-shard-00-01.p6tv8ia.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-0cecwid-shard-00-01.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-0cecwid-shard-00-02.p6tv8ia.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-0cecwid-shard-00-02.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2026-02-09 00:41:03,486 - storage.db_client - ERROR - Failed to store reading for Refrigerator
+Traceback (most recent call last):
+  File "/Users/geovannyportodo/Sarimax-Thesis/backend/collector/storage/db_client.py", line 47, in store_reading
+    result = collection.update_one(
+        {
+    ...<9 lines>...
+        }
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/collection.py", line 1336, in update_one
+    self._update_retryable(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        filter,
+        ^^^^^^^
+    ...<11 lines>...
+        comment=comment,
+        ^^^^^^^^^^^^^^^^
+    ),
+    ^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/collection.py", line 1118, in _update_retryable
+    return self._database.client._retryable_write(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        (write_concern or self.write_concern).acknowledged and not multi,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        operation,
+        ^^^^^^^^^^
+    )
+    ^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2083, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 1968, in _retry_with_session
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func=func,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2763, in run
+    return self._read() if self._is_read else self._write()
+                                              ~~~~~~~~~~~^^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2873, in _write
+    self._server = self._get_server()
+                   ~~~~~~~~~~~~~~~~^^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2856, in _get_server
+    return self._client._select_server(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._server_selector,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        operation_id=self._operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 1833, in _select_server
+    server = topology.select_server(
+        server_selector,
+    ...<2 lines>...
+        operation_id=operation_id,
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/topology.py", line 428, in select_server
+    server = self._select_server(
+        selector,
+    ...<4 lines>...
+        operation_id=operation_id,
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/topology.py", line 402, in _select_server
+    servers = self.select_servers(
+        selector,
+    ...<4 lines>...
+        deprioritized_servers,
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/topology.py", line 298, in select_servers
+    server_descriptions = self._select_servers_loop(
+        selector,
+    ...<4 lines>...
+        deprioritized_servers=deprioritized_servers,
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/topology.py", line 359, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+        f"{self._error_message(selector)}, Timeout: {timeout}s, Topology Description: {self.description!r}"
+    )
+pymongo.errors.ServerSelectionTimeoutError: SSL handshake failed: ac-0cecwid-shard-00-02.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),SSL handshake failed: ac-0cecwid-shard-00-00.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),SSL handshake failed: ac-0cecwid-shard-00-01.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 6988b9046e25410728e90d9d, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-0cecwid-shard-00-00.p6tv8ia.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-0cecwid-shard-00-00.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-0cecwid-shard-00-01.p6tv8ia.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-0cecwid-shard-00-01.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-0cecwid-shard-00-02.p6tv8ia.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-0cecwid-shard-00-02.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2026-02-09 00:41:39,682 - storage.db_client - ERROR - Failed to store reading for Electric_Fan
+Traceback (most recent call last):
+  File "/Users/geovannyportodo/Sarimax-Thesis/backend/collector/storage/db_client.py", line 47, in store_reading
+    result = collection.update_one(
+        {
+    ...<9 lines>...
+        }
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/collection.py", line 1336, in update_one
+    self._update_retryable(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        filter,
+        ^^^^^^^
+    ...<11 lines>...
+        comment=comment,
+        ^^^^^^^^^^^^^^^^
+    ),
+    ^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/collection.py", line 1118, in _update_retryable
+    return self._database.client._retryable_write(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        (write_concern or self.write_concern).acknowledged and not multi,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        operation,
+        ^^^^^^^^^^
+    )
+    ^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2083, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 1968, in _retry_with_session
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func=func,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2763, in run
+    return self._read() if self._is_read else self._write()
+                                              ~~~~~~~~~~~^^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2873, in _write
+    self._server = self._get_server()
+                   ~~~~~~~~~~~~~~~~^^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 2856, in _get_server
+    return self._client._select_server(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._server_selector,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        operation_id=self._operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/mongo_client.py", line 1833, in _select_server
+    server = topology.select_server(
+        server_selector,
+    ...<2 lines>...
+        operation_id=operation_id,
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/topology.py", line 428, in select_server
+    server = self._select_server(
+        selector,
+    ...<4 lines>...
+        operation_id=operation_id,
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/topology.py", line 402, in _select_server
+    servers = self.select_servers(
+        selector,
+    ...<4 lines>...
+        deprioritized_servers,
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/topology.py", line 298, in select_servers
+    server_descriptions = self._select_servers_loop(
+        selector,
+    ...<4 lines>...
+        deprioritized_servers=deprioritized_servers,
+    )
+  File "/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.14/site-packages/pymongo/synchronous/topology.py", line 359, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+        f"{self._error_message(selector)}, Timeout: {timeout}s, Topology Description: {self.description!r}"
+    )
+pymongo.errors.ServerSelectionTimeoutError: SSL handshake failed: ac-0cecwid-shard-00-02.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),SSL handshake failed: ac-0cecwid-shard-00-00.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),SSL handshake failed: ac-0cecwid-shard-00-01.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 6988b9046e25410728e90d9d, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-0cecwid-shard-00-00.p6tv8ia.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-0cecwid-shard-00-00.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-0cecwid-shard-00-01.p6tv8ia.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-0cecwid-shard-00-01.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-0cecwid-shard-00-02.p6tv8ia.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('SSL handshake failed: ac-0cecwid-shard-00-02.p6tv8ia.mongodb.net:27017: [SSL: TLSV1_ALERT_INTERNAL_ERROR] tlsv1 alert internal error (_ssl.c:1081) (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2026-02-09 00:41:40,687 - __main__ - INFO - Next collection in 500 seconds
