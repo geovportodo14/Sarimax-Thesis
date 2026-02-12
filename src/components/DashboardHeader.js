@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IconButton } from './ui/index';
+import { Card, IconButton } from './ui/index';
 import NotificationPopover from './NotificationPopover';
 import SettingsPopover from './SettingsPopover';
 
@@ -9,6 +9,7 @@ function DashboardHeader({
   settings,
   onSaveSettings
 }) {
+  const [showNavMenu, setShowNavMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -16,11 +17,83 @@ function DashboardHeader({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const jumpOptions = [
+    { value: 'tour-scenario', label: 'Scenario Simulator' },
+    { value: 'tour-summary', label: 'Forecast Summary' },
+    { value: 'tour-comparison', label: 'Period Comparison' },
+    { value: 'tour-main-chart', label: 'Actual vs Forecast (Chart)' },
+    { value: 'tour-appliance-breakdown', label: 'Appliance Breakdown' },
+    { value: 'tour-controls', label: 'Forecast Settings' },
+    { value: 'tour-ranking', label: 'Consumption Ranking' },
+  ];
+
+  const handleJumpTo = (id) => {
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-surface-100 px-4 sm:px-6 lg:px-8 py-4 mb-6 animate-fade-in">
       <div className="flex items-center justify-between max-w-7xl mx-auto w-full">
         {/* Logo/Brand Section */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Burger Menu */}
+          <div className="relative">
+            <IconButton
+              variant="ghost"
+              size="md"
+              aria-label="Open navigation menu"
+              onClick={() => {
+                setShowNavMenu(!showNavMenu);
+                setShowNotifications(false);
+                setShowSettings(false);
+              }}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </IconButton>
+
+            {showNavMenu && (
+              <div className="absolute left-0 mt-2 w-72 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <Card className="shadow-2xl border-surface-100 overflow-hidden">
+                  <div className="p-3 border-b border-surface-50 flex items-center justify-between bg-surface-50/50">
+                    <p className="text-body-sm font-bold text-surface-900">Navigation</p>
+                    <button
+                      onClick={() => setShowNavMenu(false)}
+                      className="p-1 hover:bg-surface-200 rounded-lg transition-colors text-surface-400"
+                      aria-label="Close navigation menu"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div className="p-2">
+                    {jumpOptions
+                      .map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => {
+                            handleJumpTo(opt.value);
+                            setShowNavMenu(false);
+                          }}
+                          className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-xl text-left hover:bg-surface-50 transition-colors"
+                        >
+                          <span className="text-body-sm font-medium text-surface-700">{opt.label}</span>
+                          <svg className="w-4 h-4 text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      ))}
+                  </div>
+                </Card>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={handleLogoClick}
             className="w-auto h-12 flex items-center justify-center hover:opacity-80 transition-opacity active:scale-95"
@@ -46,6 +119,7 @@ function DashboardHeader({
               aria-label="Notifications"
               onClick={() => {
                 setShowNotifications(!showNotifications);
+                setShowNavMenu(false);
                 setShowSettings(false);
               }}
             >
@@ -73,6 +147,7 @@ function DashboardHeader({
               aria-label="Settings"
               onClick={() => {
                 setShowSettings(!showSettings);
+                setShowNavMenu(false);
                 setShowNotifications(false);
               }}
             >

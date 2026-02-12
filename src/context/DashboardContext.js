@@ -23,6 +23,11 @@ export const DashboardProvider = ({ children }) => {
     const [dummyData, setDummyData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Track if user explicitly set budget (for CTA/prompts)
+    const [hasSetBudget, setHasSetBudget] = useState(() => {
+        return localStorage.getItem('hasSetBudget') === 'true';
+    });
+
     // Onboarding state
     const [showIntroduction, setShowIntroduction] = useState(false);
     const [runTour, setRunTour] = useState(false);
@@ -144,6 +149,14 @@ export const DashboardProvider = ({ children }) => {
         }
     }, [settings.emailAddress]);
 
+    const handleBudgetChange = useCallback((nextBudget) => {
+        setBudget(nextBudget);
+        if (Number.isFinite(nextBudget) && nextBudget > 0) {
+            setHasSetBudget(true);
+            localStorage.setItem('hasSetBudget', 'true');
+        }
+    }, []);
+
     // ===========================================================================
     // VALUE
     // ===========================================================================
@@ -153,6 +166,7 @@ export const DashboardProvider = ({ children }) => {
         selectedLookback,
         tariff,
         budget,
+        hasSetBudget,
         allTime,
         currentDate,
         dummyData,
@@ -167,6 +181,7 @@ export const DashboardProvider = ({ children }) => {
         setSelectedLookback,
         setTariff,
         setBudget,
+        handleBudgetChange,
         setAllTime,
         setCurrentDate,
         setNotifications,

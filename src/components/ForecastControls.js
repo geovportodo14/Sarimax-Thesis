@@ -137,6 +137,7 @@ function ForecastControls({
               <span className="text-body-md font-medium text-surface-700 truncate">Budget</span>
             </div>
             <Input
+              id="budget-input"
               type="number"
               value={budget}
               onChange={(e) => onBudgetChange(parseInt(e.target.value) || 0)}

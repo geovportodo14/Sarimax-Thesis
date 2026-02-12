@@ -14,7 +14,9 @@ function EnergyForecastSummary({
   budgetStatus,
   selectedPeriodText,
   budget,
+  hasSetBudget,
   onViewDetails,
+  onSetBudget,
   thresholdApproaching = 80,
   thresholdCritical = 100
 }) {
@@ -118,6 +120,26 @@ function EnergyForecastSummary({
 
           {/* Main Content */}
           <div className="p-6">
+            {/* Budget CTA (first-time users) */}
+            {!hasSetBudget && (
+              <div className="mb-6 rounded-2xl border border-primary-100 bg-primary-50 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-body-md font-semibold text-primary-700">Set your budget to unlock clearer risk alerts</p>
+                  <p className="text-body-sm text-primary-600/90">
+                    We’ll compare your forecasted cost against your budget and notify you when you’re approaching the limit.
+                  </p>
+                </div>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={onSetBudget}
+                  className="sm:flex-shrink-0"
+                >
+                  Set Budget
+                </Button>
+              </div>
+            )}
+
             {/* Key Metrics Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <StatTile

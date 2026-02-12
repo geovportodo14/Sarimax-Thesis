@@ -84,6 +84,7 @@ function DashboardContent() {
     selectedLookback,
     tariff,
     budget,
+    hasSetBudget,
     allTime,
     currentDate,
     dummyData,
@@ -97,7 +98,7 @@ function DashboardContent() {
     setSelectedPeriod,
     setSelectedLookback,
     setTariff,
-    setBudget,
+    handleBudgetChange,
     setAllTime,
     setCurrentDate, // Added if missing in previous context
     setNotifications,
@@ -335,6 +336,18 @@ function DashboardContent() {
     }
   };
 
+  const handleSetBudget = () => {
+    const controls = document.getElementById('tour-controls');
+    if (controls) {
+      controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    // Focus the budget input after scroll
+    window.setTimeout(() => {
+      const input = document.getElementById('budget-input');
+      if (input && typeof input.focus === 'function') input.focus();
+    }, 250);
+  };
+
   // Show loading state
   if (loading) {
     return <LoadingState />;
@@ -386,7 +399,9 @@ function DashboardContent() {
             budgetStatus={calculations.budgetStatus}
             selectedPeriodText={calculations.selectedPeriodText}
             budget={budget}
+            hasSetBudget={hasSetBudget}
             onViewDetails={handleViewDetails}
+            onSetBudget={handleSetBudget}
             thresholdApproaching={settings.thresholdApproaching}
             thresholdCritical={settings.thresholdCritical}
           />
@@ -596,7 +611,7 @@ function DashboardContent() {
               onHistoryChange={setSelectedLookback}
               onForecastChange={setSelectedPeriod}
               onTariffChange={setTariff}
-              onBudgetChange={setBudget}
+              onBudgetChange={handleBudgetChange}
               onHorizonChange={setForecastHorizon}
               containerId="tour-controls"
             />
