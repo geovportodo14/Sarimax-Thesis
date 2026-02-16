@@ -46,11 +46,25 @@ def extract_mongo_data():
                 # cur_current: milliamps (e.g. 1000 = 1A) -> / 1000
                 # cur_power: deciwatts (e.g. 500 = 50W) -> / 10
                 # add_ele: cumulative energy (often / 100 for kWh)
+                # Voltage
+                v_raw = raw.get("cur_voltage")
+                if v_raw is None:
+                    v_raw = raw.get("voltage")
                 
-                v_raw = raw.get("cur_voltage") or raw.get("voltage")
-                i_raw = raw.get("cur_current") or raw.get("current")
-                p_raw = raw.get("cur_power") or raw.get("power")
-                k_raw = raw.get("add_ele") or raw.get("cur_electricity")
+                # Current
+                i_raw = raw.get("cur_current")
+                if i_raw is None:
+                    i_raw = raw.get("current")
+
+                # Power
+                p_raw = raw.get("cur_power")
+                if p_raw is None:
+                    p_raw = raw.get("power")
+
+                # Energy
+                k_raw = raw.get("add_ele")
+                if k_raw is None:
+                    k_raw = raw.get("cur_electricity")
                 
                 reading_data = {
                     "timestamp": ts,

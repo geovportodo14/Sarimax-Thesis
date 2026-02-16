@@ -106,61 +106,60 @@ class DataCollector:
         missing_intervals = self.db.get_missing_intervals(name, date_str)
         
         if not missing_intervals:
-            logger.info(f"No missing intervals for {name} on {date_str}")
-            return True # Target met
-
-        logger.info(f"Backfilling {len(missing_intervals)} intervals for {name} on {date_str}")
-        
-        # Calculate which 2-hour chunks are actually needed
-        needed_chunks = set()
-        for idx in missing_intervals:
-            # 144 intervals over 24 hours = 6 intervals per hour
-            # Index 0-11 = 0-2am, 12-23 = 2-4am, etc.
-            chunk_hour = (idx // 6) // 2 * 2
-            needed_chunks.add(chunk_hour)
-
-        all_logs = []
-        chunk_size_hours = 2
-        
-        for hour in sorted(list(needed_chunks)):
-            chunk_start = datetime.combine(date_obj, dt_time(hour, 0)).replace(tzinfo=MANILA_TZ)
-            if hour + chunk_size_hours >= 24:
-                chunk_end = datetime.combine(date_obj, dt_time(23, 59, 59)).replace(tzinfo=MANILA_TZ)
-            else:
-                chunk_end = datetime.combine(date_obj, dt_time(hour + chunk_size_hours, 0)).replace(tzinfo=MANILA_TZ) - timedelta(seconds=1)
-
-            start_ts = int(chunk_start.timestamp() * 1000)
-            end_ts = int(chunk_end.timestamp() * 1000)
+            logger.info(f"No missing intervals for {name} on {date_str}. Proceeding to validation.")
+        else:
+            logger.info(f"Backfilling {len(missing_intervals)} intervals for {name} on {date_str}")
             
-            logger.info(f"Smart Backfill {name}: Chunk {hour:02d}:00 to {chunk_end.strftime('%H:%M:%S')}...")
-            logs = self.tuya.get_historical_logs(dev_id, start_ts, end_ts)
-            if logs:
-                all_logs.extend(logs)
-            else:
-                logger.warning(f"Aborting backfill for {name} for this chunk due to no data or quota.")
-                break
-            time.sleep(1)
+            # Calculate which 2-hour chunks are actually needed
+            needed_chunks = set()
+            for idx in missing_intervals:
+                # 144 intervals over 24 hours = 6 intervals per hour
+                # Index 0-11 = 0-2am, 12-23 = 2-4am, etc.
+                chunk_hour = (idx // 6) // 2 * 2
+                needed_chunks.add(chunk_hour)
 
-        if not all_logs:
-            logger.warning(f"No historical logs found for {name} on {date_str}")
-            return False
-
-        for idx in missing_intervals:
-            target_time = datetime.combine(date_obj, dt_time.min).replace(tzinfo=MANILA_TZ) + timedelta(minutes=idx * 10)
-            target_ms = int(target_time.timestamp() * 1000)
+            all_logs = []
+            chunk_size_hours = 2
             
-            # Find the closest log entry (within 10 minutes)
-            interval_logs = [l for l in all_logs if abs(l["event_time"] - target_ms) < 300000] 
-            if interval_logs:
-                status = {}
-                for l in interval_logs:
-                    status[l["code"]] = l["value"]
+            for hour in sorted(list(needed_chunks)):
+                chunk_start = datetime.combine(date_obj, dt_time(hour, 0)).replace(tzinfo=MANILA_TZ)
+                if hour + chunk_size_hours >= 24:
+                    chunk_end = datetime.combine(date_obj, dt_time(23, 59, 59)).replace(tzinfo=MANILA_TZ)
+                else:
+                    chunk_end = datetime.combine(date_obj, dt_time(hour + chunk_size_hours, 0)).replace(tzinfo=MANILA_TZ) - timedelta(seconds=1)
+
+                start_ts = int(chunk_start.timestamp() * 1000)
+                end_ts = int(chunk_end.timestamp() * 1000)
                 
-                weather_placeholder = {"temp": None, "humidity": None, "pressure": None}
-                processed = self.preprocessor.normalize(name, status)
-                self.db.store_reading(name, dev_id, target_time, status, weather_placeholder, processed_data=processed)
+                logger.info(f"Smart Backfill {name}: Chunk {hour:02d}:00 to {chunk_end.strftime('%H:%M:%S')}...")
+                logs = self.tuya.get_historical_logs(dev_id, start_ts, end_ts)
+                if logs:
+                    all_logs.extend(logs)
+                else:
+                    logger.warning(f"Aborting backfill for {name} for this chunk due to no data or quota.")
+                    break
+                time.sleep(1)
 
-        # Final check if we reached 144
+            if not all_logs:
+                logger.warning(f"No historical logs found for {name} on {date_str}")
+            
+            else:
+                for idx in missing_intervals:
+                    target_time = datetime.combine(date_obj, dt_time.min).replace(tzinfo=MANILA_TZ) + timedelta(minutes=idx * 10)
+                    target_ms = int(target_time.timestamp() * 1000)
+                    
+                    # Find the closest log entry (within 10 minutes)
+                    interval_logs = [l for l in all_logs if abs(l["event_time"] - target_ms) < 300000] 
+                    if interval_logs:
+                        status = {}
+                        for l in interval_logs:
+                            status[l["code"]] = l["value"]
+                        
+                        weather_placeholder = {"temp": None, "humidity": None, "pressure": None}
+                        processed = self.preprocessor.normalize(name, status)
+                        self.db.store_reading(name, dev_id, target_time, status, weather_placeholder, processed_data=processed)
+
+        # Final check & Summary Generation (Always run this!)
         summary = self.db.final_daily_validation(name, date_str)
         return summary.get("is_complete", False) if summary else False
 

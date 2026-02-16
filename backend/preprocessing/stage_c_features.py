@@ -29,7 +29,7 @@ class Stage333Config:
 
 def _ensure_datetime_tz(df: pd.DataFrame, col: str = "timestamp") -> pd.DataFrame:
     df = df.copy()
-    df[col] = pd.to_datetime(df[col], errors="coerce")
+    df[col] = pd.to_datetime(df[col], format="ISO8601", errors="coerce")
     if getattr(df[col].dt, "tz", None) is None:
         df[col] = df[col].dt.tz_localize("Asia/Manila", nonexistent="shift_forward", ambiguous="NaT")
     else:

@@ -20,9 +20,18 @@ class Stage332Config:
 
 def _ensure_datetime_tz(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
-    df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+    df["timestamp"] = pd.to_datetime(df["timestamp"], format="ISO8601", errors="coerce")
+    
+    # Debug: Check for NaTs immediately after parsing
+    nat_count = df["timestamp"].isna().sum()
+    if nat_count > 0:
+        print(f"WARNING: _ensure_datetime_tz generated {nat_count} NaT values!")
+        print("Sample NaT rows:", df[df["timestamp"].isna()].head())
+
     if getattr(df["timestamp"].dt, "tz", None) is None:
         df["timestamp"] = df["timestamp"].dt.tz_localize("Asia/Manila", nonexistent="shift_forward", ambiguous="NaT")
+    else:
+        df["timestamp"] = df["timestamp"].dt.tz_convert("Asia/Manila")
     return df
 
 
@@ -118,16 +127,28 @@ def handle_gaps_and_interpolation(df: pd.DataFrame, cfg: Stage332Config) -> pd.D
     # Time-weighted interpolation requires a DatetimeIndex AND no NaNs in the index.
     # We drop any rows with NaT timestamps and set the index temporarily.
     d_clean = d.dropna(subset=["timestamp"]).copy()
-    d_idx = d_clean.set_index("timestamp")
     
+    # Set index to timestamp to allow time-based interpolation
+    d_clean = d_clean.set_index("timestamp")
+
     for col in ["voltage_v", "current_a", "power_w_corrected"]:
         # Group by device and interpolate
-        interp_series = d_idx.groupby("device_id")[col].apply(lambda s: s.interpolate(method="time"))
+        # d_clean has DatetimeIndex. Groupby 'device_id' (column) preserves this for the group.
+        interp_series = d_clean.groupby("device_id")[col].apply(lambda s: s.interpolate(method="time"))
         
-        # We need to map these interpolated values back to the original 'd' dataframe.
-        # Since 'd' and 'interp_series' might have different lengths (due to dropna), 
-        # we'll merge or use reindex.
-        d[col + "_interp"] = interp_series.reindex(d["timestamp"]).values
+        # interp_series has MultiIndex (device_id, timestamp).
+        # Convert to DF for merging.
+        interp_df = interp_series.to_frame(name=col + "_interp").reset_index()
+        
+        # Merge back to d
+        # d has 'timestamp' column (from original d, not d_clean)
+        # We merge on device_id and timestamp.
+        if col + "_interp" in d.columns:
+            d = d.drop(columns=[col + "_interp"])
+        
+        # Ensure timestamp types match for merge (both are datetime-like or compatible)
+        # d["timestamp"] is already datetime from _ensure_datetime_tz
+        d = d.merge(interp_df, on=["device_id", "timestamp"], how="left")
 
     use_fb = d["tags"].str.contains("USE_FALLBACK", na=False)
     has_interp = d["power_w_corrected_interp"].notna() & d["p_prev_w"].notna() & d["dt_seconds"].notna()

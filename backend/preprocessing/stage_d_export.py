@@ -27,7 +27,7 @@ class Stage334Config:
 
 def _ensure_datetime_tz(df: pd.DataFrame, col: str, tz: str) -> pd.DataFrame:
     df = df.copy()
-    df[col] = pd.to_datetime(df[col], errors="coerce")
+    df[col] = pd.to_datetime(df[col], format="ISO8601", errors="coerce")
     if getattr(df[col].dt, "tz", None) is None:
         df[col] = df[col].dt.tz_localize(tz, nonexistent="shift_forward", ambiguous="NaT")
     else:
