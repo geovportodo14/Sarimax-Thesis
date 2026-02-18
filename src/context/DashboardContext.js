@@ -158,6 +158,38 @@ export const DashboardProvider = ({ children }) => {
     }, []);
 
     // ===========================================================================
+    // APP PHASE & ONBOARDING
+    // ===========================================================================
+    const [onboardingComplete, _setOnboardingComplete] = useState(() => {
+        return localStorage.getItem('hasCompletedOnboarding') === 'true';
+    });
+
+    // Mock baseline data collection (in a real app, this would come from API)
+    const [baselineDays, setBaselineDays] = useState(() => {
+        return Number(localStorage.getItem('baselineDays')) || 0;
+    });
+
+    const setOnboardingComplete = useCallback((val) => {
+        _setOnboardingComplete(val);
+        localStorage.setItem('hasCompletedOnboarding', String(val));
+        if (val) {
+            setShowIntroduction(false);
+        }
+    }, []);
+
+    // Derived State
+    const appPhase = !onboardingComplete ? 'no_data' : (baselineDays < 30 ? 'learning' : 'active');
+    const budgetUnlocked = baselineDays >= 30;
+
+    // Debug helper to simulate days passing
+    const simulateDaysPassing = useCallback((days) => {
+        const newDays = baselineDays + days;
+        setBaselineDays(newDays);
+        localStorage.setItem('baselineDays', String(newDays));
+    }, [baselineDays]);
+
+
+    // ===========================================================================
     // VALUE
     // ===========================================================================
     const value = {
@@ -176,6 +208,12 @@ export const DashboardProvider = ({ children }) => {
         settings,
         notifications,
 
+        // New State
+        onboardingComplete,
+        baselineDays,
+        appPhase,
+        budgetUnlocked,
+
         // Setters
         setSelectedPeriod,
         setSelectedLookback,
@@ -190,6 +228,8 @@ export const DashboardProvider = ({ children }) => {
         setIsScenarioMode,
         setScenarioParams,
         setForecastHorizon,
+        setOnboardingComplete,
+        simulateDaysPassing,
 
         // Scenario values
         isScenarioMode,

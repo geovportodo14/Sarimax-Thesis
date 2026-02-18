@@ -136,10 +136,10 @@ const LandingPage = () => {
                 )}
 
                 <button
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate('/how-it-works')}
                     className="w-full group flex items-center justify-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white py-4 px-6 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 >
-                    Explore Analytics
+                    Start Monitoring
                     <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </button>
             </div>
