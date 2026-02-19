@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardBody, StatTile, StatusBadge, Button } from './ui/index';
+import { Card, CardBody, StatusBadge, Button } from './ui/index';
 import ColorLegend from './ColorLegend';
 import { UITrendIcon } from './ui/icons';
 
@@ -18,7 +18,8 @@ function EnergyForecastSummary({
   onViewDetails,
   onSetBudget,
   thresholdApproaching = 80,
-  thresholdCritical = 100
+  thresholdCritical = 100,
+  isLearning = false
 }) {
   const formatNumber = (num) => (Math.round(num * 100) / 100).toFixed(2);
   const formatCurrency = (num) => `₱${Math.round(num).toLocaleString()}`;
@@ -121,7 +122,7 @@ function EnergyForecastSummary({
           {/* Main Content */}
           <div className="p-6">
             {/* Budget CTA (first-time users) */}
-            {!hasSetBudget && (
+            {!hasSetBudget && !isLearning && (
               <div className="mb-6 rounded-2xl border border-primary-100 bg-primary-50 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-body-md font-semibold text-primary-700">Set your budget to unlock clearer risk alerts</p>
@@ -140,58 +141,46 @@ function EnergyForecastSummary({
               </div>
             )}
 
-            {/* Key Metrics Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <StatTile
-                label="Forecast Cost"
-                description="Projected expenditure." // Concise
-                value={`₱${Math.round(nextPhp)}`}
-                icon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                }
-                variant={statusContext.status === 'neutral' ? 'primary' : statusContext.status}
-                size="lg"
-              />
-              <StatTile
-                label="Forecast Usage"
-                description="Estimated consumption." // Concise
-                value={formatNumber(nextKwh)}
-                unit="kWh"
-                icon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                }
-                variant="info"
-                size="lg"
-              />
-              <StatTile
-                label="Previous Cost"
-                description="Previous period cost." // Concise
-                value={`₱${Math.round(prevPhp)}`}
-                icon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                }
-                variant="default"
-                size="lg"
-              />
-              <StatTile
-                label="Actual Usage"
-                description="Real-time consumption." // Concise
-                value={formatNumber(actualKwh)}
-                unit="kWh"
-                icon={
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                }
-                variant="success"
-                size="lg"
-              />
+            {/* Comparison Card (New Design) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 items-center">
+
+              {/* Previous / Actual */}
+              <div className="p-4 rounded-2xl bg-surface-50 border border-surface-100 flex flex-col items-center text-center">
+                <p className="text-body-sm font-medium text-surface-500 mb-1">Previous Period</p>
+                <p className="text-body-xs text-surface-400 mb-3">(Actual Usage)</p>
+                <p className="text-2xl font-bold text-surface-700 tabular-nums">₱{Math.round(prevPhp)}</p>
+                <p className="text-body-sm text-surface-500 tabular-nums">{formatNumber(prevKwh)} kWh</p>
+              </div>
+
+              {/* Trend / Delta */}
+              <div className="flex flex-col items-center justify-center py-4">
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${isIncreasing ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                  {isIncreasing ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg>
+                  )}
+                  <span className="font-bold text-lg">{Math.abs(costTrend).toFixed(1)}%</span>
+                </div>
+                <p className="text-caption text-surface-500 mt-2 text-center">
+                  {isIncreasing ? 'Higher than previous' : 'Lower than previous'}
+                </p>
+              </div>
+
+              {/* Next / Forecast */}
+              <div className={`relative p-5 rounded-2xl border-2 flex flex-col items-center text-center shadow-sm ${statusContext.border} ${statusContext.color}`}>
+                <div className="absolute -top-3 px-3 py-1 bg-white border border-surface-200 rounded-full text-xs font-bold uppercase tracking-wider text-surface-600 shadow-sm">
+                  Forecast
+                </div>
+                <p className="text-body-sm font-medium text-surface-600 mb-1">{selectedPeriodText}</p>
+                <p className="text-4xl font-extrabold text-surface-900 tabular-nums my-1">₱{Math.round(nextPhp)}</p>
+                <p className="text-body-md font-medium text-surface-600 tabular-nums">{formatNumber(nextKwh)} kWh</p>
+
+                {/* Status Pill */}
+                <div className={`mt-3 px-2 py-1 rounded-lg text-xs font-semibold ${statusContext.text} bg-white/50`}>
+                  {statusContext.label}
+                </div>
+              </div>
             </div>
 
             {/* Quick Insights */}

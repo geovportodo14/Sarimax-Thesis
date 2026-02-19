@@ -47,8 +47,15 @@ function EnergyLineChart({
     extraAction = null,
     unit = 'kWh',
     height = 320,
+    variant = 'default', // 'default' | 'minimal' (no card wrapper)
+    responsiveHeader = false, // If true, header is hidden on mobile
 }) {
+    // const [simpleMode, setSimpleMode] = useState(true); // Forced Advanced Mode
+    const simpleMode = false;
     const hasRiskData = riskStatus === 'At-Risk';
+
+    const Container = variant === 'default' ? Card : 'div';
+    const Body = variant === 'default' ? CardBody : 'div';
 
     const chartData = useMemo(() => ({
         labels: labels,
@@ -134,19 +141,25 @@ function EnergyLineChart({
         },
         scales: {
             x: {
-                grid: { color: 'rgba(0, 0, 0, 0.04)', drawBorder: false },
+                grid: {
+                    display: !simpleMode,
+                    color: 'rgba(0, 0, 0, 0.04)',
+                    drawBorder: false
+                },
                 border: { display: false },
                 ticks: {
+                    display: !simpleMode, // Hide in simple mode
                     color: '#737373',
                     font: { size: 11, family: FONT_FAMILY },
                     maxRotation: 45,
                     minRotation: 45,
                     autoSkip: true,
-                    maxTicksLimit: 8,
+                    maxTicksLimit: simpleMode ? 4 : 8,
                     padding: 8,
                 },
             },
             y: {
+                display: !simpleMode, // Hide Y axis in simple mode
                 grid: { color: 'rgba(0, 0, 0, 0.04)', drawBorder: false },
                 border: { display: false },
                 beginAtZero: true,
@@ -158,7 +171,7 @@ function EnergyLineChart({
                 },
             },
         },
-    }), [unit]);
+    }), [unit, simpleMode]);
 
     const legendItems = [
         { color: CHART_COLORS.actual, label: 'Actual' },
@@ -170,14 +183,20 @@ function EnergyLineChart({
     }
 
     return (
-        <Card className="h-full">
-            <CardBody>
-                <SectionHeader
-                    icon={icon}
-                    title={title}
-                    subtitle={subtitle}
-                    action={extraAction}
-                />
+        <Container className={variant === 'default' ? 'h-full' : 'h-full'}>
+            <Body>
+
+
+                <div className={responsiveHeader ? 'hidden md:block' : ''}>
+                    <SectionHeader
+                        icon={icon}
+                        title={title}
+                        subtitle={subtitle}
+                        action={
+                            extraAction
+                        }
+                    />
+                </div>
 
                 {hasRiskData && (
                     <div className="flex items-center gap-2 mb-4 p-3 bg-red-50 border border-red-100 rounded-xl">
@@ -193,8 +212,8 @@ function EnergyLineChart({
                 </div>
 
                 <ChartLegend items={legendItems} />
-            </CardBody>
-        </Card>
+            </Body>
+        </Container >
     );
 }
 

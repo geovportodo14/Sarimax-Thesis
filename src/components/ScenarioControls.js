@@ -68,6 +68,33 @@ export default function ScenarioControls({ hideToggle = false }) {
                 <AnimationWrapper variant="slideDown" layout>
                     {(isScenarioMode || hideToggle) && (
                         <div className="space-y-5 pt-2 border-t border-surface-100">
+                            {/* Quick Scenarios */}
+                            <div>
+                                <h4 className="text-body-sm font-medium text-surface-700 mb-3">Quick Scenarios</h4>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { label: 'Rate Hike', icon: '📈', tariffMod: 1.2, loadMod: 0 },
+                                        { label: 'Vacation', icon: '🏖️', tariffMod: 1, loadMod: -30 },
+                                        { label: 'Heavy Usage', icon: '⚡', tariffMod: 1, loadMod: 25 },
+                                    ].map((preset) => (
+                                        <button
+                                            key={preset.label}
+                                            onClick={() => {
+                                                setScenarioParams(prev => ({
+                                                    ...prev,
+                                                    tariffAdjustment: tariff * preset.tariffMod,
+                                                    loadAdjustment: preset.loadMod
+                                                }));
+                                            }}
+                                            className="flex flex-col items-center justify-center p-2 rounded-xl bg-surface-50 hover:bg-indigo-50 border border-surface-100 hover:border-indigo-100 transition-all active:scale-95"
+                                        >
+                                            <span className="text-xl mb-1">{preset.icon}</span>
+                                            <span className="text-xs font-medium text-surface-600">{preset.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
                             {/* Tariff Adjustment */}
                             <div>
                                 <div className="flex justify-between mb-2">
@@ -114,13 +141,24 @@ export default function ScenarioControls({ hideToggle = false }) {
                                 </div>
                             </div>
 
-                            <div className="bg-indigo-50 rounded-lg p-3 flex gap-2 items-start">
-                                <svg className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <p className="text-caption text-indigo-700">
-                                    Adjusting these values simulates a change in your electricity bill. Use this to plan for rate hikes or consumption reduction.
-                                </p>
+                            <div className="bg-indigo-50 rounded-lg p-3 flex flex-col gap-3">
+                                <div className="flex gap-2 items-start">
+                                    <svg className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p className="text-caption text-indigo-700">
+                                        Adjusting these values simulates a change in your electricity bill. Changes are reflected in the Forecast Summary and Charts below.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        const chartSection = document.getElementById('tour-summary');
+                                        if (chartSection) chartSection.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                    className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                                >
+                                    See Impacts
+                                </button>
                             </div>
                         </div>
                     )}

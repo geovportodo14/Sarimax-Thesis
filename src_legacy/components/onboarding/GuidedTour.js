@@ -19,7 +19,7 @@ const GuidedTour = ({ run, onComplete }) => {
             placement: 'top',
         },
         {
-            target: '#tour-main-chart',
+            target: '#charts-section',
             content: 'Actual vs Forecast: Visualize energy consumption patterns. The pulsing red indicator warns you when usage exceeds your threshold. Click "View Details" in the summary to jump here instantly.',
             placement: 'bottom',
         },

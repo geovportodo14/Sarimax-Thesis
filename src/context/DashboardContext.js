@@ -31,6 +31,7 @@ export const DashboardProvider = ({ children }) => {
     // Onboarding state
     const [showIntroduction, setShowIntroduction] = useState(false);
     const [runTour, setRunTour] = useState(false);
+    const [showGuide, setShowGuide] = useState(false);
 
     // Settings & Notifications state
     const [settings, setSettings] = useState(() => {
@@ -54,6 +55,11 @@ export const DashboardProvider = ({ children }) => {
 
     // Forecast Horizon state (Thesis 3.6.4.C)
     const [forecastHorizon, setForecastHorizon] = useState(24); // 6, 12, or 24 hours
+
+    // Data Sufficiency State (For First-Open Experience)
+    // 'learning' | 'sufficient'
+    const [dataSufficiencyState, setDataSufficiencyState] = useState('learning');
+
 
 
     // ===========================================================================
@@ -109,9 +115,9 @@ export const DashboardProvider = ({ children }) => {
         localStorage.setItem('hasCompletedOnboarding', 'true');
     }, []);
 
-    const handleRevisitGuide = useCallback(() => {
-        setShowIntroduction(true);
-    }, []);
+    // const handleRevisitGuide = useCallback(() => {
+    //     setShowIntroduction(true);
+    // }, []);
 
     const handlePrevDate = useCallback(() => {
         setCurrentDate(prev => {
@@ -205,6 +211,7 @@ export const DashboardProvider = ({ children }) => {
         loading,
         showIntroduction,
         runTour,
+        showGuide,
         settings,
         notifications,
 
@@ -225,6 +232,7 @@ export const DashboardProvider = ({ children }) => {
         setNotifications,
         setShowIntroduction,
         setRunTour,
+        setShowGuide,
         setIsScenarioMode,
         setScenarioParams,
         setForecastHorizon,
@@ -242,10 +250,13 @@ export const DashboardProvider = ({ children }) => {
         handleSkipIntroduction,
         handleStartTour,
         handleTourComplete,
-        handleRevisitGuide,
         handlePrevDate,
         handleNextDate,
-        handleSaveSettings
+        handleSaveSettings,
+
+        // Data Sufficiency
+        dataSufficiencyState,
+        setDataSufficiencyState,
     };
 
     return (
