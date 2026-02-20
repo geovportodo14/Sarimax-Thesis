@@ -2,5 +2,11 @@ data/
 collector/
 logs/
 tests/
+backend/
+venv/
+main.py
+requirements.txt
+Dockerfile
+docker-compose.yml
 .env
 .git/

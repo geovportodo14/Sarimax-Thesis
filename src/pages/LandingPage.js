@@ -104,8 +104,8 @@ const LandingPage = () => {
         <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-transparent transition-colors duration-300">
             <div className="max-w-md w-full space-y-8 animate-fade-in flex flex-col items-center">
                 <div className="text-center space-y-2">
-                    <div className="w-auto h-16 flex items-center justify-center mb-4">
-                        <img src="/logo.png" alt="Smart Home Monitoring" className="h-full object-contain" />
+                    <div className="w-auto flex items-center justify-center mb-4">
+                        <img src="/logo3.png" alt="Smart Home Monitoring" className="h-40 object-contain" />
                     </div>
                     <h1 className="text-4xl font-bold tracking-tight text-[var(--color-text-primary)]">
                         Smart Home Monitoring

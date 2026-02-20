@@ -32,6 +32,9 @@ export const DashboardProvider = ({ children }) => {
     const [showIntroduction, setShowIntroduction] = useState(false);
     const [runTour, setRunTour] = useState(false);
 
+    // Adaptive Setup Wizard state
+    const [showSetupWizard, setShowSetupWizard] = useState(false);
+
     // Settings & Notifications state
     const [settings, setSettings] = useState(() => {
         const saved = localStorage.getItem('dashboardSettings');
@@ -55,16 +58,32 @@ export const DashboardProvider = ({ children }) => {
     // Forecast Horizon state (Thesis 3.6.4.C)
     const [forecastHorizon, setForecastHorizon] = useState(24); // 6, 12, or 24 hours
 
+    // Shared UI overlay state — lifted to avoid duplicate instances across
+    // desktop sidebar + mobile header and to allow resize-safety cleanup.
+    const [showSettings, setShowSettings] = useState(false);
+    const [showNavMenu, setShowNavMenu] = useState(false);
+
+    // Active section state (for sidebar/header highlights)
+    const [activeSection, setActiveSection] = useState('tour-summary');
+
 
     // ===========================================================================
     // EFFECTS
     // ===========================================================================
 
-    // Check for new user
+    // Check for new user (original onboarding)
     useEffect(() => {
         const hasCompletedOnboarding = localStorage.getItem('hasCompletedOnboarding');
         if (!hasCompletedOnboarding && !loading) {
             setShowIntroduction(true);
+        }
+    }, [loading]);
+
+    // Check for Adaptive Setup Wizard
+    useEffect(() => {
+        const hasCompletedSetup = localStorage.getItem('hasCompletedSetup');
+        if (!hasCompletedSetup && !loading) {
+            setShowSetupWizard(true);
         }
     }, [loading]);
 
@@ -157,9 +176,35 @@ export const DashboardProvider = ({ children }) => {
         }
     }, []);
 
+    // Setup Wizard Handlers
+    const handleCompleteSetup = useCallback(() => {
+        localStorage.setItem('hasCompletedSetup', 'true');
+        setShowSetupWizard(false);
+    }, []);
+
+    const handleTriggerSetup = useCallback(() => {
+        setShowSetupWizard(true);
+    }, []);
+
     // ===========================================================================
     // VALUE
     // ===========================================================================
+    // Mini-Rail / Collapsible Sidebar
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+    useEffect(() => {
+        const saved = localStorage.getItem('sidebar_collapsed');
+        if (saved !== null) setIsSidebarCollapsed(JSON.parse(saved));
+    }, []);
+
+    const toggleSidebar = () => {
+        setIsSidebarCollapsed(prev => {
+            const newVal = !prev;
+            localStorage.setItem('sidebar_collapsed', JSON.stringify(newVal));
+            return newVal;
+        });
+    };
+
     const value = {
         // State
         selectedPeriod,
@@ -173,8 +218,15 @@ export const DashboardProvider = ({ children }) => {
         loading,
         showIntroduction,
         runTour,
+        showSetupWizard,
         settings,
         notifications,
+
+        // Shared overlay state (desktop sidebar + mobile header share these)
+        showSettings,
+        setShowSettings,
+        showNavMenu,
+        setShowNavMenu,
 
         // Setters
         setSelectedPeriod,
@@ -187,6 +239,7 @@ export const DashboardProvider = ({ children }) => {
         setNotifications,
         setShowIntroduction,
         setRunTour,
+        setShowSetupWizard,
         setIsScenarioMode,
         setScenarioParams,
         setForecastHorizon,
@@ -205,7 +258,20 @@ export const DashboardProvider = ({ children }) => {
         handleRevisitGuide,
         handlePrevDate,
         handleNextDate,
-        handleSaveSettings
+        handleSaveSettings,
+
+        // Active section
+        activeSection,
+        setActiveSection,
+
+        // Sidebar Mini-Rail
+        isSidebarCollapsed,
+        setIsSidebarCollapsed,
+        toggleSidebar,
+
+        // Setup Wizard
+        handleCompleteSetup,
+        handleTriggerSetup
     };
 
     return (

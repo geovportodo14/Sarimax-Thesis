@@ -11,7 +11,7 @@ const DateNavigator = ({ selectedDate, onDateChange, onPrevClick, onNextClick })
             onClick={onClick}
             ref={ref}
             type="button"
-            className="flex items-center gap-2 px-6 py-2.5 bg-white rounded-xl border border-surface-200 shadow-sm hover:border-primary-400 hover:shadow-md transition-all active:scale-95 group focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+            className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-surface-200 shadow-sm hover:border-primary-400 hover:shadow-md transition-all active:scale-95 group focus:outline-none focus:ring-2 focus:ring-primary-500/20"
         >
             <svg className="w-5 h-5 text-primary-500 group-hover:text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -26,15 +26,15 @@ const DateNavigator = ({ selectedDate, onDateChange, onPrevClick, onNextClick })
     ));
 
     return (
-        <div className="flex items-center justify-center gap-4 py-6">
+        <div className="flex items-center justify-center gap-3 py-0">
             <IconButton
                 onClick={onPrevClick}
                 variant="secondary"
-                size="lg"
+                size="md"
                 aria-label="Previous day"
                 className="shadow-sm hover:shadow-md active:scale-90 transition-all border border-surface-100"
             >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
             </IconButton>
@@ -52,11 +52,11 @@ const DateNavigator = ({ selectedDate, onDateChange, onPrevClick, onNextClick })
             <IconButton
                 onClick={onNextClick}
                 variant="secondary"
-                size="lg"
+                size="md"
                 aria-label="Next day"
                 className="shadow-sm hover:shadow-md active:scale-90 transition-all border border-surface-100"
             >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
             </IconButton>

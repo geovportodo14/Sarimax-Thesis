@@ -1,14 +1,9 @@
 {
     "version": 2,
-    "functions": {
-        "api/index.py": {
-            "excludeFiles": "{data,collector,src,public,tests}/**"
-        }
-    },
     "rewrites": [
         {
-            "source": "/api/(.*)",
-            "destination": "/api/index.py"
+            "source": "/(.*)",
+            "destination": "/index.html"
         }
     ]
 }
