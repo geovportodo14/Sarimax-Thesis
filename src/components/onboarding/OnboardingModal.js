@@ -63,7 +63,7 @@ const OnboardingModal = () => {
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 backdrop-blur-xl animate-in fade-in duration-300 p-4 sm:p-8">
             {/* Modal Container: Full mobile, 2-column desktop */}
-            <div className="bg-white w-full max-w-5xl max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl flex flex-col md:flex-row md:h-[600px] transition-all duration-300 relative animate-in zoom-in-95">
+            <div className="relative bg-white w-full max-w-5xl max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl flex flex-col md:flex-row md:h-[600px] transition-all duration-300">
 
                 {/* Close Button (Absolute Top-Right of Modal) */}
                 <button

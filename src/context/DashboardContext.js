@@ -63,6 +63,9 @@ export const DashboardProvider = ({ children }) => {
     const [showSettings, setShowSettings] = useState(false);
     const [showNavMenu, setShowNavMenu] = useState(false);
 
+    // 🚨 THE FIX: Added the notifications overlay state right here!
+    const [showNotifications, setShowNotifications] = useState(false);
+
     // Active section state (for sidebar/header highlights)
     const [activeSection, setActiveSection] = useState('tour-summary');
 
@@ -227,6 +230,10 @@ export const DashboardProvider = ({ children }) => {
         setShowSettings,
         showNavMenu,
         setShowNavMenu,
+
+        // 🚨 THE FIX: Added them to the exported Context value!
+        showNotifications,
+        setShowNotifications,
 
         // Setters
         setSelectedPeriod,

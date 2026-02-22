@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
+// 1. FIXED: Imported useState!
+import React, { useState, useEffect } from 'react';
 import { Card, IconButton } from './ui/index';
 import SettingsPopover from './SettingsPopover';
+// 2. FIXED: Imported the Popover component we just worked on!
+import NotificationPopover from './NotificationPopover';
 import { useDashboard } from '../context/DashboardContext';
-import { RefreshCw, Bell } from 'lucide-react'; // Added Bell here
+import { RefreshCw, Bell } from 'lucide-react';
 
 function DashboardHeader({
   onHelpClick,
@@ -15,11 +18,15 @@ function DashboardHeader({
     showNavMenu, setShowNavMenu,
   } = useDashboard();
 
+  // 3. FIXED: Created the state that React was complaining about!
+  const [showNotifications, setShowNotifications] = useState(false);
+
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)');
     const handleChange = () => {
       setShowSettings(false);
       setShowNavMenu(false);
+      setShowNotifications(false); // Clean up if they resize screen
     };
     mq.addEventListener('change', handleChange);
     return () => mq.removeEventListener('change', handleChange);
@@ -47,8 +54,8 @@ function DashboardHeader({
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#EDF2F7] px-4 py-3 mb-6 transition-all lg:hidden">
       <div className="flex items-center justify-between w-full">
 
-        {/* ── LEFT: Mobile hamburger + Logo (Tightened gap) ── */}
-        <div className="flex items-center gap-2">
+        {/* ── LEFT: Mobile hamburger + Logo ── */}
+        <div className="flex items-center gap-3">
           <div className="relative">
             <IconButton
               variant="ghost"
@@ -57,6 +64,7 @@ function DashboardHeader({
               onClick={() => {
                 setShowNavMenu(!showNavMenu);
                 setShowSettings(false);
+                setShowNotifications(false); // Close notifications if opening nav
               }}
             >
               <svg className="w-6 h-6 text-surface-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,41 +99,62 @@ function DashboardHeader({
             )}
           </div>
 
-          {/* Logo Override */}
-          <button onClick={handleLogoClick} className="flex items-center justify-center p-0 shrink-0">
+          {/* Logo Override - Now using Width-based sizing! */}
+          <button
+            onClick={handleLogoClick}
+            className="flex items-center justify-center p-0 shrink-0 transition-transform hover:scale-105"
+          >
             <img
               src="/logo3.png"
               alt="Sarimax"
-              className="h-16 sm:h-20 w-auto object-contain"
-              style={{ minWidth: '180px' }}
+              className="w-[90px] sm:w-[90px] object-contain drop-shadow-sm scale-[1.3] sm:scale-[1.5] origin-left"
             />
           </button>
         </div>
 
         {/* ── RIGHT: Utilities ── */}
         <div className="flex items-center gap-1">
-          {/* Notification Bell */}
-          <IconButton variant="ghost" size="md" aria-label="Notifications">
-            <div className="relative">
-              <Bell size={20} className="text-surface-600" />
-              {/* Red dot indicator if there are notifications */}
-              {notifications.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>
-              )}
-            </div>
-          </IconButton>
 
-          {/* Refresh Action */}
-          <IconButton variant="ghost" size="md" onClick={() => window.location.reload()}>
-            <RefreshCw size={20} className="text-surface-600" />
-          </IconButton>
-
-          {/* Settings Toggle */}
+          {/* 4. FIXED: Wrapped Notification Bell in a relative div and added the Popover */}
           <div className="relative">
             <IconButton
               variant="ghost"
               size="md"
-              onClick={() => { setShowSettings(!showSettings); setShowNavMenu(false); }}
+              aria-label="Notifications"
+              onClick={() => {
+                setShowNotifications(!showNotifications);
+                setShowSettings(false); // Close settings if opening notifications
+                setShowNavMenu(false); // Close nav if opening notifications
+              }}
+            >
+              <div className="relative">
+                <Bell size={20} className="text-surface-600" />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>
+                )}
+              </div>
+            </IconButton>
+
+            <NotificationPopover
+              isOpen={showNotifications}
+              onClose={() => setShowNotifications(false)}
+              notifications={notifications}
+            />
+          </div>
+
+          <IconButton variant="ghost" size="md" onClick={() => window.location.reload()}>
+            <RefreshCw size={20} className="text-surface-600" />
+          </IconButton>
+
+          <div className="relative">
+            <IconButton
+              variant="ghost"
+              size="md"
+              onClick={() => {
+                setShowSettings(!showSettings);
+                setShowNavMenu(false);
+                setShowNotifications(false); // Close notifications if opening settings
+              }}
             >
               <svg className="w-6 h-6 text-surface-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />

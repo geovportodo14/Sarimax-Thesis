@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, Play, FileText, ArrowLeftRight, LineChart, LayoutGrid, Settings2, Trophy } from 'lucide-react';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDashboard } from '../context/DashboardContext';
 
 // Navigation items with icons
@@ -39,30 +39,36 @@ export default function DesktopSidebar({ onHelpClick }) {
                     {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
                 </button>
 
-                <div className="h-16 flex items-center mb-6 px-4 transition-all duration-300">
+                <div className="py-5 flex items-center justify-center mb-2 px-4 transition-all duration-300 min-h-[5rem]">
                     {isSidebarCollapsed ? (
                         /* COLLAPSED: The Square Icon */
-                        <div className="w-full flex justify-center">
+                        <button
+                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                            className="flex justify-center transition-transform hover:scale-105"
+                        >
                             <img
                                 src="/icon.png"
                                 alt="Icon"
-                                className="h-8 w-8 object-contain"
+                                className="h-10 w-10 object-contain drop-shadow-sm"
                             />
-                        </div>
+                        </button>
                     ) : (
-                        /* EXPANDED: The Full Logo */
-                        <div className="flex items-center animate-in fade-in duration-500">
+                        /* EXPANDED: The Full Logo - Now using Width-based sizing! */
+                        <button
+                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                            className="flex items-center justify-center w-full animate-in fade-in duration-500 transition-transform hover:scale-105"
+                        >
                             <img
                                 src="/logo3.png"
                                 alt="Sarimax Logo"
-                                className="h-8 w-auto object-contain"
+                                className="w-[100px] sm:w-[130px] object-contain drop-shadow-sm scale-[1.3] sm:scale-[1.5] origin-center"
                             />
-                        </div>
+                        </button>
                     )}
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 overflow-y-auto pt-6 pb-4 px-3 space-y-6">
+                <nav className="flex-1 overflow-y-auto pt-4 pb-4 px-3 space-y-6">
                     <div>
                         {!isSidebarCollapsed && (
                             <p className="text-[11px] font-bold text-surface-400 uppercase tracking-widest px-3 mb-3">

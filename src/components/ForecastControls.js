@@ -86,7 +86,7 @@ function ForecastControls({
             />
           </div>
 
-          {/* Forecast Horizon (Thesis 3.6.4.C) */}
+          {/* Forecast Horizon */}
           <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100 hover:bg-teal-100/50 transition-colors">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center flex-shrink-0">
@@ -105,7 +105,7 @@ function ForecastControls({
             />
           </div>
 
-          {/* Tariff Rate */}
+          {/* Tariff Rate - FIXED */}
           <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-4 p-4 bg-surface-50 rounded-xl border border-surface-100 hover:bg-surface-100/50 transition-colors">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
@@ -119,14 +119,17 @@ function ForecastControls({
               type="number"
               step="0.01"
               value={tariff}
-              onChange={(e) => onTariffChange(parseFloat(e.target.value) || 0)}
+              onChange={(e) => {
+                const val = e.target.value;
+                onTariffChange(val === '' ? '' : parseFloat(val));
+              }}
               prefix="₱"
               size="sm"
               inputClassName="w-full xs:w-24 text-right"
             />
           </div>
 
-          {/* Budget */}
+          {/* Budget - FIXED */}
           <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-4 p-4 bg-surface-50 rounded-xl border border-surface-100 hover:bg-surface-100/50 transition-colors">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center flex-shrink-0">
@@ -140,7 +143,10 @@ function ForecastControls({
               id="budget-input"
               type="number"
               value={budget}
-              onChange={(e) => onBudgetChange(parseInt(e.target.value) || 0)}
+              onChange={(e) => {
+                const val = e.target.value;
+                onBudgetChange(val === '' ? '' : parseInt(val));
+              }}
               prefix="₱"
               size="sm"
               inputClassName="w-full xs:w-24 text-right"
