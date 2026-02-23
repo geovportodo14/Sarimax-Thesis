@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Input, Select, DualRangeSlider } from './ui/index';
-import { Settings, Mail, Bell, Globe, X, Save, CheckCircle2, AlertCircle } from 'lucide-react';
+// 🚨 Notice the 'Info' icon added to the imports here!
+import { Settings, Mail, Bell, Globe, X, Save, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
 const SettingsPopover = ({ isOpen, onClose, settings, onSave }) => {
     const [localSettings, setLocalSettings] = useState(settings);
@@ -62,6 +63,25 @@ const SettingsPopover = ({ isOpen, onClose, settings, onSave }) => {
 
                 {/* Content */}
                 <div className="max-h-[450px] overflow-y-auto p-4 space-y-6">
+
+                    {/* 🌟 NEW: How It Works / CTA Banner 🌟 */}
+                    <div className="bg-primary-50 border border-primary-100 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                            <div className="p-2 bg-primary-100 text-primary-600 rounded-lg shrink-0 mt-0.5">
+                                <Info size={16} />
+                            </div>
+                            <div>
+                                <h4 className="text-body-sm font-bold text-primary-900 mb-1">How alerts work</h4>
+                                <p className="text-[12px] text-primary-700 leading-relaxed mb-2">
+                                    Set your custom thresholds below. We'll send a warning to your email when you hit the <span className="font-bold">Approaching</span> limit, and an alert for the <span className="font-bold">Critical</span> limit.
+                                </p>
+                                <div className="inline-block bg-white px-2 py-1 rounded-md border border-primary-100 text-[10px] font-bold text-primary-600 uppercase tracking-wide">
+                                    ✓ 100% Free • No Subscriptions
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Email Alerts Section */}
                     <section>
                         <div className="flex items-center justify-between mb-3">
@@ -109,7 +129,7 @@ const SettingsPopover = ({ isOpen, onClose, settings, onSave }) => {
                         </div>
                         <div className="px-2">
                             <p className="text-[11px] text-surface-500 mb-6">
-                                Set when you want to be warned (<span className="text-amber-600 font-bold">Approaching</span>) and alerted (<span className="text-red-600 font-bold">Critical</span>).
+                                Drag the sliders to set your <span className="text-amber-600 font-bold">Approaching</span> and <span className="text-red-600 font-bold">Critical</span> percentages.
                             </p>
 
                             <DualRangeSlider

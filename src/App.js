@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef } from 'react';
+import React, { useMemo, useEffect, useRef, useState } from 'react';
 import DashboardHeader from './components/DashboardHeader';
 import DesktopSidebar from './components/DesktopSidebar';
 import ForecastControls from './components/ForecastControls';
@@ -20,6 +20,9 @@ import SettingsPopover from './components/SettingsPopover';
 import { APPLIANCES, generateApplianceForecast, generateLabels, generateActual, generateForecastPast } from './utils/mockData';
 import { ApplianceIcons } from './components/ui/icons';
 import EnergyLineChart from './components/ui/EnergyLineChart';
+
+// 🚨 NEW: Import the Landing Page
+import LandingPage from './pages/LandingPage';
 
 // =============================================================================
 // LOADING SKELETON COMPONENT
@@ -98,7 +101,6 @@ function DashboardContent() {
     settings,
     notifications,
 
-    // Setters
     setSelectedPeriod,
     setSelectedLookback,
     setTariff,
@@ -106,40 +108,31 @@ function DashboardContent() {
     setAllTime,
     setNotifications,
 
-    // Handlers
     handleSkipIntroduction,
     handleStartTour,
     handleTourComplete,
     handleSaveSettings,
 
-    // Scenario Mode
     isScenarioMode,
     scenarioParams,
-
-    // Forecast Horizon
     forecastHorizon,
     setForecastHorizon,
 
-    // Active section
     setActiveSection,
     isSidebarCollapsed,
 
-    // Date Handlers
     setCurrentDate,
     handlePrevDate,
     handleNextDate,
 
-    // Overlays
     showSettings,
     setShowSettings,
     showNotifications,
     setShowNotifications,
 
-    // Setup Wizard
     handleTriggerSetup
   } = useDashboard();
 
-  // Handlers for Notifications
   const toggleNotificationRead = (id) => {
     setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
   };
@@ -148,7 +141,6 @@ function DashboardContent() {
     setNotifications([]);
   };
 
-  // ── Intersection Observer for Scroll Highlighting ─────────────────────────
   useEffect(() => {
     const observerOptions = {
       root: null,
@@ -183,12 +175,10 @@ function DashboardContent() {
     return () => observer.disconnect();
   }, [setActiveSection]);
 
-  // Generate labels based on selected periods
   const labels = useMemo(() => {
     return generateLabels(currentDate, selectedPeriod, selectedLookback);
   }, [currentDate, selectedPeriod, selectedLookback]);
 
-  // Get period key for JSON lookup
   const periodKey = useMemo(() => {
     return selectedPeriod === 1 ? '1hour' :
       selectedPeriod === 4 ? '4hours' :
@@ -196,7 +186,6 @@ function DashboardContent() {
           selectedPeriod === 24 ? '24hours' : null;
   }, [selectedPeriod]);
 
-  // Generate data based on labels
   const chartData = useMemo(() => {
     if (loading) {
       return {
@@ -254,9 +243,7 @@ function DashboardContent() {
     };
   }, [labels, dummyData, periodKey, loading]);
 
-  // Calculate totals and costs
   const calculations = useMemo(() => {
-    // Apply Scenario Logic
     let effectiveTariff = tariff;
     let loadMultiplier = 1;
 
@@ -266,14 +253,12 @@ function DashboardContent() {
     }
 
     const prevTotal = chartData.prevActualData.reduce((a, b) => (b || 0) + a, 0);
-    // Apply load adjustment to forecast total
     const nextTotalBase = chartData.nextForecastData.reduce((a, b) => (b || 0) + a, 0);
     const nextTotal = nextTotalBase * loadMultiplier;
 
-    const prevCost = prevTotal * tariff; // History stays with actual tariff
+    const prevCost = prevTotal * tariff;
     const nextCost = nextTotal * effectiveTariff;
 
-    // Apply load adjustment to appliances
     const fanKwh = chartData.nextApplianceForecasts.fan.reduce((a, b) => a + b, 0) * loadMultiplier;
     const acKwh = chartData.nextApplianceForecasts.ac.reduce((a, b) => a + b, 0) * loadMultiplier;
     const refKwh = chartData.nextApplianceForecasts.ref.reduce((a, b) => a + b, 0) * loadMultiplier;
@@ -282,14 +267,12 @@ function DashboardContent() {
     const acPhp = acKwh * effectiveTariff;
     const refPhp = refKwh * effectiveTariff;
 
-    // Only these three appliances
     const appliances = [
       { name: 'Electric Fan', kwh: fanKwh, php: fanPhp },
       { name: 'Air Conditioner', kwh: acKwh, php: acPhp },
       { name: 'Refrigerator', kwh: refKwh, php: refPhp },
     ];
 
-    // Determine top appliance
     const maxPhp = Math.max(fanPhp, acPhp, refPhp);
     const topAppliance =
       acPhp === maxPhp ? 'Air Conditioner' :
@@ -311,9 +294,6 @@ function DashboardContent() {
       topAppliance,
       budgetStatus,
       selectedPeriodText,
-      // Individual appliance data for charts (scaled by multiplier for consistency if needed, assuming charts show total forecast)
-      // Note: Passing raw data to charts might show original query. 
-      // ideally we map the data arrays too, but for summary correctness we pass the totals.
       applianceData: {
         'Electric Fan': { kwh: fanKwh, php: fanPhp, data: chartData.nextApplianceForecasts.fan.map(v => v * loadMultiplier) },
         'Air Conditioner': { kwh: acKwh, php: acPhp, data: chartData.nextApplianceForecasts.ac.map(v => v * loadMultiplier) },
@@ -322,7 +302,6 @@ function DashboardContent() {
     };
   }, [chartData, tariff, budget, selectedPeriod, isScenarioMode, scenarioParams]);
 
-  // Handle dynamic budget alerts & email notifications
   const lastEmailSent = useRef({ type: null, timestamp: 0 });
 
   useEffect(() => {
@@ -330,7 +309,7 @@ function DashboardContent() {
 
     const budgetUsagePercent = Math.round((calculations.nextCost / budget) * 100);
     const now = Date.now();
-    const COOLDOWN = 4 * 60 * 60 * 1000; // 4 hours
+    const COOLDOWN = 4 * 60 * 60 * 1000;
 
     let alertType = null;
     if (budgetUsagePercent >= settings.thresholdCritical) {
@@ -339,7 +318,6 @@ function DashboardContent() {
       alertType = 'warning';
     }
 
-    // Trigger email if threshold met and not on cooldown for this type
     if (alertType && (lastEmailSent.current.type !== alertType || (now - lastEmailSent.current.timestamp) > COOLDOWN)) {
       const sendEmailAlert = async () => {
         try {
@@ -363,7 +341,6 @@ function DashboardContent() {
       sendEmailAlert();
     }
 
-    // Update UI Notifications
     const newNotifications = [];
     if (budgetUsagePercent >= settings.thresholdCritical) {
       newNotifications.push({
@@ -390,7 +367,6 @@ function DashboardContent() {
     setNotifications(newNotifications);
   }, [calculations.nextCost, budget, settings, loading, setNotifications]);
 
-  // Scroll to main chart
   const handleViewDetails = () => {
     const mainChart = document.getElementById('tour-main-chart');
     if (mainChart) {
@@ -403,14 +379,12 @@ function DashboardContent() {
     if (controls) {
       controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    // Focus the budget input after scroll
     window.setTimeout(() => {
       const input = document.getElementById('budget-input');
       if (input && typeof input.focus === 'function') input.focus();
     }, 250);
   };
 
-  // Show loading state
   if (loading) {
     return <LoadingState />;
   }
@@ -419,7 +393,6 @@ function DashboardContent() {
     <div className="min-h-screen bg-transparent">
       {/* ── Desktop Floating Header ── */}
       <div className="fixed top-6 right-8 z-[100] hidden lg:flex items-center gap-6 bg-white/95 backdrop-blur-md px-4 py-2 rounded-full shadow-md border border-gray-100">
-        {/* Utility Icons */}
         <div className="flex items-center gap-4 border-r border-gray-200 pr-4">
           <div className="relative">
             <Bell
@@ -443,7 +416,6 @@ function DashboardContent() {
           />
         </div>
 
-        {/* User Pill */}
         <div className="relative">
           <button
             onClick={() => setShowSettings(!showSettings)}
@@ -471,7 +443,6 @@ function DashboardContent() {
           onHelpClick={handleStartTour}
         />
 
-        {/* ── MAIN CONTENT ── */}
         <main className={`flex-1 transition-all duration-300 min-w-0 ${isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'} pt-0 lg:pt-24`}>
           <DashboardHeader
             onHelpClick={handleStartTour}
@@ -493,19 +464,11 @@ function DashboardContent() {
 
           <OnboardingModal />
 
-          {/* Main Content */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 space-y-8">
-
-            {/* =====================================================================
-            SECTION 0: SCENARIO SIMULATOR
-            ===================================================================== */}
             <AnimationWrapper variant="slideDown" className="mb-8" id="tour-scenario">
               <ScenarioControls />
             </AnimationWrapper>
 
-            {/* =====================================================================
-            SECTION 1: FORECAST SUMMARY (ABOVE THE FOLD)
-            ===================================================================== */}
             <AnimationWrapper variant="fade-in" id="tour-summary">
               <EnergyForecastSummary
                 nextKwh={calculations.nextTotal}
@@ -526,9 +489,6 @@ function DashboardContent() {
               />
             </AnimationWrapper>
 
-            {/* =====================================================================
-            SECTION 2: TODAY'S QUICK STATS
-            ===================================================================== */}
             <AnimationWrapper variant="slide-up" delay={0.1}>
               <h2 className="text-heading-md text-surface-700 mb-4 flex items-center gap-2">
                 <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -624,9 +584,6 @@ function DashboardContent() {
               />
             </AnimationWrapper>
 
-            {/* =====================================================================
-            SECTION 3: OVERALL CHARTS
-            ===================================================================== */}
             <AnimationWrapper variant="slide-up" delay={0.2} id="charts-section" className="scroll-mt-20">
               <h2 className="text-heading-md text-surface-700 mb-4 flex items-center gap-2">
                 <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -668,9 +625,6 @@ function DashboardContent() {
               </div>
             </AnimationWrapper>
 
-            {/* =====================================================================
-            SECTION 4: INDIVIDUAL APPLIANCE CHARTS
-            ===================================================================== */}
             <AnimationWrapper variant="slide-up" delay={0.3}>
               <h2 className="text-heading-md text-surface-700 mb-4 flex items-center gap-2">
                 <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -710,9 +664,6 @@ function DashboardContent() {
               </div>
             </AnimationWrapper>
 
-            {/* =====================================================================
-            SECTION 5: CONTROLS & CONSUMPTION RANKING
-            ===================================================================== */}
             <AnimationWrapper variant="slide-up" delay={0.4}>
               <h2 className="text-heading-md text-surface-700 mb-4 flex items-center gap-2">
                 <svg className="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -740,9 +691,6 @@ function DashboardContent() {
               </div>
             </AnimationWrapper>
 
-            {/* =====================================================================
-            FOOTER
-            ===================================================================== */}
             <footer className="text-center py-6 border-t border-surface-100 flex flex-col items-center gap-3">
               <p className="text-body-sm text-surface-400">
                 Energy Forecast Dashboard • Powered by SARIMAX Model
@@ -761,7 +709,14 @@ function DashboardContent() {
   );
 }
 
+// 🚨 NEW: App conditionally renders LandingPage or Dashboard
 function App() {
+  const [showDashboard, setShowDashboard] = useState(false);
+
+  if (!showDashboard) {
+    return <LandingPage onEnterDashboard={() => setShowDashboard(true)} />;
+  }
+
   return (
     <DashboardProvider>
       <DashboardContent />

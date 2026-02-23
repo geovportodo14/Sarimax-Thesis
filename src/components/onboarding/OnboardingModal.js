@@ -23,7 +23,7 @@ const OnboardingModal = () => {
         {
             title: "Step 3: Establish Identity",
             text: "Rename your device (e.g., 'Aircon'). This is crucial for the system to identify the correct data stream.",
-            warning: "⚠️ Data Integrity Rule: Only the assigned appliance should use this plug to ensure accurate forecasting.",
+            warning: "Data Integrity Rule: Only the assigned appliance should use this plug to ensure accurate forecasting.",
             image: <img src="/rename.png" alt="Rename appliance" className="w-full h-full object-contain drop-shadow-sm rounded-md" />,
         },
         {

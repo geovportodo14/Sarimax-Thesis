@@ -51,7 +51,7 @@ function DashboardHeader({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#EDF2F7] px-4 py-3 mb-6 transition-all lg:hidden">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#EDF2F7] px-4 py-3 mb-6 transition-all lg:hidden relative">
       <div className="flex items-center justify-between w-full">
 
         {/* ── LEFT: Mobile hamburger + Logo ── */}
@@ -115,61 +115,62 @@ function DashboardHeader({
         {/* ── RIGHT: Utilities ── */}
         <div className="flex items-center gap-1">
 
-          {/* 4. FIXED: Wrapped Notification Bell in a relative div and added the Popover */}
-          <div className="relative">
-            <IconButton
-              variant="ghost"
-              size="md"
-              aria-label="Notifications"
-              onClick={() => {
-                setShowNotifications(!showNotifications);
-                setShowSettings(false); // Close settings if opening notifications
-                setShowNavMenu(false); // Close nav if opening notifications
-              }}
-            >
-              <div className="relative">
-                <Bell size={20} className="text-surface-600" />
-                {notifications.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>
-                )}
-              </div>
-            </IconButton>
-
-            <NotificationPopover
-              isOpen={showNotifications}
-              onClose={() => setShowNotifications(false)}
-              notifications={notifications}
-            />
-          </div>
+          {/* 4. FIXED: Removed the relative wrapper so the popover can escape the button bounds */}
+          <IconButton
+            variant="ghost"
+            size="md"
+            aria-label="Notifications"
+            onClick={() => {
+              setShowNotifications(!showNotifications);
+              setShowSettings(false); // Close settings if opening notifications
+              setShowNavMenu(false); // Close nav if opening notifications
+            }}
+          >
+            <div className="relative">
+              <Bell size={20} className="text-surface-600" />
+              {notifications.length > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>
+              )}
+            </div>
+          </IconButton>
 
           <IconButton variant="ghost" size="md" onClick={() => window.location.reload()}>
             <RefreshCw size={20} className="text-surface-600" />
           </IconButton>
 
-          <div className="relative">
-            <IconButton
-              variant="ghost"
-              size="md"
-              onClick={() => {
-                setShowSettings(!showSettings);
-                setShowNavMenu(false);
-                setShowNotifications(false); // Close notifications if opening settings
-              }}
-            >
-              <svg className="w-6 h-6 text-surface-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </IconButton>
-            <SettingsPopover
-              isOpen={showSettings}
-              onClose={() => setShowSettings(false)}
-              settings={settings}
-              onSave={(newSettings) => { onSaveSettings(newSettings); setShowSettings(false); }}
-            />
-          </div>
+          <IconButton
+            variant="ghost"
+            size="md"
+            onClick={() => {
+              setShowSettings(!showSettings);
+              setShowNavMenu(false);
+              setShowNotifications(false); // Close notifications if opening settings
+            }}
+          >
+            <svg className="w-6 h-6 text-surface-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </IconButton>
         </div>
       </div>
+
+      {/* ── FIXED PLACEMENT POPOVERS ── */}
+      {/* Moving these down here ensures they map relative to the whole header, not the tiny buttons! */}
+      <div className="absolute top-full right-4 mt-2 z-50">
+        <NotificationPopover
+          isOpen={showNotifications}
+          onClose={() => setShowNotifications(false)}
+          notifications={notifications}
+        />
+        <SettingsPopover
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+          settings={settings}
+          onSave={(newSettings) => { onSaveSettings(newSettings); setShowSettings(false); }}
+        />
+      </div>
+
     </header>
   );
 }
