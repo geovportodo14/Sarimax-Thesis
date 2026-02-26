@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, Play, FileText, ArrowLeftRight, LineChart, LayoutGrid, Settings2, Trophy } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useDashboard } from '../context/DashboardContext';
 
 // Navigation items with icons

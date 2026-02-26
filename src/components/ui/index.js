@@ -7,7 +7,7 @@ export function Card({ children, className = '', hover = true, ...props }) {
   return (
     <div
       className={`
-        bg-[var(--color-bg-elevated)] rounded-2xl border border-surface-100
+        bg-white rounded-2xl border border-surface-100
         ${hover ? 'shadow-card hover:shadow-card-hover transition-shadow duration-200' : 'shadow-card'}
         ${className}
       `}

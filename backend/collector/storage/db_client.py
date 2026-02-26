@@ -12,22 +12,23 @@ class MongoDBClient:
         self._ensure_indexes()
 
     def _ensure_indexes(self):
-        """Creates indexes for all appliance collections."""
-        appliances = ["aircon", "refrigerator", "electric_fan"]
-        for app in appliances:
-            collection = self.db[app]
-            # Index for daily documents
-            collection.create_index([("date", 1), ("device_id", 1)], unique=True)
-            # Index for individual readings timestamps
-            collection.create_index([("readings.timestamp", 1)])
-            logger.info(f"Indexes verified for {app}")
+        """Creates compound indexes for the unified energybuckets collection."""
+        collection = self.db["energybuckets"]
+        # Index for fast daily document lookups by date and device
+        collection.create_index([("date", 1), ("device_id", 1)], unique=True)
+        # Index for querying appliance specific aggregations
+        collection.create_index([("date", 1), ("appliance_type", 1)])
+        # Index for individual readings timestamps
+        collection.create_index([("readings.timestamp", 1)])
+        logger.info("Indexes verified for energybuckets")
 
     def store_reading(self, appliance_name, device_id, timestamp, raw_data, weather_data, processed_data=None):
         """
         Stores a single 10-minute reading into the correct collection.
         Uses a document-per-day structure as per implementation plan.
         """
-        collection = self.db[appliance_name.lower()]
+        collection = self.db["energybuckets"]
+        app_type = appliance_name.lower().replace("_", "")
         date_str = timestamp.strftime("%Y-%m-%d")
         
         # Calculate interval index (0 to 143 for 10-minute intervals)
@@ -67,7 +68,7 @@ class MongoDBClient:
                         "$setOnInsert": {
                             "date": date_str,
                             "device_id": device_id,
-                            "appliance_type": appliance_name.lower(),
+                            "appliance_type": app_type,
                             "created_at": datetime.now()
                         },
                         "$set": {"last_updated": datetime.now()},
@@ -84,7 +85,8 @@ class MongoDBClient:
         """
         Retrieves a specific reading from a daily document by interval_index.
         """
-        collection = self.db[appliance_name.lower()]
+        collection = self.db["energybuckets"]
+        app_type = appliance_name.lower().replace("_", "")
         # Using $elemMatch to find the document that contains the matching reading in the array
         doc = collection.find_one(
             {"date": date_str, "readings.interval_index": interval_index},
@@ -98,7 +100,7 @@ class MongoDBClient:
         """
         Updates only the weather data for a specific reading within a daily document.
         """
-        collection = self.db[appliance_name.lower()]
+        collection = self.db["energybuckets"]
         try:
             # Use positional operator $ to update the matched element in the array
             result = collection.update_one(
@@ -119,8 +121,8 @@ class MongoDBClient:
         """
         Calculates daily summary (total kWh, peak power, etc.) once 144 points are confirmed.
         """
-        collection = self.db[appliance_name.lower()]
-        doc = collection.find_one({"date": date_str})
+        collection = self.db["energybuckets"]
+        doc = collection.find_one({"date": date_str, "appliance_type": appliance_name.lower().replace("_", "")})
         
         if not doc or "readings" not in doc:
             return None
@@ -166,8 +168,8 @@ class MongoDBClient:
         return summary
 
     def get_daily_count(self, appliance_name, date_str):
-        collection = self.db[appliance_name.lower()]
-        doc = collection.find_one({"date": date_str})
+        collection = self.db["energybuckets"]
+        doc = collection.find_one({"date": date_str, "appliance_type": appliance_name.lower().replace("_", "")})
         if doc:
             return doc.get("reading_count", 0)
         return 0
@@ -175,8 +177,8 @@ class MongoDBClient:
         """
         Returns a list of interval_indexes (0-143) missing for the given day.
         """
-        collection = self.db[appliance_name.lower()]
-        doc = collection.find_one({"date": date_str})
+        collection = self.db["energybuckets"]
+        doc = collection.find_one({"date": date_str, "appliance_type": appliance_name.lower().replace("_", "")})
         
         existing_indexes = []
         if doc and "readings" in doc:
@@ -191,8 +193,8 @@ class MongoDBClient:
         Removes the daily document for a specific appliance and date.
         Useful for clean-state backfilling.
         """
-        collection = self.db[appliance_name.lower()]
-        result = collection.delete_one({"date": date_str})
+        collection = self.db["energybuckets"]
+        result = collection.delete_one({"date": date_str, "appliance_type": appliance_name.lower().replace("_", "")})
         if result.deleted_count > 0:
             logger.info(f"Dropped existing data for {appliance_name} on {date_str}")
             return True

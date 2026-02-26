@@ -19,7 +19,7 @@ const NotificationPopover = ({ isOpen, onClose, notifications = [] }) => {
                 Removed the negative right margins and used max-w to ensure it NEVER causes a horizontal scrollbar. */}
             <div className="absolute right-0 mt-3 w-[calc(100vw-2rem)] max-w-[360px] sm:max-w-none sm:w-96 z-[100] animate-in fade-in slide-in-from-top-2 duration-200 origin-top-right">
                 <Card className="shadow-2xl border-surface-100 overflow-hidden ring-1 ring-black/5">
-                    <div className="p-4 border-b border-surface-50 flex items-center justify-between bg-surface-50/50">
+                    <div className="p-4 border-b border-surface-50 flex items-center justify-between bg-surface-50">
                         <div className="flex items-center gap-2">
                             <Bell size={18} className="text-primary-500" />
                             <h3 className="font-bold text-surface-900 text-body-md">Notifications</h3>
@@ -55,8 +55,8 @@ const NotificationPopover = ({ isOpen, onClose, notifications = [] }) => {
                                     >
                                         <div className="flex gap-3">
                                             <div className={`mt-1 flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${notif.type === 'at-risk' ? 'bg-red-100 text-red-600' :
-                                                    notif.type === 'approaching' ? 'bg-amber-100 text-amber-600' :
-                                                        'bg-sky-100 text-sky-600'
+                                                notif.type === 'approaching' ? 'bg-amber-100 text-amber-600' :
+                                                    'bg-sky-100 text-sky-600'
                                                 }`}>
                                                 {notif.type === 'at-risk' ? <AlertTriangle size={16} /> :
                                                     notif.type === 'approaching' ? <AlertTriangle size={16} /> :
@@ -89,7 +89,7 @@ const NotificationPopover = ({ isOpen, onClose, notifications = [] }) => {
                     </div>
 
                     {notifications.length > 0 && (
-                        <div className="p-3 border-t border-surface-50 text-center bg-surface-50/30 relative z-[101]">
+                        <div className="p-3 border-t border-surface-50 text-center bg-surface-50 relative z-[101]">
                             <button className="text-body-xs font-semibold text-surface-500 hover:text-primary-600 transition-colors">
                                 Mark all as read
                             </button>

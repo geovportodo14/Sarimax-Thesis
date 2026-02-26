@@ -51,7 +51,7 @@ function DashboardHeader({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#EDF2F7] px-4 py-3 mb-6 transition-all lg:hidden relative">
+    <header className="sticky top-0 z-40 bg-white border-b border-[#EDF2F7] px-4 py-3 mb-6 transition-all lg:hidden relative">
       <div className="flex items-center justify-between w-full">
 
         {/* ── LEFT: Mobile hamburger + Logo ── */}
@@ -75,7 +75,7 @@ function DashboardHeader({
             {showNavMenu && (
               <div className="absolute left-0 mt-2 w-72 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                 <Card className="shadow-2xl border-surface-100 overflow-hidden">
-                  <div className="p-3 border-b border-surface-50 flex items-center justify-between bg-surface-50/50">
+                  <div className="p-3 border-b border-surface-50 flex items-center justify-between bg-surface-50">
                     <p className="text-body-sm font-bold text-surface-900">Navigation</p>
                     <button onClick={() => setShowNavMenu(false)} className="p-1 hover:bg-surface-200 rounded-lg text-surface-400">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

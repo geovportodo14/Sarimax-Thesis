@@ -32,5 +32,6 @@ echo "[3/3] Cleaning up unused images..."
 docker image prune -f
 
 echo "\nSUCCESS: Deployment complete!"
-echo "API is running on port 8000."
-echo "Collector is running in background."
+echo "SARIMAX API (Predictions/Alerts): http://localhost:8000"
+echo "Dashboard API (History/Trends):   http://localhost:5000"
+echo "Data Collector: Running in background"

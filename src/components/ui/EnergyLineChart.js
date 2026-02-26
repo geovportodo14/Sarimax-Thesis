@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -27,8 +27,8 @@ ChartJS.register(
 const FONT_FAMILY = "'IBM Plex Sans', sans-serif";
 
 export const CHART_COLORS = {
-    actual: '#0EA5E9',      // Sky
-    forecast: '#F59E0B',    // Amber
+    actual: '#0284C7',      // Meralco Data Blue (Actual)
+    forecast: '#FF6B00',    // Meralco Solar Orange (Forecast)
     healthy: '#10B981',     // Green
     atRisk: '#EF4444',      // Red
     stable: '#6B7280',      // Gray
@@ -47,7 +47,9 @@ function EnergyLineChart({
     extraAction = null,
     unit = 'kWh',
     height = 320,
+    showSlider = false,
 }) {
+    const [yMax, setYMax] = useState(unit === 'kWh' ? 1.0 : undefined);
     const hasRiskData = riskStatus === 'At-Risk';
 
     const chartData = useMemo(() => ({
@@ -127,7 +129,7 @@ function EnergyLineChart({
                     label: function (context) {
                         const value = context.parsed.y;
                         if (value === null) return null;
-                        return ` ${context.dataset.label}: ${value.toFixed(unit === 'kWh' ? 2 : 0)} ${unit}`;
+                        return ` ${context.dataset.label}: ${value.toFixed(unit === 'kWh' || unit === 'kW' ? 4 : 1)} ${unit}`;
                     },
                 },
             },
@@ -150,15 +152,17 @@ function EnergyLineChart({
                 grid: { color: 'rgba(0, 0, 0, 0.04)', drawBorder: false },
                 border: { display: false },
                 beginAtZero: true,
+                suggestedMax: yMax,
                 ticks: {
                     color: '#737373',
                     font: { size: 11, family: FONT_FAMILY },
                     padding: 12,
-                    callback: (value) => value.toFixed(1) + ' ' + unit,
+                    stepSize: unit === 'kWh' ? (yMax / 5) : undefined,
+                    callback: (value) => value.toFixed(unit === 'kWh' ? 2 : 1) + ' ' + unit,
                 },
             },
         },
-    }), [unit]);
+    }), [unit, yMax]);
 
     const legendItems = [
         { color: CHART_COLORS.actual, label: 'Actual' },
@@ -188,8 +192,32 @@ function EnergyLineChart({
                     </div>
                 )}
 
-                <div style={{ height: `${height}px` }}>
-                    <Line data={chartData} options={options} />
+                <div className={showSlider ? "flex items-center gap-2 sm:gap-4 h-full" : "flex items-center h-full"}>
+                    {showSlider && (
+                        <div
+                            className="flex-shrink-0 flex flex-col items-center gap-2 h-full py-2 border-r border-surface-100 pr-2"
+                            title="Stretch Y-Axis"
+                        >
+                            <span className="text-[9px] sm:text-[10px] font-bold text-surface-400 uppercase tracking-wider vertical-text">Stretch</span>
+                            <input
+                                type="range"
+                                min="0.1"
+                                max="5.0"
+                                step="0.1"
+                                value={yMax || 1.0}
+                                onChange={(e) => setYMax(parseFloat(e.target.value))}
+                                className="zoom-slider h-32 sm:h-48 w-1 cursor-pointer accent-primary-500 rounded-full"
+                                style={{
+                                    appearance: 'slider-vertical',
+                                    WebkitAppearance: 'slider-vertical',
+                                }}
+                            />
+                        </div>
+                    )}
+
+                    <div className="flex-grow w-full relative overflow-hidden" style={{ height: `${height}px` }}>
+                        <Line data={chartData} options={options} />
+                    </div>
                 </div>
 
                 <ChartLegend items={legendItems} />

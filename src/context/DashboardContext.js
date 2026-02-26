@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { getApiUrl } from '../utils/api';
 
 const DashboardContext = createContext();
 
@@ -16,10 +17,17 @@ export const DashboardProvider = ({ children }) => {
     // ===========================================================================
     const [selectedPeriod, setSelectedPeriod] = useState(1);
     const [selectedLookback, setSelectedLookback] = useState(1);
-    const [tariff, setTariff] = useState(13.47);
-    const [budget, setBudget] = useState(300);
+    const [tariff, setTariff] = useState(() => {
+        const saved = localStorage.getItem('dashboardTariff');
+        return saved ? parseFloat(saved) : 13.47;
+    });
+    const [budget, setBudget] = useState(() => {
+        const saved = localStorage.getItem('dashboardBudget');
+        return saved ? parseFloat(saved) : 300;
+    });
     const [allTime, setAllTime] = useState(true);
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [granularity, setGranularity] = useState(60);
     const [dummyData, setDummyData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -159,7 +167,7 @@ export const DashboardProvider = ({ children }) => {
 
         if (emailChanged) {
             try {
-                await fetch('/api/alerts/welcome', {
+                await fetch(getApiUrl('/api/alerts/welcome'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: newSettings.emailAddress })
@@ -176,6 +184,14 @@ export const DashboardProvider = ({ children }) => {
         if (Number.isFinite(nextBudget) && nextBudget > 0) {
             setHasSetBudget(true);
             localStorage.setItem('hasSetBudget', 'true');
+            localStorage.setItem('dashboardBudget', nextBudget.toString());
+        }
+    }, []);
+
+    const handleTariffChange = useCallback((nextTariff) => {
+        setTariff(nextTariff);
+        if (Number.isFinite(nextTariff) && nextTariff > 0) {
+            localStorage.setItem('dashboardTariff', nextTariff.toString());
         }
     }, []);
 
@@ -239,6 +255,7 @@ export const DashboardProvider = ({ children }) => {
         setSelectedPeriod,
         setSelectedLookback,
         setTariff,
+        handleTariffChange,
         setBudget,
         handleBudgetChange,
         setAllTime,
@@ -250,6 +267,7 @@ export const DashboardProvider = ({ children }) => {
         setIsScenarioMode,
         setScenarioParams,
         setForecastHorizon,
+        setGranularity,
 
         // Scenario values
         isScenarioMode,
@@ -257,6 +275,7 @@ export const DashboardProvider = ({ children }) => {
 
         // Forecast Horizon
         forecastHorizon,
+        granularity,
 
         // Handlers
         handleSkipIntroduction,

@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "SARIMAX Energy Dashboard",
   "private": true,
-  "proxy": "http://localhost:8000",
+  "proxy": "http://localhost:5000",
   "dependencies": {
+    "axios": "^1.13.5",
     "chart.js": "^4.4.0",
+    "cors": "^2.8.6",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.3.1",
     "framer-motion": "^12.29.2",
     "lucide-react": "^0.563.0",
+    "mongoose": "^9.2.2",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-datepicker": "^9.1.0",
@@ -19,14 +23,19 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.16",
+    "concurrently": "^9.2.1",
+    "jest": "^27.5.1",
     "postcss": "^8.4.32",
+    "supertest": "^7.2.2",
     "tailwindcss": "^3.3.6"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "CI=false react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "server": "node backend/server.js",
+    "dev": "concurrently \"npm start\" \"npm run server\""
   },
   "eslintConfig": {
     "extends": [

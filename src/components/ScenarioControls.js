@@ -50,7 +50,7 @@ export default function ScenarioControls() {
                             </svg>
                         </div>
                         <div>
-                            <h3 className="text-heading-sm font-bold text-surface-900">Wondering about next month's bill?</h3>
+                            <h3 className="text-heading-sm font-bold text-surface-900">Wondering about next 24 hours bill?</h3>
                             <p className="text-body-sm text-surface-500 mt-1 max-w-md">
                                 Run a "What-If" scenario to see how potential rate hikes or lifestyle changes will impact your forecasted energy costs.
                             </p>
@@ -125,8 +125,8 @@ export default function ScenarioControls() {
                                 <div className="flex justify-between mb-3">
                                     <label className="text-body-sm font-semibold text-surface-900">Usage Adjustments</label>
                                     <span className={`text-body-sm font-bold tabular-nums px-2 py-0.5 rounded-md ${scenarioParams.loadAdjustment > 0 ? 'bg-red-50 text-red-600' :
-                                            scenarioParams.loadAdjustment < 0 ? 'bg-emerald-50 text-emerald-600' :
-                                                'bg-surface-100 text-surface-600'
+                                        scenarioParams.loadAdjustment < 0 ? 'bg-emerald-50 text-emerald-600' :
+                                            'bg-surface-100 text-surface-600'
                                         }`}>
                                         {scenarioParams.loadAdjustment > 0 ? '+' : ''}{scenarioParams.loadAdjustment}%
                                     </span>

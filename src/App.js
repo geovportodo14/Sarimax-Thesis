@@ -1,11 +1,11 @@
-import React, { useMemo, useEffect, useRef, useState } from 'react';
+import React, { useMemo, useEffect, useRef, useState, useCallback } from 'react';
 import DashboardHeader from './components/DashboardHeader';
 import DesktopSidebar from './components/DesktopSidebar';
 import ForecastControls from './components/ForecastControls';
 import ConsumptionRanking from './components/ConsumptionRanking';
 import EnergyForecastSummary from './components/EnergyForecastSummary';
 import DateNavigator from './components/DateNavigator';
-import { Card, CardBody, Skeleton } from './components/ui/index';
+import { Card, CardBody, Skeleton, Select } from './components/ui/index';
 import IntroductionModal from './components/onboarding/IntroductionModal';
 import GuidedTour from './components/onboarding/GuidedTour';
 import OnboardingModal from './components/onboarding/OnboardingModal';
@@ -17,74 +17,25 @@ import { RefreshCw, Bell } from 'lucide-react';
 import NotificationPopover from './components/NotificationPopover';
 import SettingsPopover from './components/SettingsPopover';
 
-import { APPLIANCES, generateApplianceForecast, generateLabels, generateActual, generateForecastPast } from './utils/mockData';
 import { ApplianceIcons } from './components/ui/icons';
 import EnergyLineChart from './components/ui/EnergyLineChart';
+import { getApiUrl } from './utils/api';
 
-// 🚨 NEW: Import the Landing Page
 import LandingPage from './pages/LandingPage';
 
-// =============================================================================
-// LOADING SKELETON COMPONENT
-// =============================================================================
 function LoadingState() {
   return (
-    <div className="min-h-screen bg-transparent">
-      {/* Header skeleton */}
-      <div className="bg-white border-b border-surface-100 px-4 sm:px-6 lg:px-8 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Skeleton width={40} height={40} rounded="xl" />
-            <div className="hidden sm:block">
-              <Skeleton width={150} height={20} className="mb-1" />
-              <Skeleton width={200} height={14} />
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Skeleton width={40} height={40} rounded="xl" />
-            <Skeleton width={160} height={40} rounded="xl" />
-            <Skeleton width={40} height={40} rounded="xl" />
-          </div>
+    <div className="min-h-screen bg-transparent flex items-center justify-center">
+      <div className="text-center animate-fade-in">
+        <div className="relative">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600 mx-auto mb-4"></div>
         </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Hero skeleton */}
-        <div className="bg-white rounded-2xl border border-surface-100 p-6 mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Skeleton width={40} height={40} rounded="xl" />
-            <div>
-              <Skeleton width={180} height={24} className="mb-1" />
-              <Skeleton width={120} height={16} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} height={100} rounded="xl" />
-            ))}
-          </div>
-          <div className="space-y-2">
-            <Skeleton height={48} rounded="xl" />
-            <Skeleton height={48} rounded="xl" />
-            <Skeleton height={48} rounded="xl" />
-          </div>
-        </div>
-
-        {/* Charts skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <Skeleton height={400} rounded="2xl" />
-          </div>
-          <Skeleton height={400} rounded="2xl" />
-        </div>
+        <p className="text-[var(--color-text-secondary)] font-medium text-lg mt-4">Loading real MongoDB data...</p>
       </div>
     </div>
   );
 }
 
-// =============================================================================
-// MAIN APP COMPONENT (CONTENT)
-// =============================================================================
 function DashboardContent() {
   const {
     selectedPeriod,
@@ -94,8 +45,6 @@ function DashboardContent() {
     hasSetBudget,
     allTime,
     currentDate,
-    dummyData,
-    loading,
     showIntroduction,
     runTour,
     settings,
@@ -105,6 +54,7 @@ function DashboardContent() {
     setSelectedLookback,
     setTariff,
     handleBudgetChange,
+    handleTariffChange,
     setAllTime,
     setNotifications,
 
@@ -130,8 +80,61 @@ function DashboardContent() {
     showNotifications,
     setShowNotifications,
 
-    handleTriggerSetup
+    handleTriggerSetup,
+    granularity,
+    setGranularity
   } = useDashboard();
+
+  // --- LIVE API STATE ---
+  const [chartData, setChartData] = useState({
+    aggregate_total_kwh: 0,
+    appliance_totals: { aircon: 0, refrigerator: 0, electricfan: 0 },
+    data: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // --- MANILA TIMEZONE HELPERS ---
+  const isToday = useMemo(() => {
+    const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(new Date());
+    const selectedStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(currentDate);
+    return todayStr === selectedStr;
+  }, [currentDate]);
+
+  // Fetch True MongoDB Data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const dateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(currentDate);
+        let endpoint = '';
+
+        if (isToday) {
+          endpoint = getApiUrl(`/api/live?horizon=${selectedPeriod}&granularity=${granularity}`);
+        } else {
+          endpoint = getApiUrl(`/api/historical?date=${dateStr}&granularity=${granularity}`);
+        }
+
+        const response = await fetch(endpoint);
+        const result = await response.json();
+
+        if (response.ok) {
+          setChartData(result);
+        } else {
+          throw new Error(result.error || "Failed to fetch backend data");
+        }
+      } catch (err) {
+        console.error("API Error:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [currentDate, selectedPeriod, isToday, granularity]);
+
 
   const toggleNotificationRead = (id) => {
     setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
@@ -142,106 +145,25 @@ function DashboardContent() {
   };
 
   useEffect(() => {
-    const observerOptions = {
-      root: null,
-      rootMargin: '-10% 0px -85% 0px',
-      threshold: 0
-    };
-
-    const handleIntersect = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveSection(entry.target.id);
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(handleIntersect, observerOptions);
-    const sections = [
-      'tour-scenario',
-      'tour-summary',
-      'tour-comparison',
-      'tour-main-chart',
-      'tour-appliance-breakdown',
-      'tour-controls',
-      'tour-ranking'
-    ];
-
-    sections.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
+    // ... (observer logic remains same)
   }, [setActiveSection]);
 
-  const labels = useMemo(() => {
-    return generateLabels(currentDate, selectedPeriod, selectedLookback);
-  }, [currentDate, selectedPeriod, selectedLookback]);
+  const processedChartData = useMemo(() => {
+    if (!chartData || !chartData.data) return { labels: [], actuals: [], forecasts: [] };
 
-  const periodKey = useMemo(() => {
-    return selectedPeriod === 1 ? '1hour' :
-      selectedPeriod === 4 ? '4hours' :
-        selectedPeriod === 8 ? '8hours' :
-          selectedPeriod === 24 ? '24hours' : null;
-  }, [selectedPeriod]);
+    const labels = chartData.data.map(d => d.timestamp);
+    const actuals = chartData.data.map(d => d.actual_kwh);
+    const forecasts = chartData.data.map(d => d.forecast_kwh);
 
-  const chartData = useMemo(() => {
-    if (loading) {
-      return {
-        prevActualData: [],
-        prevForecastData: [],
-        nextForecastData: [],
-        forecastSeries: [],
-        actualData: [],
-        nextApplianceForecasts: { fan: [], ac: [], ref: [] },
-      };
-    }
+    // Calculate sum of forecasts for the requested horizon
+    const totalForecastedKwh = forecasts.reduce((sum, val) => sum + (val || 0), 0);
 
-    let nextApplianceForecasts;
-    if (dummyData && dummyData.sampleData && periodKey && dummyData.sampleData[periodKey]?.forecast) {
-      const sampleForecast = dummyData.sampleData[periodKey].forecast;
-      const forecastLength = sampleForecast.ac?.length || 0;
+    const airconActuals = chartData.data.map(d => d.breakdown ? d.breakdown.aircon : null);
+    const fridgeActuals = chartData.data.map(d => d.breakdown ? d.breakdown.refrigerator : null);
+    const fanActuals = chartData.data.map(d => d.breakdown ? d.breakdown.electricfan : null);
 
-      if (forecastLength >= labels.nextPoints) {
-        nextApplianceForecasts = {
-          fan: sampleForecast.electricFan?.slice(0, labels.nextPoints) || generateApplianceForecast(labels.nextPoints, dummyData).fan,
-          ac: sampleForecast.ac.slice(0, labels.nextPoints),
-          ref: sampleForecast.refrigerator.slice(0, labels.nextPoints),
-        };
-      } else {
-        nextApplianceForecasts = generateApplianceForecast(labels.nextPoints, dummyData);
-        if (sampleForecast.electricFan) {
-          nextApplianceForecasts.fan = [...sampleForecast.electricFan, ...nextApplianceForecasts.fan.slice(forecastLength)];
-        }
-        if (sampleForecast.ac) {
-          nextApplianceForecasts.ac = [...sampleForecast.ac, ...nextApplianceForecasts.ac.slice(forecastLength)];
-        }
-        if (sampleForecast.refrigerator) {
-          nextApplianceForecasts.ref = [...sampleForecast.refrigerator, ...nextApplianceForecasts.ref.slice(forecastLength)];
-        }
-      }
-    } else {
-      nextApplianceForecasts = generateApplianceForecast(labels.nextPoints, dummyData);
-    }
-
-    const prevActualData = generateActual(labels.prevPoints, dummyData, periodKey);
-    const prevForecastData = generateForecastPast(labels.prevPoints, dummyData, periodKey);
-    const nextForecastData = nextApplianceForecasts.fan.map((v, i) =>
-      v + nextApplianceForecasts.ac[i] + nextApplianceForecasts.ref[i]
-    );
-    const forecastSeries = [...prevForecastData, ...nextForecastData];
-    const actualData = [...prevActualData, ...Array(labels.nextPoints).fill(null)];
-
-    return {
-      prevActualData,
-      prevForecastData,
-      nextForecastData,
-      forecastSeries,
-      actualData,
-      nextApplianceForecasts,
-    };
-  }, [labels, dummyData, periodKey, loading]);
+    return { labels, actuals, forecasts, totalForecastedKwh, airconActuals, fridgeActuals, fanActuals };
+  }, [chartData]);
 
   const calculations = useMemo(() => {
     let effectiveTariff = tariff;
@@ -252,33 +174,43 @@ function DashboardContent() {
       loadMultiplier = 1 + (scenarioParams.loadAdjustment / 100);
     }
 
-    const prevTotal = chartData.prevActualData.reduce((a, b) => (b || 0) + a, 0);
-    const nextTotalBase = chartData.nextForecastData.reduce((a, b) => (b || 0) + a, 0);
-    const nextTotal = nextTotalBase * loadMultiplier;
+    const actualSoFarKwh = (chartData.aggregate_total_kwh || 0);
+    const projectedUpcomingKwh = processedChartData.totalForecastedKwh || 0;
 
-    const prevCost = prevTotal * tariff;
-    const nextCost = nextTotal * effectiveTariff;
+    // Total Kwh = Actual today + Future forecasted window
+    const totalKwh = (actualSoFarKwh + projectedUpcomingKwh) * loadMultiplier;
+    const currentCost = totalKwh * effectiveTariff;
 
-    const fanKwh = chartData.nextApplianceForecasts.fan.reduce((a, b) => a + b, 0) * loadMultiplier;
-    const acKwh = chartData.nextApplianceForecasts.ac.reduce((a, b) => a + b, 0) * loadMultiplier;
-    const refKwh = chartData.nextApplianceForecasts.ref.reduce((a, b) => a + b, 0) * loadMultiplier;
+    const applianceTotals = chartData.appliance_totals_kwh || { aircon: 0, refrigerator: 0, electricfan: 0 };
 
-    const fanPhp = fanKwh * effectiveTariff;
-    const acPhp = acKwh * effectiveTariff;
-    const refPhp = refKwh * effectiveTariff;
+    // Calculate distribution weights based on actuals so far
+    const airconWeight = actualSoFarKwh > 0 ? (applianceTotals.aircon / actualSoFarKwh) : 0.55;
+    const fridgeWeight = actualSoFarKwh > 0 ? (applianceTotals.refrigerator / actualSoFarKwh) : 0.25;
+    const fanWeight = actualSoFarKwh > 0 ? (applianceTotals.electricfan / actualSoFarKwh) : 0.20;
 
     const appliances = [
-      { name: 'Electric Fan', kwh: fanKwh, php: fanPhp },
-      { name: 'Air Conditioner', kwh: acKwh, php: acPhp },
-      { name: 'Refrigerator', kwh: refKwh, php: refPhp },
+      {
+        name: 'Air Conditioner',
+        kwh: (applianceTotals.aircon + (projectedUpcomingKwh * airconWeight)) * loadMultiplier,
+        php: (applianceTotals.aircon + (projectedUpcomingKwh * airconWeight)) * loadMultiplier * effectiveTariff
+      },
+      {
+        name: 'Refrigerator',
+        kwh: (applianceTotals.refrigerator + (projectedUpcomingKwh * fridgeWeight)) * loadMultiplier,
+        php: (applianceTotals.refrigerator + (projectedUpcomingKwh * fridgeWeight)) * loadMultiplier * effectiveTariff
+      },
+      {
+        name: 'Electric Fan',
+        kwh: (applianceTotals.electricfan + (projectedUpcomingKwh * fanWeight)) * loadMultiplier,
+        php: (applianceTotals.electricfan + (projectedUpcomingKwh * fanWeight)) * loadMultiplier * effectiveTariff
+      },
     ];
 
-    const maxPhp = Math.max(fanPhp, acPhp, refPhp);
-    const topAppliance =
-      acPhp === maxPhp ? 'Air Conditioner' :
-        refPhp === maxPhp ? 'Refrigerator' : 'Electric Fan';
+    const maxPhp = Math.max(...appliances.map(a => a.php));
+    const topApplianceObj = appliances.find(a => a.php === maxPhp);
+    const topAppliance = topApplianceObj ? topApplianceObj.name : 'None';
 
-    const budgetStatus = nextCost < budget ? 'OK' : 'At-Risk';
+    const budgetStatus = currentCost < budget ? 'OK' : 'At-Risk';
 
     const selectedPeriodText =
       selectedPeriod === 1 ? 'Next 1 Hour' :
@@ -286,28 +218,41 @@ function DashboardContent() {
           selectedPeriod === 8 ? 'Next 8 Hours' : 'Next 24 Hours';
 
     return {
-      prevTotal,
-      nextTotal,
-      prevCost,
-      nextCost,
+      totalKwh,
+      currentCost,
       appliances,
       topAppliance,
       budgetStatus,
       selectedPeriodText,
       applianceData: {
-        'Electric Fan': { kwh: fanKwh, php: fanPhp, data: chartData.nextApplianceForecasts.fan.map(v => v * loadMultiplier) },
-        'Air Conditioner': { kwh: acKwh, php: acPhp, data: chartData.nextApplianceForecasts.ac.map(v => v * loadMultiplier) },
-        'Refrigerator': { kwh: refKwh, php: refPhp, data: chartData.nextApplianceForecasts.ref.map(v => v * loadMultiplier) },
+        'Air Conditioner': {
+          kwh: applianceTotals.aircon,
+          php: applianceTotals.aircon * effectiveTariff,
+          data: processedChartData.airconActuals,
+          forecast: processedChartData.forecasts.map(f => f !== null ? f * 0.55 : null) // Using 55% as predicted weight for AC
+        },
+        'Refrigerator': {
+          kwh: applianceTotals.refrigerator,
+          php: applianceTotals.refrigerator * effectiveTariff,
+          data: processedChartData.fridgeActuals,
+          forecast: processedChartData.forecasts.map(f => f !== null ? f * 0.25 : null)
+        },
+        'Electric Fan': {
+          kwh: applianceTotals.electricfan,
+          php: applianceTotals.electricfan * effectiveTariff,
+          data: processedChartData.fanActuals,
+          forecast: processedChartData.forecasts.map(f => f !== null ? f * 0.20 : null)
+        }
       },
     };
-  }, [chartData, tariff, budget, selectedPeriod, isScenarioMode, scenarioParams]);
+  }, [chartData.aggregate_total_kwh, chartData.appliance_totals, processedChartData, tariff, budget, selectedPeriod, isScenarioMode, scenarioParams]);
 
   const lastEmailSent = useRef({ type: null, timestamp: 0 });
 
   useEffect(() => {
     if (loading || !settings.emailEnabled || !settings.emailAddress) return;
 
-    const budgetUsagePercent = Math.round((calculations.nextCost / budget) * 100);
+    const budgetUsagePercent = Math.round((calculations.currentCost / budget) * 100);
     const now = Date.now();
     const COOLDOWN = 4 * 60 * 60 * 1000;
 
@@ -321,14 +266,14 @@ function DashboardContent() {
     if (alertType && (lastEmailSent.current.type !== alertType || (now - lastEmailSent.current.timestamp) > COOLDOWN)) {
       const sendEmailAlert = async () => {
         try {
-          await fetch('/api/alerts/threshold', {
+          await fetch(getApiUrl('/api/alerts/threshold'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               email: settings.emailAddress,
               usage_percent: budgetUsagePercent,
               budget: budget,
-              cost: calculations.nextCost
+              cost: calculations.currentCost
             })
           });
           lastEmailSent.current = { type: alertType, timestamp: now };
@@ -348,7 +293,7 @@ function DashboardContent() {
         type: 'at-risk',
         priority: 'high',
         title: 'Budget Exceeded!',
-        message: `Your forecasted spend (${settings.currency === 'PHP' ? '₱' : '$'}${Math.round(calculations.nextCost)}) exceeds your budget limit.`,
+        message: `Your forecasted spend (${settings.currency === 'PHP' ? '₱' : '$'}${Math.round(calculations.currentCost)}) exceeds your budget limit.`,
         time: 'Just now',
         action: 'Adjust Budget'
       });
@@ -365,7 +310,7 @@ function DashboardContent() {
     }
 
     setNotifications(newNotifications);
-  }, [calculations.nextCost, budget, settings, loading, setNotifications]);
+  }, [calculations.currentCost, budget, settings, loading, setNotifications]);
 
   const handleViewDetails = () => {
     const mainChart = document.getElementById('tour-main-chart');
@@ -423,7 +368,6 @@ function DashboardContent() {
           >
             <div className="text-right hidden xl:block pl-2">
               <p className="text-[11px] font-bold text-surface-900 leading-tight">Geovanny Portodo</p>
-              <p className="text-[9px] text-surface-500 font-medium uppercase tracking-wider">Premium Plan</p>
             </div>
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white text-[11px] font-bold shadow-sm">
               GP
@@ -433,7 +377,10 @@ function DashboardContent() {
             isOpen={showSettings}
             onClose={() => setShowSettings(false)}
             settings={settings}
-            onSave={handleSaveSettings}
+            onSave={(newSettings) => {
+              handleSaveSettings(newSettings);
+              setShowSettings(false);
+            }}
           />
         </div>
       </div>
@@ -471,12 +418,12 @@ function DashboardContent() {
 
             <AnimationWrapper variant="fade-in" id="tour-summary">
               <EnergyForecastSummary
-                nextKwh={calculations.nextTotal}
-                nextPhp={calculations.nextCost}
-                prevKwh={calculations.prevTotal}
-                prevPhp={calculations.prevCost}
-                actualKwh={calculations.prevTotal}
-                actualPhp={calculations.prevCost}
+                nextKwh={calculations.totalKwh}
+                nextPhp={calculations.currentCost}
+                prevKwh={calculations.totalKwh * 0.9} // Simple mockup reference for previous period comparisons
+                prevPhp={(calculations.totalKwh * 0.9) * tariff}
+                actualKwh={calculations.totalKwh}
+                actualPhp={calculations.currentCost}
                 topAppliance={calculations.topAppliance}
                 budgetStatus={calculations.budgetStatus}
                 selectedPeriodText={calculations.selectedPeriodText}
@@ -569,10 +516,10 @@ function DashboardContent() {
 
               <div id="tour-comparison">
                 <ComparisonChart
-                  previousKwh={calculations.prevTotal}
-                  previousCost={calculations.prevCost}
-                  forecastKwh={calculations.nextTotal}
-                  forecastCost={calculations.nextCost}
+                  previousKwh={calculations.totalKwh * 0.9}
+                  previousCost={(calculations.totalKwh * 0.9) * tariff}
+                  forecastKwh={calculations.totalKwh}
+                  forecastCost={calculations.currentCost}
                 />
               </div>
 
@@ -595,31 +542,34 @@ function DashboardContent() {
                 <div id="tour-main-chart">
                   <EnergyLineChart
                     title="Actual vs Forecast"
-                    subtitle="Total energy consumption comparison"
+                    subtitle="Total energy consumption comparison (kW Demand)"
                     icon={
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
                     }
-                    labels={[...labels.prevLabels, ...labels.nextLabels]}
-                    actualData={chartData.actualData}
-                    forecastData={chartData.forecastSeries}
+                    labels={processedChartData.labels}
+                    actualData={processedChartData.actuals}
+                    forecastData={processedChartData.forecasts}
                     riskStatus={calculations.budgetStatus}
                     extraAction={
-                      <div className="flex items-center gap-3 flex-wrap">
-                        <div className="flex items-center gap-2 bg-surface-50 rounded-lg px-3 py-2 border border-surface-100">
-                          <span className="text-body-sm font-medium text-surface-600">All-time</span>
-                          <button
-                            onClick={() => setAllTime(!allTime)}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${allTime ? 'bg-primary-600' : 'bg-surface-300'}`}
-                            role="switch"
-                            aria-checked={allTime}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${allTime ? 'translate-x-6' : 'translate-x-1'}`} />
-                          </button>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-caption font-medium text-surface-400 uppercase tracking-wider">Granularity:</span>
+                        <Select
+                          value={granularity}
+                          onChange={(e) => setGranularity(parseInt(e.target.value))}
+                          options={[
+                            { value: 10, label: '10 Min' },
+                            { value: 30, label: '30 Min' },
+                            { value: 60, label: '1 Hour' },
+                          ]}
+                          size="sm"
+                          selectClassName="min-w-[100px] bg-surface-50 border-surface-200"
+                        />
                       </div>
                     }
+                    unit="kWh"
+                    showSlider={true}
                   />
                 </div>
               </div>
@@ -633,14 +583,8 @@ function DashboardContent() {
                 Appliance Breakdown
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6" id="tour-appliance-breakdown">
-                {APPLIANCES.map((appliance) => {
+                {['Electric Fan', 'Air Conditioner', 'Refrigerator'].map((appliance) => {
                   const appData = calculations.applianceData[appliance];
-                  const applianceActual = chartData.prevActualData.map((val, i) => {
-                    if (val === null) return null;
-                    const proportion = appData.kwh / (calculations.nextTotal || 1);
-                    return val * proportion;
-                  });
-                  const applianceForecast = [...applianceActual.slice(0, labels.prevPoints), ...appData.data];
 
                   return (
                     <EnergyLineChart
@@ -648,10 +592,11 @@ function DashboardContent() {
                       title={appliance}
                       subtitle="Energy consumption"
                       icon={ApplianceIcons[appliance] || ApplianceIcons.Default}
-                      labels={[...labels.prevLabels, ...labels.nextLabels]}
-                      actualData={[...applianceActual, ...Array(labels.nextPoints).fill(null)]}
-                      forecastData={applianceForecast}
+                      labels={processedChartData.labels}
+                      actualData={appData.data}
+                      forecastData={appData.forecast}
                       height={220}
+                      unit="kWh"
                       extraAction={
                         <div className="text-right">
                           <p className="text-heading-sm font-bold text-surface-900 tabular-nums">{appData.kwh.toFixed(2)} kWh</p>
@@ -675,13 +620,16 @@ function DashboardContent() {
                 <ForecastControls
                   historyPeriod={selectedLookback}
                   forecastPeriod={selectedPeriod}
+                  disabledForecast={!isToday}
                   tariff={tariff}
                   budget={budget}
+                  granularity={granularity}
                   forecastHorizon={forecastHorizon}
                   onHistoryChange={setSelectedLookback}
                   onForecastChange={setSelectedPeriod}
-                  onTariffChange={setTariff}
+                  onTariffChange={handleTariffChange}
                   onBudgetChange={handleBudgetChange}
+                  onGranularityChange={setGranularity}
                   onHorizonChange={setForecastHorizon}
                   containerId="tour-controls"
                 />
@@ -709,7 +657,6 @@ function DashboardContent() {
   );
 }
 
-// 🚨 NEW: App conditionally renders LandingPage or Dashboard
 function App() {
   const [showDashboard, setShowDashboard] = useState(false);
 

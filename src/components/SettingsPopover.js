@@ -48,7 +48,7 @@ const SettingsPopover = ({ isOpen, onClose, settings, onSave }) => {
         <div className="absolute right-0 mt-2 w-80 sm:w-96 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
             <Card className="shadow-2xl border-surface-100 overflow-hidden">
                 {/* Header */}
-                <div className="p-4 border-b border-surface-50 flex items-center justify-between bg-surface-50/50">
+                <div className="p-4 border-b border-surface-50 flex items-center justify-between bg-surface-50">
                     <div className="flex items-center gap-2">
                         <Settings size={18} className="text-primary-500" />
                         <h3 className="font-bold text-surface-900 text-body-md">Dashboard Settings</h3>
@@ -169,7 +169,7 @@ const SettingsPopover = ({ isOpen, onClose, settings, onSave }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="p-3 border-t border-surface-50 flex items-center justify-end gap-2 bg-surface-50/30">
+                <div className="p-3 border-t border-surface-50 flex items-center justify-end gap-2 bg-surface-50">
                     <button
                         onClick={onClose}
                         className="px-3 py-1.5 text-body-xs font-bold text-surface-500 hover:text-surface-700 transition-colors"

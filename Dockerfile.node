@@ -1,0 +1,25 @@
+# Use an official Node.js runtime as a parent image
+FROM node:18-slim
+
+# Set work directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package dependencies
+COPY package.json ./
+# Note: Since the backend is in the same repo, we might need to adjust paths 
+# if package.json is in the root but server.js is in backend/
+RUN npm install --production
+
+# Copy the rest of the application code
+COPY . .
+
+# Expose the Express port
+EXPOSE 5000
+
+# Start the Node.js backend
+CMD ["node", "backend/server.js"]

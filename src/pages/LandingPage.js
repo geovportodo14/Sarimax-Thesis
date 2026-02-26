@@ -5,12 +5,20 @@ export default function LandingPage({ onEnterDashboard }) {
     const [billAmount, setBillAmount] = useState(4500);
     const potentialSavings = Math.round(billAmount * 0.15);
 
+    // 🌟 NEW: Smooth scroll function
+    const scrollToHowItWorks = () => {
+        const element = document.getElementById('how-it-works-section');
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     return (
         <div className="min-h-screen bg-surface-50 font-sans selection:bg-primary-100 selection:text-primary-900">
             {/* Navbar */}
             <nav className="container mx-auto px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center">
-                    <img src="/icon.png" alt="Sarimax Logo" className="h-10 md:h-12 w-auto object-contain drop-shadow-sm" />
+                    <img src="/logo.png" alt="Sarimax Logo" className="h-10 md:h-12 w-auto object-contain drop-shadow-sm" />
                 </div>
                 <button
                     onClick={onEnterDashboard}
@@ -34,7 +42,9 @@ export default function LandingPage({ onEnterDashboard }) {
                         <p className="text-lg text-surface-600 leading-relaxed mb-8 max-w-lg">
                             Track your energy usage, pinpoint your biggest power hogs, and get custom alerts before you bust your budget. Powered by our advanced SARIMAX forecasting model.
                         </p>
+
                         <div className="flex flex-col sm:flex-row gap-4 mb-10">
+                            {/* Primary Button: Enters the App */}
                             <button
                                 onClick={onEnterDashboard}
                                 className="flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 group"
@@ -42,11 +52,17 @@ export default function LandingPage({ onEnterDashboard }) {
                                 Launch Dashboard
                                 <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
                             </button>
-                            <button className="flex items-center justify-center gap-2 px-6 py-3.5 bg-white hover:bg-surface-50 text-surface-700 font-semibold rounded-xl border border-surface-200 transition-all shadow-sm">
+
+                            {/* 🌟 FIXED: Secondary Button now scrolls down instead of going to dashboard */}
+                            <button
+                                onClick={scrollToHowItWorks}
+                                className="flex items-center justify-center gap-2 px-6 py-3.5 bg-white hover:bg-surface-50 text-surface-700 font-semibold rounded-xl border border-surface-200 transition-all shadow-sm"
+                            >
                                 <PlayCircle size={18} className="text-surface-400" />
-                                Try Simulator
+                                How it Works
                             </button>
                         </div>
+
                         <div className="flex items-center gap-6 text-sm text-surface-500 font-medium">
                             <div className="flex items-center gap-1.5"><ShieldCheck size={16} className="text-emerald-500" /> No account needed</div>
                             <div className="flex items-center gap-1.5"><Zap size={16} className="text-amber-500" /> Real-time forecasts</div>
@@ -95,7 +111,8 @@ export default function LandingPage({ onEnterDashboard }) {
             </main>
 
             {/* ── HOW IT WORKS (Thesis Flow) ── */}
-            <section className="bg-white py-20 border-y border-surface-100">
+            {/* 🌟 FIXED: Added an ID here so the button knows where to scroll to! */}
+            <section id="how-it-works-section" className="bg-white py-20 border-y border-surface-100">
                 <div className="container mx-auto px-6">
                     <div className="text-center max-w-2xl mx-auto mb-16">
                         <h2 className="text-3xl font-bold text-surface-900 mb-4">How Sarimax Works</h2>

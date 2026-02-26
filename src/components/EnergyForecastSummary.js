@@ -3,7 +3,6 @@ import { Card, CardBody, Button } from './ui/index';
 import ColorLegend from './ColorLegend';
 import { UITrendIcon } from './ui/icons';
 import { Info } from 'lucide-react';
-import RiskDriversModal from './RiskDriversModal'; // Import the new component
 function EnergyForecastSummary({
   nextKwh,
   nextPhp,
@@ -24,7 +23,6 @@ function EnergyForecastSummary({
 }) {
   const formatNumber = (num) => (Math.round(num * 100) / 100).toFixed(2);
   const formatCurrency = (num) => `₱${Math.round(num).toLocaleString()}`;
-  const [showRiskModal, setShowRiskModal] = useState(false);
   const getStatusContext = () => {
     if (!budget || budget <= 0) return { status: 'neutral', label: 'No Budget Set', color: 'bg-surface-100', text: 'text-surface-600', border: 'border-surface-200', dot: 'bg-surface-500' };
 
@@ -134,7 +132,7 @@ function EnergyForecastSummary({
               <div className="flex-1 pr-6">
                 <p className="text-sm text-surface-500 mb-1">Expected Cost</p>
                 <p className="text-3xl font-bold text-surface-900 tabular-nums">₱{Math.round(nextPhp)}</p>
-                {calculateTrend(nextPhp, prevPhp, 'vs last month') || <span className="text-sm text-surface-400 mt-1">vs last period</span>}
+                {calculateTrend(nextPhp, prevPhp, 'vs last 24 hours') || <span className="text-sm text-surface-400 mt-1">vs last period</span>}
               </div>
 
               {/* Right Side (Secondary) */}
@@ -255,7 +253,7 @@ function EnergyForecastSummary({
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
             variant="primary"
-            className="flex-1"
+            className="w-full"
             icon={
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -266,19 +264,6 @@ function EnergyForecastSummary({
           >
             Detailed Forecast
           </Button>
-          <Button
-            variant="secondary"
-            className="flex-1"
-            onClick={() => setShowRiskModal(true)} // 🚨 HERE IS THE FIX!
-            icon={
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            }
-          >
-            Risk Drivers
-          </Button>
-          <RiskDriversModal isOpen={showRiskModal} onClose={() => setShowRiskModal(false)} />
         </div>
 
         {/* Color Legend */}

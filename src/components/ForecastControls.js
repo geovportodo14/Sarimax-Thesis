@@ -6,11 +6,13 @@ function ForecastControls({
   forecastPeriod,
   tariff,
   budget,
+  granularity,
   forecastHorizon,
   onHistoryChange,
   onForecastChange,
   onTariffChange,
   onBudgetChange,
+  onGranularityChange,
   onHorizonChange,
   containerId,
 }) {
@@ -32,6 +34,12 @@ function ForecastControls({
     { value: 6, label: '6 Hours' },
     { value: 12, label: '12 Hours' },
     { value: 24, label: '24 Hours' },
+  ];
+
+  const granularityOptions = [
+    { value: 10, label: '10 Minutes' },
+    { value: 30, label: '30 Minutes' },
+    { value: 60, label: '1 Hour' },
   ];
 
   return (
