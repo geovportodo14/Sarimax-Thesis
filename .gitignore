@@ -40,3 +40,4 @@ yarn-error.log*
 # Generated Data and Logs
 data/energy_data/
 logs/
+.vercel

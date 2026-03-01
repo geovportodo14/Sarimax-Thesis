@@ -16,9 +16,9 @@ export default function LandingPage({ onEnterDashboard }) {
     return (
         <div className="min-h-screen bg-surface-50 font-sans selection:bg-primary-100 selection:text-primary-900">
             {/* Navbar */}
-            <nav className="container mx-auto px-6 py-4 flex items-center justify-between">
+            <nav className="container mx-auto px-10 py-4 flex items-center justify-between">
                 <div className="flex items-center">
-                    <img src="/logo.png" alt="Sarimax Logo" className="h-10 md:h-12 w-auto object-contain drop-shadow-sm" />
+                    <img src="/logo3.png" alt="Sarimax Logo" className="h-20   md:h-24 w-auto object-contain drop-shadow-sm" />
                 </div>
                 <button
                     onClick={onEnterDashboard}

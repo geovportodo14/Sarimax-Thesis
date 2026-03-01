@@ -1,126 +1,148 @@
 import os
 import pandas as pd
 from pymongo import MongoClient
-from datetime import datetime
 from dotenv import load_dotenv
+
+# ─────────────────────────────────────────────────────────────
+# TH2_Mongo_Extractor  (v2 — reads from unified 'energybuckets')
+# ─────────────────────────────────────────────────────────────
+# The EnergyBucket schema stores:
+#   date, device_id, appliance_type,
+#   readings[]: { timestamp, processed_data: { power_w, total_kwh_accumulated } }
+#
+# Stage A expects these smartplug columns:
+#   timestamp, device_id, switch,
+#   voltage_raw, current_raw, power_raw, kwh_raw,
+#   voltage_v, current_a, power_w, kwh_total, pf
+#
+# Since the bucket schema only stores power_w and total_kwh,
+# we derive the other electrical fields using PH nominal values:
+#   voltage = 230 V,  pf = 1.0,  current = power / (voltage * pf)
+# ─────────────────────────────────────────────────────────────
+
+NOMINAL_VOLTAGE = 230.0   # Philippines nominal voltage
+NOMINAL_PF = 1.0          # Assume unity power factor
 
 def extract_mongo_data():
     load_dotenv()
     uri = os.getenv("MONGODB_URI")
     db_name = os.getenv("DATABASE_NAME", "sarimax_thesis")
-    
+
     if not uri:
         print("Error: MONGODB_URI not found in .env")
         return
 
     client = MongoClient(uri)
     db = client[db_name]
-    
-    appliance_collections = ["aircon", "refrigerator", "electric_fan"]
-    
+
+    # Read from the unified 'energybuckets' collection
+    collection = db["energybuckets"]
+    target_appliances = ["aircon", "refrigerator", "electricfan"]
+
     all_smartplug_readings = []
     all_weather_readings = []
-    
-    # Track seen weather timestamps to avoid duplicates in weather_raw.csv
     seen_weather_ts = set()
 
-    for app in appliance_collections:
-        print(f"Fetching data from collection: {app}")
-        cursor = db[app].find({})
-        
-        for doc in cursor:
-            device_id = doc.get("device_id")
-            readings = doc.get("readings", [])
-            
-            for r in readings:
-                ts = r.get("timestamp")
-                raw = r.get("raw_data", {})
-                weather = r.get("weather", {})
-                
-                # Smartplug Reading
-                # We normalize slightly here to match Stage A required columns
-                # but keep 'raw' values as well just in case.
-                
-                # Tuya values are often scaled:
-                # cur_voltage: centivolts (e.g. 2300 = 230V) -> / 10
-                # cur_current: milliamps (e.g. 1000 = 1A) -> / 1000
-                # cur_power: deciwatts (e.g. 500 = 50W) -> / 10
-                # add_ele: cumulative energy (often / 100 for kWh)
-                # Voltage
-                v_raw = raw.get("cur_voltage")
-                if v_raw is None:
-                    v_raw = raw.get("voltage")
-                
-                # Current
-                i_raw = raw.get("cur_current")
-                if i_raw is None:
-                    i_raw = raw.get("current")
+    print(f"Fetching from 'energybuckets' collection (appliances: {target_appliances})...")
+    cursor = collection.find({"appliance_type": {"$in": target_appliances}})
 
-                # Power
-                p_raw = raw.get("cur_power")
-                if p_raw is None:
-                    p_raw = raw.get("power")
+    doc_count = 0
+    for doc in cursor:
+        doc_count += 1
+        device_id = doc.get("device_id")
+        readings = doc.get("readings", [])
 
-                # Energy
-                k_raw = raw.get("add_ele")
-                if k_raw is None:
-                    k_raw = raw.get("cur_electricity")
-                
-                reading_data = {
+        for r in readings:
+            ts = r.get("timestamp")
+            processed = r.get("processed_data", {})
+
+            power_w = processed.get("power_w", 0)
+            kwh_total = processed.get("total_kwh_accumulated", 0)
+
+            # Derive electrical fields from power_w
+            current_a = power_w / (NOMINAL_VOLTAGE * NOMINAL_PF) if NOMINAL_VOLTAGE > 0 else 0
+
+            # The 'raw' fields use Tuya scaling conventions:
+            #   voltage_raw = voltage * 10  (centivolts)
+            #   current_raw = current * 1000 (milliamps)
+            #   power_raw   = power * 10    (deciwatts)
+            #   kwh_raw     = kwh * 100
+            voltage_raw = round(NOMINAL_VOLTAGE * 10)
+            current_raw = round(current_a * 1000)
+            power_raw = round(power_w * 10)
+            kwh_raw = round(kwh_total * 100)
+
+            reading_data = {
+                "timestamp": ts,
+                "device_id": device_id,
+                "switch": power_w > 0,  # Infer ON/OFF from power
+                "voltage_raw": voltage_raw,
+                "current_raw": current_raw,
+                "power_raw": power_raw,
+                "kwh_raw": kwh_raw,
+                "voltage_v": NOMINAL_VOLTAGE,
+                "current_a": round(current_a, 6),
+                "power_w": round(power_w, 4),
+                "kwh_total": round(kwh_total, 4),
+                "pf": NOMINAL_PF,
+            }
+            all_smartplug_readings.append(reading_data)
+
+            # Weather — energybuckets don't store weather data,
+            # so we create a minimal placeholder row per unique timestamp
+            # to prevent Stage A from crashing on an empty weather CSV.
+            if ts and ts not in seen_weather_ts:
+                all_weather_readings.append({
                     "timestamp": ts,
-                    "device_id": device_id,
-                    "switch": raw.get("switch_1") or raw.get("switch") or False,
-                    "voltage_raw": v_raw,
-                    "current_raw": i_raw,
-                    "power_raw": p_raw,
-                    "kwh_raw": k_raw,
-                    "voltage_v": float(v_raw)/10.0 if v_raw is not None else None,
-                    "current_a": float(i_raw)/1000.0 if i_raw is not None else None,
-                    "power_w": float(p_raw)/10.0 if p_raw is not None else None,
-                    "kwh_total": float(k_raw)/100.0 if k_raw is not None else None,
-                    "pf": raw.get("pf") or 1.0 # Default PF to 1.0 if not reported
-                }
-                all_smartplug_readings.append(reading_data)
-                
-                # Weather Reading (usually openweather data)
-                if ts and ts not in seen_weather_ts:
-                    weather_reading = {
-                        "timestamp": ts,
-                        "temperature": weather.get("temp"),  # Map 'temp' from Mongo to 'temperature' in CSV
-                        "humidity": weather.get("humidity"), # Map 'humidity' from Mongo to 'humidity' in CSV
-                        "pressure": weather.get("pressure")   # Map 'pressure' from Mongo to 'pressure' in CSV
-                        # 'rainfall' is not consistently available or directly mapped from the migrated CSVs, so omit.
-                    }
-                    # Only add if at least one weather metric (temp, humidity, pressure) is present
-                    if any(v is not None for k, v in weather_reading.items() if k != "timestamp"):
-                        all_weather_readings.append(weather_reading)
-                        seen_weather_ts.add(ts)
+                    "temperature": None,
+                    "humidity": None,
+                    "pressure": None,
+                })
+                seen_weather_ts.add(ts)
 
     client.close()
-    
+
+    print(f"Scanned {doc_count} bucket documents.")
+
     if not all_smartplug_readings:
-        print("No readings found in MongoDB.")
+        print("No readings found in 'energybuckets'. Nothing to export.")
         return
 
     # Create DataFrames
     df_sp = pd.DataFrame(all_smartplug_readings)
     df_wx = pd.DataFrame(all_weather_readings)
-    
-    # Get project root (2 levels up from backend/preprocessing/)
+
+    # Get project paths
     script_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.abspath(os.path.join(script_dir, "../../"))
     raw_data_dir = os.path.join(project_root, "data/raw")
-    
-    # Ensure directories exist
     os.makedirs(raw_data_dir, exist_ok=True)
-    
+
     # Sort and save
     df_sp.sort_values(["device_id", "timestamp"], inplace=True)
     df_wx.sort_values("timestamp", inplace=True)
-    
-    df_sp.to_csv(os.path.join(raw_data_dir, "smartplug_raw.csv"), index=False)
-    df_wx.to_csv(os.path.join(raw_data_dir, "weather_raw.csv"), index=False)
-    
+
+    sp_path = os.path.join(raw_data_dir, "smartplug_raw.csv")
+    wx_path = os.path.join(raw_data_dir, "weather_raw.csv")
+
+    df_sp.to_csv(sp_path, index=False)
+
+    # Only write weather CSV if no real backfilled data already exists
+    # (weather_backfill.py writes real Open-Meteo data here)
+    should_write_weather = True
+    if os.path.exists(wx_path):
+        try:
+            existing_wx = pd.read_csv(wx_path)
+            if not existing_wx.empty and "temperature" in existing_wx.columns and existing_wx["temperature"].notna().any():
+                print(f"Skipping weather_raw.csv — already contains {existing_wx['temperature'].notna().sum()} real weather records from backfill.")
+                should_write_weather = False
+        except Exception:
+            pass  # If we can't read it, just overwrite
+
+    if should_write_weather:
+        df_wx.to_csv(wx_path, index=False)
+        print(f"Wrote {len(df_wx)} weather placeholder records (run weather_backfill.py for real data).")
+
     print(f"Successfully extracted {len(df_sp)} smartplug readings and {len(df_wx)} weather records to {raw_data_dir}")
 
 if __name__ == "__main__":

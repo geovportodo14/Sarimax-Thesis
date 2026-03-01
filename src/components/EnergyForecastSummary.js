@@ -125,34 +125,34 @@ function EnergyForecastSummary({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Card 1: Energy Cost Comparison */}
+          {/* Card 1: Cost Comparison — Current vs Expected */}
           <div className="p-6 rounded-xl shadow-sm border border-surface-100 bg-white overflow-hidden">
             <div className="flex items-center justify-between divide-x divide-surface-100 h-full">
               {/* Left Side (Primary) */}
               <div className="flex-1 pr-6">
-                <p className="text-sm text-surface-500 mb-1">Expected Cost</p>
-                <p className="text-3xl font-bold text-surface-900 tabular-nums">₱{Math.round(nextPhp)}</p>
-                {calculateTrend(nextPhp, prevPhp, 'vs last 24 hours') || <span className="text-sm text-surface-400 mt-1">vs last period</span>}
+                <p className="text-sm text-surface-500 mb-1">Current Cost</p>
+                <p className="text-3xl font-bold text-surface-900 tabular-nums">₱{Math.round(actualPhp)}</p>
+                {calculateTrend(actualPhp, prevPhp, 'vs previous') || <span className="text-sm text-surface-400 mt-1">vs previous</span>}
               </div>
 
               {/* Right Side (Secondary) */}
               <div className="flex-1 pl-6">
-                <p className="text-sm text-surface-500 mb-1">Previous Cost</p>
-                <p className="text-xl font-medium text-surface-400 tabular-nums">₱{Math.round(prevPhp)}</p>
-                <p className="text-sm text-surface-400 mt-1">Total billed</p>
+                <p className="text-sm text-surface-500 mb-1">Expected Cost</p>
+                <p className="text-xl font-medium text-surface-400 tabular-nums">₱{Math.round(nextPhp)}</p>
+                <p className="text-sm text-surface-400 mt-1">Forecasted</p>
               </div>
             </div>
           </div>
 
-          {/* Card 2: Energy Usage Comparison */}
+          {/* Card 2: Usage Comparison — Current vs Expected */}
           <div className="p-6 rounded-xl shadow-sm border border-surface-100 bg-white overflow-hidden">
             <div className="flex items-center justify-between divide-x divide-surface-100 h-full">
               {/* Left Side (Primary) */}
               <div className="flex-1 pr-6">
                 <p className="text-sm text-surface-500 mb-1">Current Usage</p>
                 <p className="text-3xl font-bold text-surface-900 tabular-nums">{formatNumber(actualKwh)} kWh</p>
-                {calculateTrend(actualKwh, nextKwh, (actualKwh > nextKwh ? 'over forecast' : 'under forecast')) || (
-                  <span className="text-sm text-surface-400 mt-1">vs forecast</span>
+                {calculateTrend(actualKwh, prevKwh, 'vs previous') || (
+                  <span className="text-sm text-surface-400 mt-1">vs previous</span>
                 )}
               </div>
 

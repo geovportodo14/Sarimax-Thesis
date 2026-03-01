@@ -91,8 +91,10 @@ function DashboardContent() {
     appliance_totals: { aircon: 0, refrigerator: 0, electricfan: 0 },
     data: []
   });
+  const [prevDayData, setPrevDayData] = useState({ aggregate_total_kwh: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const hasInitialData = useRef(false);
 
   // --- MANILA TIMEZONE HELPERS ---
   const isToday = useMemo(() => {
@@ -104,7 +106,10 @@ function DashboardContent() {
   // Fetch True MongoDB Data
   useEffect(() => {
     const fetchDashboardData = async () => {
-      setLoading(true);
+      // Only show full loading spinner on the very first load
+      if (!hasInitialData.current) {
+        setLoading(true);
+      }
       setError(null);
       try {
         const dateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(currentDate);
@@ -116,13 +121,29 @@ function DashboardContent() {
           endpoint = getApiUrl(`/api/historical?date=${dateStr}&granularity=${granularity}`);
         }
 
-        const response = await fetch(endpoint);
+        // Also fetch previous day data for accurate Period Comparison
+        const prevDate = new Date(currentDate);
+        prevDate.setDate(prevDate.getDate() - 1);
+        const prevDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(prevDate);
+        const prevEndpoint = getApiUrl(`/api/historical?date=${prevDateStr}&granularity=${granularity}`);
+
+        const [response, prevResponse] = await Promise.all([
+          fetch(endpoint),
+          fetch(prevEndpoint)
+        ]);
+
         const result = await response.json();
+        const prevResult = await prevResponse.json();
 
         if (response.ok) {
           setChartData(result);
+          hasInitialData.current = true;
         } else {
           throw new Error(result.error || "Failed to fetch backend data");
+        }
+
+        if (prevResponse.ok) {
+          setPrevDayData(prevResult);
         }
       } catch (err) {
         console.error("API Error:", err);
@@ -151,19 +172,24 @@ function DashboardContent() {
   const processedChartData = useMemo(() => {
     if (!chartData || !chartData.data) return { labels: [], actuals: [], forecasts: [] };
 
-    const labels = chartData.data.map(d => d.timestamp);
-    const actuals = chartData.data.map(d => d.actual_kwh);
-    const forecasts = chartData.data.map(d => d.forecast_kwh);
+    // Slice data by forecastHorizon to make Chart Range functional
+    const currentGranularity = chartData.granularity || granularity || 60;
+    const maxBuckets = Math.floor((forecastHorizon * 60) / currentGranularity);
+    const slicedData = chartData.data.slice(0, maxBuckets);
+
+    const labels = slicedData.map(d => d.timestamp);
+    const actuals = slicedData.map(d => d.actual_kwh);
+    const forecasts = slicedData.map(d => d.forecast_kwh);
 
     // Calculate sum of forecasts for the requested horizon
     const totalForecastedKwh = forecasts.reduce((sum, val) => sum + (val || 0), 0);
 
-    const airconActuals = chartData.data.map(d => d.breakdown ? d.breakdown.aircon : null);
-    const fridgeActuals = chartData.data.map(d => d.breakdown ? d.breakdown.refrigerator : null);
-    const fanActuals = chartData.data.map(d => d.breakdown ? d.breakdown.electricfan : null);
+    const airconActuals = slicedData.map(d => d.breakdown ? d.breakdown.aircon : null);
+    const fridgeActuals = slicedData.map(d => d.breakdown ? d.breakdown.refrigerator : null);
+    const fanActuals = slicedData.map(d => d.breakdown ? d.breakdown.electricfan : null);
 
     return { labels, actuals, forecasts, totalForecastedKwh, airconActuals, fridgeActuals, fanActuals };
-  }, [chartData]);
+  }, [chartData, forecastHorizon, granularity]);
 
   const calculations = useMemo(() => {
     let effectiveTariff = tariff;
@@ -420,10 +446,10 @@ function DashboardContent() {
               <EnergyForecastSummary
                 nextKwh={calculations.totalKwh}
                 nextPhp={calculations.currentCost}
-                prevKwh={calculations.totalKwh * 0.9} // Simple mockup reference for previous period comparisons
-                prevPhp={(calculations.totalKwh * 0.9) * tariff}
-                actualKwh={calculations.totalKwh}
-                actualPhp={calculations.currentCost}
+                prevKwh={prevDayData.aggregate_total_kwh || 0}
+                prevPhp={(prevDayData.aggregate_total_kwh || 0) * tariff}
+                actualKwh={chartData.aggregate_total_kwh || 0}
+                actualPhp={(chartData.aggregate_total_kwh || 0) * tariff}
                 topAppliance={calculations.topAppliance}
                 budgetStatus={calculations.budgetStatus}
                 selectedPeriodText={calculations.selectedPeriodText}
@@ -516,8 +542,8 @@ function DashboardContent() {
 
               <div id="tour-comparison">
                 <ComparisonChart
-                  previousKwh={calculations.totalKwh * 0.9}
-                  previousCost={(calculations.totalKwh * 0.9) * tariff}
+                  previousKwh={prevDayData.aggregate_total_kwh || 0}
+                  previousCost={(prevDayData.aggregate_total_kwh || 0) * tariff}
                   forecastKwh={calculations.totalKwh}
                   forecastCost={calculations.currentCost}
                 />
@@ -626,7 +652,7 @@ function DashboardContent() {
                   granularity={granularity}
                   forecastHorizon={forecastHorizon}
                   onHistoryChange={setSelectedLookback}
-                  onForecastChange={setSelectedPeriod}
+                  onForecastChange={(val) => { if (isToday) setSelectedPeriod(val); }}
                   onTariffChange={handleTariffChange}
                   onBudgetChange={handleBudgetChange}
                   onGranularityChange={setGranularity}
