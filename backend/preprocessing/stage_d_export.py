@@ -23,7 +23,7 @@ class Stage334Config:
 
     def __post_init__(self):
         if self.weather_cols is None:
-            self.weather_cols = ["temperature", "humidity", "pressure"] # Changed 'rainfall' to 'pressure'
+            self.weather_cols = ["temperature", "humidity", "rainfall"] # Changed from 'pressure'
 
 def _ensure_datetime_tz(df: pd.DataFrame, col: str, tz: str) -> pd.DataFrame:
     df = df.copy()
@@ -119,7 +119,7 @@ def build_modeling_ready_dataset(df_sync: pd.DataFrame, cfg: Stage334Config) -> 
         cfg.device_col,
         "timestamp",
         "kWh",
-        "temperature", "humidity", "pressure", # Changed 'rainfall' to 'pressure'
+        "temperature", "humidity", "rainfall", # Changed from 'pressure'
         "hour_of_day", "day_of_week", "is_weekend", "is_holiday",
         "lag_24", "lag_168",
         "rolling_mean_24", "rolling_mean_168"
@@ -131,7 +131,7 @@ def build_modeling_ready_dataset(df_sync: pd.DataFrame, cfg: Stage334Config) -> 
 
     if cfg.enforce_full_features:
         out = out.dropna(subset=[
-            "temperature", "humidity", "pressure", # Changed 'rainfall' to 'pressure'
+            "temperature", "humidity", "rainfall", # Changed from 'pressure'
             "lag_24", "lag_168", "rolling_mean_24", "rolling_mean_168"
         ])
 

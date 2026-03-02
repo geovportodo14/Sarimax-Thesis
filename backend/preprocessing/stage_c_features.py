@@ -16,8 +16,8 @@ class Stage333Config:
     temp_max_c: float = 45.0
     humidity_min: float = 0.0 
     humidity_max: float = 100.0
-    pressure_min_hpa: float = 980.0 # Changed from rainfall_min_mm
-    pressure_max_hpa: float = 1050.0 # Added max for pressure
+    rainfall_min_mm: float = 0.0 # Changed from pressure
+    rainfall_max_mm: float = 500.0 # Added max for rainfall
 
     temp_jump_c: float = 5.0
     humidity_jump_pct: float = 20.0
@@ -94,7 +94,7 @@ def validate_and_clean_weather(weather_df: pd.DataFrame, cfg: Stage333Config) ->
     wx_h = wx.groupby("hour_ts", as_index=False).agg(
         temperature=("temperature", "mean"),
         humidity=("humidity", "mean"),
-        pressure=("pressure", "mean") # Changed from 'rainfall'
+        rainfall=("rainfall", "mean") # Changed from 'pressure'
     )
 
     wx_h["wx_tags"] = ""
@@ -102,7 +102,7 @@ def validate_and_clean_weather(weather_df: pd.DataFrame, cfg: Stage333Config) ->
 
     t_bad = (wx_h["temperature"] < cfg.temp_min_c) | (wx_h["temperature"] > cfg.temp_max_c)
     h_bad = (wx_h["humidity"] <= cfg.humidity_min) | (wx_h["humidity"] > cfg.humidity_max)
-    p_bad = (wx_h["pressure"] < cfg.pressure_min_hpa) | (wx_h["pressure"] > cfg.pressure_max_hpa) # Changed from r_bad and used pressure config
+    r_bad = (wx_h["rainfall"] < cfg.rainfall_min_mm) | (wx_h["rainfall"] > cfg.rainfall_max_mm) # Changed from p_bad
 
     def _flag(mask: pd.Series, code: str, col: str):
         if mask.any():
@@ -113,20 +113,20 @@ def validate_and_clean_weather(weather_df: pd.DataFrame, cfg: Stage333Config) ->
 
     _flag(t_bad, "WX_RANGE_TEMP", "temperature")
     _flag(h_bad, "WX_RANGE_HUM", "humidity")
-    _flag(p_bad, "WX_RANGE_PRES", "pressure") # Changed from WX_RANGE_RAIN and used pressure
+    _flag(r_bad, "WX_RANGE_RAIN", "rainfall") # Changed from WX_RANGE_PRES
 
     wx_h.loc[t_bad, "temperature"] = np.nan
     wx_h.loc[h_bad, "humidity"] = np.nan
-    wx_h.loc[p_bad, "pressure"] = np.nan # Changed from rainfall
+    wx_h.loc[r_bad, "rainfall"] = np.nan # Changed from pressure
 
     wx_h = wx_h.set_index("hour_ts")
-    wx_h[["temperature", "humidity", "pressure"]] = wx_h[["temperature", "humidity", "pressure"]].interpolate(method="time") # Changed from rainfall
+    wx_h[["temperature", "humidity", "rainfall"]] = wx_h[["temperature", "humidity", "rainfall"]].interpolate(method="time") # Changed from pressure
     wx_h = wx_h.reset_index()
 
     wx_h = wx_h.sort_values("hour_ts").reset_index(drop=True)
     wx_h["temp_delta"] = wx_h["temperature"].diff()
     wx_h["hum_delta"] = wx_h["humidity"].diff()
-    wx_h["pres_delta"] = wx_h["pressure"].diff() # Added for pressure
+    wx_h["rain_delta"] = wx_h["rainfall"].diff() # Added for rainfall
 
     temp_jump = wx_h["temp_delta"].abs() > cfg.temp_jump_c
     hum_jump = wx_h["hum_delta"].abs() > cfg.humidity_jump_pct
@@ -139,7 +139,7 @@ def validate_and_clean_weather(weather_df: pd.DataFrame, cfg: Stage333Config) ->
     wx_h.loc[hum_jump, "humidity"] = np.nan
 
     wx_h = wx_h.set_index("hour_ts")
-    wx_h[["temperature", "humidity", "pressure"]] = wx_h[["temperature", "humidity", "pressure"]].interpolate(method="time") # Changed from rainfall
+    wx_h[["temperature", "humidity", "rainfall"]] = wx_h[["temperature", "humidity", "rainfall"]].interpolate(method="time") # Changed from pressure
     wx_h = wx_h.reset_index()
 
     if len(flags) > 0:
@@ -179,7 +179,7 @@ def add_time_lag_rolling_features(hourly_df: pd.DataFrame, cfg: Stage333Config) 
 
 def merge_hourly_with_weather(hourly_energy: pd.DataFrame, weather_hourly: pd.DataFrame) -> pd.DataFrame:
     merged = hourly_energy.merge(
-        weather_hourly[["hour_ts", "temperature", "humidity", "pressure", "wx_tags"]], # Changed from rainfall
+        weather_hourly[["hour_ts", "temperature", "humidity", "rainfall", "wx_tags"]], # Changed from pressure
         on="hour_ts",
         how="left"
     )

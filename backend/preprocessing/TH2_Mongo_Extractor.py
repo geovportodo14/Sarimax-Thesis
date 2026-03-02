@@ -96,7 +96,7 @@ def extract_mongo_data():
                     "timestamp": ts,
                     "temperature": None,
                     "humidity": None,
-                    "pressure": None,
+                    "rainfall": None,
                 })
                 seen_weather_ts.add(ts)
 

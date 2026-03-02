@@ -62,7 +62,7 @@ class DataCollector:
         if not os.path.isfile(filepath):
             with open(filepath, "w", newline="", encoding="utf-8") as f:
                 # Matches legacy schema for compatibility with refined_csv_migrator.py
-                csv.writer(f).writerow(["timestamp", "device", "property", "value", "temp_C", "humidity", "pressure"])
+                csv.writer(f).writerow(["timestamp", "device", "property", "value", "temp_C", "humidity", "rainfall"])
         return filepath
 
     def log_to_csv(self, timestamp, device, status, weather):
@@ -73,13 +73,13 @@ class DataCollector:
             # Weather fallback handling
             temp = weather.get("temp") if weather else None
             hum = weather.get("humidity") if weather else None
-            press = weather.get("pressure") if weather else None
+            rain = weather.get("rainfall") if weather else None
 
             if status:
                 for code, val in status.items():
-                    w.writerow([timestamp, device, code, val, temp, hum, press])
+                    w.writerow([timestamp, device, code, val, temp, hum, rain])
             else:
-                w.writerow([timestamp, device, "NO_DATA", None, temp, hum, press])
+                w.writerow([timestamp, device, "NO_DATA", None, temp, hum, rain])
 
     def collect_once(self):
         now_manila = datetime.now(MANILA_TZ)
@@ -155,7 +155,7 @@ class DataCollector:
                         for l in interval_logs:
                             status[l["code"]] = l["value"]
                         
-                        weather_placeholder = {"temp": None, "humidity": None, "pressure": None}
+                        weather_placeholder = {"temp": None, "humidity": None, "rainfall": None}
                         processed = self.preprocessor.normalize(name, status)
                         self.db.store_reading(name, dev_id, target_time, status, weather_placeholder, processed_data=processed)
 

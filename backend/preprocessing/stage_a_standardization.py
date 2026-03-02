@@ -14,7 +14,7 @@ SMARTPLUG_REQUIRED_COLS = [
     "voltage_v", "current_a", "power_w", "kwh_total", "pf"
 ]
 
-WEATHER_REQUIRED_COLS = ["timestamp", "temperature", "humidity", "pressure"]
+WEATHER_REQUIRED_COLS = ["timestamp", "temperature", "humidity", "rainfall"]
 
 
 @dataclass
@@ -64,7 +64,7 @@ def _coerce_types_smartplug(df: pd.DataFrame) -> pd.DataFrame:
 def _coerce_types_weather(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
-    for c in ["temperature", "humidity", "pressure"]: # Changed 'rainfall' to 'pressure'
+    for c in ["temperature", "humidity", "rainfall"]: # Changed from 'pressure'
         df[c] = pd.to_numeric(df[c], errors="coerce")
     return df
 
@@ -110,7 +110,7 @@ def verify_schema_and_units(
         if smartplug_df[c].isna().any():
             issues["smartplug"].append(f"Some values in {c} failed numeric coercion (NaN).")
 
-    wx_num = ["temperature", "humidity", "pressure"] # Changed 'rainfall' to 'pressure'
+    wx_num = ["temperature", "humidity", "rainfall"] # Changed from 'pressure'
     for c in wx_num:
         if weather_df[c].isna().any():
             issues["weather"].append(f"Some values in {c} failed numeric coercion (NaN).")

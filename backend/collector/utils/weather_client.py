@@ -15,13 +15,17 @@ class WeatherClient:
             if r.status_code == 200:
                 data = r.json()
                 main = data.get("main", {})
+                rain = data.get("rain", {})
+                # Extract rainfall (1h is standard for current weather, default to 0)
+                rainfall = rain.get("1h", rain.get("3h", 0))
+                
                 return {
                     "temp": main.get("temp"),
                     "humidity": main.get("humidity"),
-                    "pressure": main.get("pressure"),
+                    "rainfall": rainfall,
                 }
             logger.warning(f"Weather API error: {r.status_code}")
-            return {"temp": None, "humidity": None, "pressure": None}
+            return {"temp": None, "humidity": None, "rainfall": None}
         except Exception as e:
             logger.exception("Weather request failed")
-            return {"temp": None, "humidity": None, "pressure": None}
+            return {"temp": None, "humidity": None, "rainfall": None}

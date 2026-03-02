@@ -1,4 +1,4 @@
-timestamp,device,property,value,temp_C,humidity,pressure
+timestamp,device,property,value,temp_C,humidity,rainfall
 2026-02-03 10:10:00,Aircon,switch_1,True,29.33,56,1017
 2026-02-03 10:10:00,Aircon,countdown_1,0,29.33,56,1017
 2026-02-03 10:10:00,Aircon,add_ele,27,29.33,56,1017
