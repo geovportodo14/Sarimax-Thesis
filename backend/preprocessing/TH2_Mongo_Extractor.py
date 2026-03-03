@@ -55,19 +55,26 @@ def extract_mongo_data():
         for r in readings:
             ts = r.get("timestamp")
             processed = r.get("processed_data", {})
+            raw_node = r.get("raw_data", {})
 
             power_w = processed.get("power_w", 0)
             kwh_total = processed.get("total_kwh_accumulated", 0)
 
-            # Derive electrical fields from power_w
-            current_a = power_w / (NOMINAL_VOLTAGE * NOMINAL_PF) if NOMINAL_VOLTAGE > 0 else 0
+            # Determine voltage (Priority: processed > raw 'cur_voltage' > raw 'voltage' > nominal)
+            voltage_v = processed.get("voltage_v")
+            if voltage_v is None:
+                # Try raw fields (scaled by 10 in Tuya)
+                raw_v_raw = raw_node.get("cur_voltage") or raw_node.get("voltage")
+                if raw_v_raw is not None:
+                    voltage_v = float(raw_v_raw) / 10.0
+                else:
+                    voltage_v = NOMINAL_VOLTAGE
 
-            # The 'raw' fields use Tuya scaling conventions:
-            #   voltage_raw = voltage * 10  (centivolts)
-            #   current_raw = current * 1000 (milliamps)
-            #   power_raw   = power * 10    (deciwatts)
-            #   kwh_raw     = kwh * 100
-            voltage_raw = round(NOMINAL_VOLTAGE * 10)
+            # Derive electrical fields from power_w and actual voltage
+            current_a = power_w / (voltage_v * NOMINAL_PF) if voltage_v > 0 else 0
+
+            # The 'raw' fields use Tuya scaling conventions for consistency in CSV
+            voltage_raw = round(voltage_v * 10)
             current_raw = round(current_a * 1000)
             power_raw = round(power_w * 10)
             kwh_raw = round(kwh_total * 100)
@@ -80,7 +87,7 @@ def extract_mongo_data():
                 "current_raw": current_raw,
                 "power_raw": power_raw,
                 "kwh_raw": kwh_raw,
-                "voltage_v": NOMINAL_VOLTAGE,
+                "voltage_v": round(voltage_v, 2),
                 "current_a": round(current_a, 6),
                 "power_w": round(power_w, 4),
                 "kwh_total": round(kwh_total, 4),
