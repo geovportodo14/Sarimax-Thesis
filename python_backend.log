@@ -1,0 +1,73 @@
+2026-03-08 00:25:15,698 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-08 00:25:15,698 - __main__ - INFO - Starting completeness check for 2026-03-07
+2026-03-08 00:25:15,841 - __main__ - INFO - No missing intervals for Aircon on 2026-03-07. Proceeding to validation.
+2026-03-08 00:25:16,013 - __main__ - INFO - Backfilling 1 intervals for Refrigerator on 2026-03-07
+2026-03-08 00:25:16,014 - __main__ - INFO - Smart Backfill Refrigerator: Chunk 10:00 to 11:59:59...
+INFO:     Started server process [30138]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2026-03-08 00:25:16,630 - __main__ - WARNING - Aborting backfill for Refrigerator for this chunk due to no data or quota.
+2026-03-08 00:25:16,630 - __main__ - WARNING - No historical logs found for Refrigerator on 2026-03-07
+2026-03-08 00:25:16,843 - __main__ - WARNING - Refrigerator is incomplete (143/144).
+2026-03-08 00:25:16,891 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-07. Proceeding to validation.
+2026-03-08 00:25:16,977 - __main__ - INFO - Daily check for 2026-03-07: Some devices are still incomplete. Collector will keep backfilling.
+2026-03-08 00:25:16,978 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-08 00:25:16,978 - __main__ - INFO - Next collection in 284 seconds
+INFO:     127.0.0.1:51062 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51062 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51062 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51072 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51072 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51072 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51158 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51158 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51158 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51158 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51159 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51158 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51159 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51158 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51159 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51159 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51159 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51159 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51159 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51159 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51159 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51159 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51159 - "POST /predict HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51159 - "POST /predict HTTP/1.1" 200 OK
+==================================================
+  SARIMAX THESIS - BACKEND ORCHESTRATOR
+==================================================
+
+[1/2] Starting API Service (FastAPI)...
+[2/2] Starting Data Collector Service...
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ SUCCESS: All services are running!
+ API: http://localhost:8000
+ Collector: Running in background (polling every 10m)
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Press Ctrl+C to safely shut down all services.
+
+Error: API service stopped unexpectedly.
+2026-03-08 00:30:00,984 - __main__ - INFO - Starting collection at 2026-03-08 00:30:00
+2026-03-08 00:30:05,191 - __main__ - INFO - Next collection in 595 seconds
+2026-03-08 00:40:00,198 - __main__ - INFO - Starting collection at 2026-03-08 00:40:00
+2026-03-08 00:40:04,609 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 00:50:00,607 - __main__ - INFO - Starting collection at 2026-03-08 00:50:00
+2026-03-08 00:50:04,888 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:00:00,889 - __main__ - INFO - Starting collection at 2026-03-08 01:00:00
+2026-03-08 01:00:05,105 - __main__ - INFO - Next collection in 595 seconds
+2026-03-08 01:10:00,105 - __main__ - INFO - Starting collection at 2026-03-08 01:10:00
+2026-03-08 01:10:04,449 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:20:00,449 - __main__ - INFO - Starting collection at 2026-03-08 01:20:00
+2026-03-08 01:20:01,112 - tuya_client - WARNING - Device status failure for a3ed2fe218a724b4fepeni: token invalid
+2026-03-08 01:20:04,988 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:30:00,987 - __main__ - INFO - Starting collection at 2026-03-08 01:30:00
+2026-03-08 01:30:05,035 - __main__ - INFO - Next collection in 595 seconds
+2026-03-08 01:40:00,057 - __main__ - INFO - Starting collection at 2026-03-08 01:40:00
+2026-03-08 01:40:04,276 - __main__ - INFO - Next collection in 596 seconds

@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-03-08T17:13:49.358715",
+  "config": {
+    "synthetic_end": "2026-01-02 23:00:00",
+    "real_start": "2026-01-03 00:00:00",
+    "real_train_ratio": 0.5,
+    "default_seasonal_period": 24,
+    "max_p": 3,
+    "max_q": 3,
+    "max_P": 2,
+    "max_Q": 2,
+    "max_total_order": 10,
+    "enforce_stationarity": true,
+    "enforce_invertibility": true,
+    "maxiter": 150,
+    "disp": false,
+    "dropna": true,
+    "min_rows_required": 300
+  },
+  "input_dir": "data",
+  "premodel_dir": "model\\stageA\\reports",
+  "output_root": "model\\stageB\\sarimax",
+  "n_files": 1,
+  "ok": 1,
+  "failed": 0,
+  "results": [
+    {
+      "appliance": "refrigerator_final_hourly_with_weather",
+      "status": "ok",
+      "best_aic": -99627.82753674715,
+      "best_bic": -99506.45623002008,
+      "best_order": {
+        "p": 0,
+        "d": 1,
+        "q": 3
+      },
+      "best_seasonal_order": {
+        "P": 0,
+        "D": 1,
+        "Q": 2,
+        "s": 24
+      },
+      "out_dir": "model\\stageB\\sarimax\\refrigerator_final_hourly_with_weather",
+      "split_counts": {
+        "synthetic": 8592,
+        "real_total": 1498,
+        "real_train": 749,
+        "real_test": 749,
+        "train_total": 9341,
+        "test_total": 749
+      }
+    }
+  ],
+  "failures": []
+}

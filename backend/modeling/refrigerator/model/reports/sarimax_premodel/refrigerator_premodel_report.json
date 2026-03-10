@@ -1,0 +1,108 @@
+{
+  "input_file": "data\\refrigerator.csv",
+  "appliance_key": "refrigerator",
+  "config": {
+    "seasonal_period": 24,
+    "weekly_period": 168,
+    "adf_alpha": 0.05,
+    "max_acf_lag": 200,
+    "gap_threshold_hours": 2,
+    "min_adf_samples": 50
+  },
+  "integrity": {
+    "duplicate_timestamp_rows": 0,
+    "inferred_frequency_first_200": "h",
+    "start": "2025-01-03 00:00:00",
+    "end": "2026-02-27 00:00:00",
+    "n_rows_hourly_index": 10081,
+    "missing_hour_timestamps_count": 0,
+    "gap_blocks_count": 0,
+    "gap_blocks_ge_threshold_count": 0,
+    "gap_blocks_ge_threshold_examples": []
+  },
+  "adf": {
+    "level_energy": {
+      "ok": true,
+      "adf_stat": -4.902667660350687,
+      "p_value": 3.445977932115194e-05,
+      "used_lag": 39,
+      "n_obs": 10041,
+      "critical_values": {
+        "1%": -3.4310014264051087,
+        "5%": -2.861827891850243,
+        "10%": -2.566923239692562
+      },
+      "ic_best": -42418.245453247335
+    },
+    "diff1_energy": {
+      "ok": true,
+      "adf_stat": -24.0670442721612,
+      "p_value": 0.0,
+      "used_lag": 39,
+      "n_obs": 10040,
+      "critical_values": {
+        "1%": -3.431001491304817,
+        "5%": -2.861827920528921,
+        "10%": -2.5669232549582546
+      },
+      "ic_best": -42403.50011920091
+    },
+    "seasonal_diff_energy_s": {
+      "ok": true,
+      "adf_stat": -17.289319939903347,
+      "p_value": 5.71756646014155e-30,
+      "used_lag": 38,
+      "n_obs": 10018,
+      "critical_values": {
+        "1%": -3.4310029223772633,
+        "5%": -2.861828552908586,
+        "10%": -2.566923591574694
+      },
+      "ic_best": -39083.4596701133
+    },
+    "diff1_then_seasonal_s": {
+      "ok": true,
+      "adf_stat": -28.974006917081244,
+      "p_value": 0.0,
+      "used_lag": 39,
+      "n_obs": 10016,
+      "critical_values": {
+        "1%": -3.431003052786574,
+        "5%": -2.86182861053542,
+        "10%": -2.5669236222495284
+      },
+      "ic_best": -38832.50137277359
+    },
+    "seasonal_s_then_diff1": {
+      "ok": true,
+      "adf_stat": -28.97400691708194,
+      "p_value": 0.0,
+      "used_lag": 39,
+      "n_obs": 10016,
+      "critical_values": {
+        "1%": -3.431003052786574,
+        "5%": -2.86182861053542,
+        "10%": -2.5669236222495284
+      },
+      "ic_best": -38832.50137277359
+    }
+  },
+  "seasonality_signals": {
+    "acf_lag_24": 0.29746542936796994,
+    "acf_lag_168": 0.20617663558916208
+  },
+  "suggested_differencing": {
+    "rule_based_d": 0,
+    "rule_based_D": 0,
+    "p_values": {
+      "level": 3.445977932115194e-05,
+      "diff1": 0.0,
+      "seasonal": 5.71756646014155e-30
+    },
+    "notes": {
+      "level_stationary": true,
+      "diff1_stationary": true,
+      "seasonal_diff_stationary": true
+    }
+  }
+}

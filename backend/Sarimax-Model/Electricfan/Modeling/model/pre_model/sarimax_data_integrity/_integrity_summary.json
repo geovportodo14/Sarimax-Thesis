@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-03-08T15:40:04.330898",
+  "config": {
+    "expected_freq": "h",
+    "sample_na_rows_max": 500,
+    "infer_freq_head": 200,
+    "synthetic_end": "2026-01-02 23:00:00",
+    "real_start": "2026-01-03 00:00:00",
+    "expected_na_prefix_cols": [
+      "lag_24",
+      "lag_168",
+      "rolling_mean_24",
+      "rolling_mean_168"
+    ]
+  },
+  "input_dir": "data",
+  "output_dir": "model\\pre_model\\sarimax_data_integrity",
+  "n_files": 1,
+  "ok": 1,
+  "failed": 0,
+  "results": [
+    {
+      "appliance": "electric_fan_final_hourly_with_weather",
+      "report_path": "model\\pre_model\\sarimax_data_integrity\\electric_fan_final_hourly_with_weather_integrity_report.json",
+      "na_rows": 168,
+      "duplicate_timestamps": 0,
+      "missing_hour_timestamps_count": 19
+    }
+  ],
+  "failures": []
+}

@@ -5,6 +5,11 @@ const ReadingSchema = new mongoose.Schema({
     processed_data: {
         power_w: { type: Number, required: true },
         total_kwh_accumulated: { type: Number, required: true },
+    },
+    weather: {
+        temp: { type: Number },
+        humidity: { type: Number },
+        rainfall: { type: Number }
     }
 }, { _id: false });
 

@@ -23,7 +23,7 @@ exports.getLiveForecast = async (req, res) => {
 
         const targetAppliances = ['aircon', 'refrigerator', 'electricfan'];
 
-        // 1. Calculate Daily Aggregate Total (Real kWh) - For Summary Cards
+        // 1. Fetch Today's Actuals & Summaries
         const summaryDocs = await EnergyBucket.find(
             { date: todayStr, appliance_type: { $in: targetAppliances } },
             { 'daily_summary.total_kwh': 1, 'readings.processed_data': 1, _id: 0, appliance_type: 1 }
@@ -47,9 +47,72 @@ exports.getLiveForecast = async (req, res) => {
             aggregate_total_kwh += kwh;
         });
 
-        // 2. Multi-Granularity Aggregation (kW Demand) - For Trendlines
-        const groupInterval = granularity;
+        // 2. Fetch History for Forecasting (from Yesterday)
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(yesterday);
 
+        const hourlyHistory = await EnergyBucket.aggregate([
+            { $match: { date: yesterdayStr, appliance_type: { $in: targetAppliances } } },
+            { $unwind: "$readings" },
+            {
+                $group: {
+                    _id: {
+                        hour: { $hour: { date: "$readings.timestamp", timezone: "Asia/Manila" } },
+                        appliance: "$appliance_type"
+                    },
+                    total_w: { $sum: "$readings.processed_data.power_w" },
+                    avg_temp: { $avg: "$readings.weather.temp" },
+                    avg_humidity: { $avg: "$readings.weather.humidity" },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { "_id.hour": 1 } }
+        ]);
+
+        // 3. Request Baseline Forecast (from start of today)
+        const predictionPromises = targetAppliances.map(async (appliance) => {
+            const h_kwh = Array.from({ length: 24 }, (_, i) => {
+                const match = hourlyHistory.find(d => d._id.hour === i && d._id.appliance === appliance);
+                return match ? Number(((match.total_w / 6.0) / 1000.0).toFixed(6)) : 0.25;
+            });
+            const h_watts = Array.from({ length: 24 }, (_, i) => {
+                const match = hourlyHistory.find(d => d._id.hour === i && d._id.appliance === appliance);
+                return match ? Number((match.total_w / match.count).toFixed(2)) : 250.0;
+            });
+            const h_temp = Array.from({ length: 24 }, (_, i) => {
+                const match = hourlyHistory.find(d => d._id.hour === i && d._id.appliance === appliance);
+                return match ? (match.avg_temp || 30.0) : 30.0;
+            });
+            const h_hum = Array.from({ length: 24 }, (_, i) => {
+                const match = hourlyHistory.find(d => d._id.hour === i && d._id.appliance === appliance);
+                return match ? (match.avg_humidity || 70.0) : 70.0;
+            });
+
+            try {
+                const pyRes = await axios.post('http://127.0.0.1:8000/predict', {
+                    appliance,
+                    history: h_kwh,
+                    watts: h_watts,
+                    temps: h_temp,
+                    hums: h_hum,
+                    horizon: 24
+                });
+                return { appliance, forecast: pyRes.data.forecast };
+            } catch (e) {
+                return { appliance, forecast: Array(24).fill(null) };
+            }
+        });
+
+        const predictions = await Promise.all(predictionPromises);
+        let predictedHourly = Array(24).fill(0);
+        let appliancePredictedHourly = {};
+        predictions.forEach(p => {
+            appliancePredictedHourly[p.appliance] = p.forecast;
+            p.forecast.forEach((v, i) => { if (v !== null) predictedHourly[i] += v; });
+        });
+
+        // 4. Aggregate Today's Actuals for Chart
         const granularAggregation = await EnergyBucket.aggregate([
             { $match: { date: todayStr, appliance_type: { $in: targetAppliances } } },
             { $unwind: "$readings" },
@@ -64,98 +127,64 @@ exports.getLiveForecast = async (req, res) => {
                 }
             },
             {
-                $project: {
-                    appliance_type: 1,
-                    power_w: "$readings.processed_data.power_w",
-                    bucketIndex: { $floor: { $divide: ["$timeInMinutes", groupInterval] } }
-                }
-            },
-            {
                 $group: {
-                    _id: { bucket: "$bucketIndex", appliance: "$appliance_type" },
-                    avg_w: { $avg: "$power_w" }
+                    _id: {
+                        bucket: { $floor: { $divide: ["$timeInMinutes", granularity] } },
+                        appliance: "$appliance_type"
+                    },
+                    avg_w: { $avg: "$readings.processed_data.power_w" }
                 }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    bucket: "$_id.bucket",
-                    appliance: "$_id.appliance",
-                    kw: { $divide: ["$avg_w", 1000.0] } // Convert to kW Demand
-                }
-            },
-            { $sort: { bucket: 1 } }
+            }
         ]);
 
-        // Pivot aggregation results
         const bucketMap = {};
         granularAggregation.forEach(d => {
-            if (!bucketMap[d.bucket]) bucketMap[d.bucket] = { total: 0, aircon: 0, refrigerator: 0, electricfan: 0 };
-            const kwVal = d.kw || 0;
-            bucketMap[d.bucket][d.appliance] = Number(kwVal.toFixed(4));
-            bucketMap[d.bucket].total += kwVal;
+            if (!bucketMap[d._id.bucket]) bucketMap[d._id.bucket] = { total: 0, aircon: 0, refrigerator: 0, electricfan: 0 };
+            const kw = d.avg_w / 1000.0;
+            bucketMap[d._id.bucket][d._id.appliance] = Number(kw.toFixed(4));
+            bucketMap[d._id.bucket].total += kw;
         });
 
-        // 3. SARIMAX INTEGRATION (Hourly Predictions in kW)
-        let predictedHourly = [];
-        try {
-            const hourlyActuals = await EnergyBucket.aggregate([
-                { $match: { date: todayStr, appliance_type: { $in: targetAppliances } } },
-                { $unwind: "$readings" },
-                {
-                    $group: {
-                        _id: { $hour: { date: "$readings.timestamp", timezone: "Asia/Manila" } },
-                        total_w: { $sum: "$readings.processed_data.power_w" }
-                    }
-                },
-                { $sort: { _id: 1 } }
-            ]);
-
-            const history = Array.from({ length: currentHour + 1 }, (_, i) => {
-                const match = hourlyActuals.find(d => d._id === i);
-                return match ? match.total_w : 0;
-            });
-
-            const pyRes = await axios.post('http://127.0.0.1:8000/predict', {
-                history: history,
-                horizon: horizon
-            });
-            predictedHourly = pyRes.data.forecast.map(w => w / 1000.0); // Convert forecast to kW
-        } catch (e) {
-            predictedHourly = Array(horizon).fill(null);
-        }
-
-        // 4. Construct Final Time-Series (kW Trend)
-        const currentBucket = Math.floor((currentHour * 60 + currentMinute) / groupInterval);
-        const totalBuckets = Math.floor(1440 / groupInterval);
+        // 5. Construct Final Time-Series
+        const currentBucket = Math.floor((currentHour * 60 + currentMinute) / granularity);
+        const totalBuckets = Math.floor(1440 / granularity);
 
         const time_series = Array.from({ length: totalBuckets }, (_, i) => {
-            const hour = Math.floor((i * groupInterval) / 60);
-            const min = (i * groupInterval) % 60;
+            const hour = Math.floor((i * granularity) / 60);
+            const min = (i * granularity) % 60;
             const timeLabel = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
-
             const data = bucketMap[i] || { total: 0, aircon: 0, refrigerator: 0, electricfan: 0 };
+
             const payload = {
                 timestamp: timeLabel,
                 actual_kwh: i <= currentBucket ? Number((data.total * (granularity / 60)).toFixed(4)) : null,
                 forecast_kwh: null,
                 breakdown: {
-                    aircon: i <= currentBucket ? Number((data.aircon * (granularity / 60)).toFixed(4)) : null,
-                    refrigerator: i <= currentBucket ? Number((data.refrigerator * (granularity / 60)).toFixed(4)) : null,
-                    electricfan: i <= currentBucket ? Number((data.electricfan * (granularity / 60)).toFixed(4)) : null
+                    aircon: { actual: null, forecast: null },
+                    refrigerator: { actual: null, forecast: null },
+                    electricfan: { actual: null, forecast: null }
                 }
             };
 
-            if (i > currentBucket) {
-                const hourOffset = hour - currentHour - 1;
-                if (hourOffset >= 0 && hourOffset < predictedHourly.length) {
-                    const hourlyW = predictedHourly[hourOffset];
-                    if (hourlyW !== null) {
-                        const bucketKwh = (hourlyW * (granularity / 60.0)) / 1000.0;
-                        payload.forecast_kwh = Number(bucketKwh.toFixed(4));
-                    }
-                }
+            // 1. Populate Actuals
+            if (i <= currentBucket) {
+                targetAppliances.forEach(app => {
+                    payload.breakdown[app].actual = Number((data[app] * (granularity / 60)).toFixed(4));
+                });
             }
+
+            // 2. Populate Forecasts (full-day baseline + dynamic updates)
+            const hourlyKw = predictedHourly[hour];
+            if (hourlyKw !== null) {
+                payload.forecast_kwh = Number((hourlyKw * (granularity / 60.0)).toFixed(4));
+                targetAppliances.forEach(app => {
+                    const appHkw = appliancePredictedHourly[app][hour];
+                    if (appHkw !== null) {
+                        payload.breakdown[app].forecast = Number((appHkw * (granularity / 60.0)).toFixed(4));
+                    }
+                });
+            }
+
             return payload;
         }).filter(p => p.actual_kwh !== null || p.forecast_kwh !== null);
 
@@ -164,6 +193,7 @@ exports.getLiveForecast = async (req, res) => {
             granularity,
             unit_trend: "kWh",
             unit_summary: "kWh",
+            current_bucket_index: currentBucket,
             aggregate_total_kwh: Number(aggregate_total_kwh.toFixed(2)),
             appliance_totals_kwh: applianceTotals,
             data: time_series

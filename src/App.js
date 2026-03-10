@@ -15,6 +15,7 @@ import ScenarioControls from './components/ScenarioControls';
 import ComparisonChart from './components/ui/ComparisonChart';
 import { RefreshCw, Bell } from 'lucide-react';
 import NotificationPopover from './components/NotificationPopover';
+import SmartBudgetCard from './components/SmartBudgetCard';
 import SettingsPopover from './components/SettingsPopover';
 
 import { ApplianceIcons } from './components/ui/icons';
@@ -177,18 +178,49 @@ function DashboardContent() {
     const maxBuckets = Math.floor((forecastHorizon * 60) / currentGranularity);
     const slicedData = chartData.data.slice(0, maxBuckets);
 
+    // current_bucket_index tells us where "now" is in the data array.
+    // For historical dates the field is absent (-1 sentinel = include all).
+    // For today's live data we only count forecasts AFTER this index to
+    // avoid double-counting hours that already have actuals.
+    const currentBucketIndex = chartData.current_bucket_index ?? -1;
+
     const labels = slicedData.map(d => d.timestamp);
     const actuals = slicedData.map(d => d.actual_kwh);
     const forecasts = slicedData.map(d => d.forecast_kwh);
 
-    // Calculate sum of forecasts for the requested horizon
-    const totalForecastedKwh = forecasts.reduce((sum, val) => sum + (val || 0), 0);
+    // Sum only future-bucket forecasts (i > currentBucketIndex)
+    const totalForecastedKwh = forecasts.reduce((sum, val, i) => {
+      if (i <= currentBucketIndex) return sum;
+      return sum + (val || 0);
+    }, 0);
 
-    const airconActuals = slicedData.map(d => d.breakdown ? d.breakdown.aircon : null);
-    const fridgeActuals = slicedData.map(d => d.breakdown ? d.breakdown.refrigerator : null);
-    const fanActuals = slicedData.map(d => d.breakdown ? d.breakdown.electricfan : null);
+    const airconActuals = slicedData.map(d => d.breakdown?.aircon?.actual ?? null);
+    const airconForecasts = slicedData.map(d => d.breakdown?.aircon?.forecast ?? null);
+    const fridgeActuals = slicedData.map(d => d.breakdown?.refrigerator?.actual ?? null);
+    const fridgeForecasts = slicedData.map(d => d.breakdown?.refrigerator?.forecast ?? null);
+    const fanActuals = slicedData.map(d => d.breakdown?.electricfan?.actual ?? null);
+    const fanForecasts = slicedData.map(d => d.breakdown?.electricfan?.forecast ?? null);
 
-    return { labels, actuals, forecasts, totalForecastedKwh, airconActuals, fridgeActuals, fanActuals };
+    // Projected totals: only future buckets (after current_bucket_index)
+    const projAircon = airconForecasts.reduce((sum, v, i) => {
+      if (i <= currentBucketIndex) return sum;
+      return sum + (v || 0);
+    }, 0);
+    const projFridge = fridgeForecasts.reduce((sum, v, i) => {
+      if (i <= currentBucketIndex) return sum;
+      return sum + (v || 0);
+    }, 0);
+    const projFan = fanForecasts.reduce((sum, v, i) => {
+      if (i <= currentBucketIndex) return sum;
+      return sum + (v || 0);
+    }, 0);
+
+    return {
+      labels, actuals, forecasts, totalForecastedKwh,
+      airconActuals, airconForecasts, projAircon,
+      fridgeActuals, fridgeForecasts, projFridge,
+      fanActuals, fanForecasts, projFan
+    };
   }, [chartData, forecastHorizon, granularity]);
 
   const calculations = useMemo(() => {
@@ -209,28 +241,44 @@ function DashboardContent() {
 
     const applianceTotals = chartData.appliance_totals_kwh || { aircon: 0, refrigerator: 0, electricfan: 0 };
 
-    // Calculate distribution weights based on actuals so far
-    const airconWeight = actualSoFarKwh > 0 ? (applianceTotals.aircon / actualSoFarKwh) : 0.55;
-    const fridgeWeight = actualSoFarKwh > 0 ? (applianceTotals.refrigerator / actualSoFarKwh) : 0.25;
-    const fanWeight = actualSoFarKwh > 0 ? (applianceTotals.electricfan / actualSoFarKwh) : 0.20;
-
     const appliances = [
       {
         name: 'Air Conditioner',
-        kwh: (applianceTotals.aircon + (projectedUpcomingKwh * airconWeight)) * loadMultiplier,
-        php: (applianceTotals.aircon + (projectedUpcomingKwh * airconWeight)) * loadMultiplier * effectiveTariff
+        kwh: (applianceTotals.aircon + processedChartData.projAircon) * loadMultiplier,
+        php: (applianceTotals.aircon + processedChartData.projAircon) * loadMultiplier * effectiveTariff
       },
       {
         name: 'Refrigerator',
-        kwh: (applianceTotals.refrigerator + (projectedUpcomingKwh * fridgeWeight)) * loadMultiplier,
-        php: (applianceTotals.refrigerator + (projectedUpcomingKwh * fridgeWeight)) * loadMultiplier * effectiveTariff
+        kwh: (applianceTotals.refrigerator + processedChartData.projFridge) * loadMultiplier,
+        php: (applianceTotals.refrigerator + processedChartData.projFridge) * loadMultiplier * effectiveTariff
       },
       {
         name: 'Electric Fan',
-        kwh: (applianceTotals.electricfan + (projectedUpcomingKwh * fanWeight)) * loadMultiplier,
-        php: (applianceTotals.electricfan + (projectedUpcomingKwh * fanWeight)) * loadMultiplier * effectiveTariff
+        kwh: (applianceTotals.electricfan + processedChartData.projFan) * loadMultiplier,
+        php: (applianceTotals.electricfan + processedChartData.projFan) * loadMultiplier * effectiveTariff
       },
     ];
+
+    const applianceData = {
+      'Air Conditioner': {
+        data: processedChartData.airconActuals,
+        forecast: processedChartData.airconForecasts,
+        kwh: appliances[0].kwh,
+        php: appliances[0].php
+      },
+      'Refrigerator': {
+        data: processedChartData.fridgeActuals,
+        forecast: processedChartData.fridgeForecasts,
+        kwh: appliances[1].kwh,
+        php: appliances[1].php
+      },
+      'Electric Fan': {
+        data: processedChartData.fanActuals,
+        forecast: processedChartData.fanForecasts,
+        kwh: appliances[2].kwh,
+        php: appliances[2].php
+      }
+    };
 
     const maxPhp = Math.max(...appliances.map(a => a.php));
     const topApplianceObj = appliances.find(a => a.php === maxPhp);
@@ -250,28 +298,9 @@ function DashboardContent() {
       topAppliance,
       budgetStatus,
       selectedPeriodText,
-      applianceData: {
-        'Air Conditioner': {
-          kwh: applianceTotals.aircon,
-          php: applianceTotals.aircon * effectiveTariff,
-          data: processedChartData.airconActuals,
-          forecast: processedChartData.forecasts.map(f => f !== null ? f * 0.55 : null) // Using 55% as predicted weight for AC
-        },
-        'Refrigerator': {
-          kwh: applianceTotals.refrigerator,
-          php: applianceTotals.refrigerator * effectiveTariff,
-          data: processedChartData.fridgeActuals,
-          forecast: processedChartData.forecasts.map(f => f !== null ? f * 0.25 : null)
-        },
-        'Electric Fan': {
-          kwh: applianceTotals.electricfan,
-          php: applianceTotals.electricfan * effectiveTariff,
-          data: processedChartData.fanActuals,
-          forecast: processedChartData.forecasts.map(f => f !== null ? f * 0.20 : null)
-        }
-      },
+      applianceData
     };
-  }, [chartData.aggregate_total_kwh, chartData.appliance_totals, processedChartData, tariff, budget, selectedPeriod, isScenarioMode, scenarioParams]);
+  }, [tariff, budget, isScenarioMode, scenarioParams, chartData, processedChartData, selectedPeriod]);
 
   const lastEmailSent = useRef({ type: null, timestamp: 0 });
 
@@ -459,6 +488,14 @@ function DashboardContent() {
                 onSetBudget={handleSetBudget}
                 thresholdApproaching={settings.thresholdApproaching}
                 thresholdCritical={settings.thresholdCritical}
+              />
+            </AnimationWrapper>
+
+            {/* ── Smart Daily Budget Recommendation ── */}
+            <AnimationWrapper variant="fade-in" delay={0.05}>
+              <SmartBudgetCard
+                forecastKwh={calculations.totalKwh}
+                tariff={tariff}
               />
             </AnimationWrapper>
 

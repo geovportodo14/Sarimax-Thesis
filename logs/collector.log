@@ -34,3 +34,193 @@
 2026-02-27 01:00:04,601 - __main__ - INFO - Next collection in 596 seconds
 2026-02-27 01:10:00,601 - __main__ - INFO - Starting collection at 2026-02-27 01:10:00
 2026-02-27 01:10:04,854 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 00:54:19,341 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-08 00:54:19,341 - __main__ - INFO - Starting completeness check for 2026-03-07
+2026-03-08 00:54:19,506 - __main__ - INFO - No missing intervals for Aircon on 2026-03-07. Proceeding to validation.
+2026-03-08 00:54:19,692 - __main__ - INFO - Backfilling 1 intervals for Refrigerator on 2026-03-07
+2026-03-08 00:54:19,692 - __main__ - INFO - Smart Backfill Refrigerator: Chunk 10:00 to 11:59:59...
+2026-03-08 00:54:20,246 - __main__ - WARNING - Aborting backfill for Refrigerator for this chunk due to no data or quota.
+2026-03-08 00:54:20,246 - __main__ - WARNING - No historical logs found for Refrigerator on 2026-03-07
+2026-03-08 00:54:20,480 - __main__ - WARNING - Refrigerator is incomplete (143/144).
+2026-03-08 00:54:20,557 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-07. Proceeding to validation.
+2026-03-08 00:54:20,700 - __main__ - INFO - Daily check for 2026-03-07: Some devices are still incomplete. Collector will keep backfilling.
+2026-03-08 00:54:20,700 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-08 00:54:20,701 - __main__ - INFO - Next collection in 340 seconds
+2026-03-08 01:00:00,701 - __main__ - INFO - Starting collection at 2026-03-08 01:00:00
+2026-03-08 01:00:05,115 - __main__ - INFO - Next collection in 595 seconds
+2026-03-08 01:08:21,840 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-08 01:08:21,840 - __main__ - INFO - Starting completeness check for 2026-03-07
+2026-03-08 01:08:22,023 - __main__ - INFO - No missing intervals for Aircon on 2026-03-07. Proceeding to validation.
+2026-03-08 01:08:22,140 - __main__ - INFO - Backfilling 1 intervals for Refrigerator on 2026-03-07
+2026-03-08 01:08:22,140 - __main__ - INFO - Smart Backfill Refrigerator: Chunk 10:00 to 11:59:59...
+2026-03-08 01:08:22,660 - __main__ - WARNING - Aborting backfill for Refrigerator for this chunk due to no data or quota.
+2026-03-08 01:08:22,660 - __main__ - WARNING - No historical logs found for Refrigerator on 2026-03-07
+2026-03-08 01:08:23,172 - __main__ - WARNING - Refrigerator is incomplete (143/144).
+2026-03-08 01:08:23,237 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-07. Proceeding to validation.
+2026-03-08 01:08:23,311 - __main__ - INFO - Daily check for 2026-03-07: Some devices are still incomplete. Collector will keep backfilling.
+2026-03-08 01:08:23,312 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-08 01:08:23,312 - __main__ - INFO - Next collection in 97 seconds
+2026-03-08 01:10:00,115 - __main__ - INFO - Starting collection at 2026-03-08 01:10:00
+2026-03-08 01:10:00,315 - __main__ - INFO - Starting collection at 2026-03-08 01:10:00
+2026-03-08 01:10:04,451 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:10:04,493 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:16:30,175 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-08 01:16:30,175 - __main__ - INFO - Starting completeness check for 2026-03-07
+2026-03-08 01:16:30,347 - __main__ - INFO - No missing intervals for Aircon on 2026-03-07. Proceeding to validation.
+2026-03-08 01:16:30,692 - __main__ - INFO - Backfilling 1 intervals for Refrigerator on 2026-03-07
+2026-03-08 01:16:30,692 - __main__ - INFO - Smart Backfill Refrigerator: Chunk 10:00 to 11:59:59...
+2026-03-08 01:16:31,138 - __main__ - WARNING - Aborting backfill for Refrigerator for this chunk due to no data or quota.
+2026-03-08 01:16:31,138 - __main__ - WARNING - No historical logs found for Refrigerator on 2026-03-07
+2026-03-08 01:16:31,690 - __main__ - WARNING - Refrigerator is incomplete (143/144).
+2026-03-08 01:16:31,856 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-07. Proceeding to validation.
+2026-03-08 01:16:32,073 - __main__ - INFO - Daily check for 2026-03-07: Some devices are still incomplete. Collector will keep backfilling.
+2026-03-08 01:16:32,073 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-08 01:16:32,074 - __main__ - INFO - Next collection in 208 seconds
+2026-03-08 01:20:00,074 - __main__ - INFO - Starting collection at 2026-03-08 01:20:00
+2026-03-08 01:20:00,453 - __main__ - INFO - Starting collection at 2026-03-08 01:20:00
+2026-03-08 01:20:00,493 - __main__ - INFO - Starting collection at 2026-03-08 01:20:00
+2026-03-08 01:20:01,087 - tuya_client - WARNING - Device status failure for a3ed2fe218a724b4fepeni: token invalid
+2026-03-08 01:20:01,258 - tuya_client - WARNING - Device status failure for a3ed2fe218a724b4fepeni: token invalid
+2026-03-08 01:20:04,975 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:20:05,210 - __main__ - INFO - Next collection in 595 seconds
+2026-03-08 01:20:05,210 - __main__ - INFO - Next collection in 595 seconds
+2026-03-08 01:21:54,894 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-08 01:21:54,895 - __main__ - INFO - Starting completeness check for 2026-03-07
+2026-03-08 01:21:54,994 - __main__ - INFO - No missing intervals for Aircon on 2026-03-07. Proceeding to validation.
+2026-03-08 01:21:55,123 - __main__ - INFO - Backfilling 1 intervals for Refrigerator on 2026-03-07
+2026-03-08 01:21:55,123 - __main__ - INFO - Smart Backfill Refrigerator: Chunk 10:00 to 11:59:59...
+2026-03-08 01:21:55,645 - __main__ - WARNING - Aborting backfill for Refrigerator for this chunk due to no data or quota.
+2026-03-08 01:21:55,645 - __main__ - WARNING - No historical logs found for Refrigerator on 2026-03-07
+2026-03-08 01:21:55,782 - __main__ - WARNING - Refrigerator is incomplete (143/144).
+2026-03-08 01:21:55,823 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-07. Proceeding to validation.
+2026-03-08 01:21:55,915 - __main__ - INFO - Daily check for 2026-03-07: Some devices are still incomplete. Collector will keep backfilling.
+2026-03-08 01:21:55,916 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-08 01:21:55,916 - __main__ - INFO - Next collection in 485 seconds
+2026-03-08 01:22:31,522 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-08 01:22:31,523 - __main__ - INFO - Starting completeness check for 2026-03-07
+2026-03-08 01:22:31,628 - __main__ - INFO - No missing intervals for Aircon on 2026-03-07. Proceeding to validation.
+2026-03-08 01:22:31,825 - __main__ - INFO - Backfilling 1 intervals for Refrigerator on 2026-03-07
+2026-03-08 01:22:31,825 - __main__ - INFO - Smart Backfill Refrigerator: Chunk 10:00 to 11:59:59...
+2026-03-08 01:22:32,343 - __main__ - WARNING - Aborting backfill for Refrigerator for this chunk due to no data or quota.
+2026-03-08 01:22:32,344 - __main__ - WARNING - No historical logs found for Refrigerator on 2026-03-07
+2026-03-08 01:22:32,591 - __main__ - WARNING - Refrigerator is incomplete (143/144).
+2026-03-08 01:22:32,693 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-07. Proceeding to validation.
+2026-03-08 01:22:32,825 - __main__ - INFO - Daily check for 2026-03-07: Some devices are still incomplete. Collector will keep backfilling.
+2026-03-08 01:22:32,825 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-08 01:22:32,825 - __main__ - INFO - Next collection in 448 seconds
+2026-03-08 01:22:42,229 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-08 01:22:42,229 - __main__ - INFO - Starting completeness check for 2026-03-07
+2026-03-08 01:22:42,370 - __main__ - INFO - No missing intervals for Aircon on 2026-03-07. Proceeding to validation.
+2026-03-08 01:22:42,570 - __main__ - INFO - Backfilling 1 intervals for Refrigerator on 2026-03-07
+2026-03-08 01:22:42,571 - __main__ - INFO - Smart Backfill Refrigerator: Chunk 10:00 to 11:59:59...
+2026-03-08 01:22:43,167 - __main__ - WARNING - Aborting backfill for Refrigerator for this chunk due to no data or quota.
+2026-03-08 01:22:43,168 - __main__ - WARNING - No historical logs found for Refrigerator on 2026-03-07
+2026-03-08 01:22:43,429 - __main__ - WARNING - Refrigerator is incomplete (143/144).
+2026-03-08 01:22:43,520 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-07. Proceeding to validation.
+2026-03-08 01:22:43,629 - __main__ - INFO - Daily check for 2026-03-07: Some devices are still incomplete. Collector will keep backfilling.
+2026-03-08 01:22:43,629 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-08 01:22:43,629 - __main__ - INFO - Next collection in 437 seconds
+2026-03-08 01:23:16,435 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-08 01:23:16,435 - __main__ - INFO - Starting completeness check for 2026-03-07
+2026-03-08 01:23:16,619 - __main__ - INFO - No missing intervals for Aircon on 2026-03-07. Proceeding to validation.
+2026-03-08 01:23:16,877 - __main__ - INFO - Backfilling 1 intervals for Refrigerator on 2026-03-07
+2026-03-08 01:23:16,877 - __main__ - INFO - Smart Backfill Refrigerator: Chunk 10:00 to 11:59:59...
+2026-03-08 01:23:17,428 - __main__ - WARNING - Aborting backfill for Refrigerator for this chunk due to no data or quota.
+2026-03-08 01:23:17,429 - __main__ - WARNING - No historical logs found for Refrigerator on 2026-03-07
+2026-03-08 01:23:17,794 - __main__ - WARNING - Refrigerator is incomplete (143/144).
+2026-03-08 01:23:17,879 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-07. Proceeding to validation.
+2026-03-08 01:23:18,052 - __main__ - INFO - Daily check for 2026-03-07: Some devices are still incomplete. Collector will keep backfilling.
+2026-03-08 01:23:18,052 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-08 01:23:18,052 - __main__ - INFO - Next collection in 402 seconds
+2026-03-08 01:29:56,646 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-08 01:29:56,646 - __main__ - INFO - Starting completeness check for 2026-03-07
+2026-03-08 01:29:56,806 - __main__ - INFO - No missing intervals for Aircon on 2026-03-07. Proceeding to validation.
+2026-03-08 01:29:57,049 - __main__ - INFO - Backfilling 1 intervals for Refrigerator on 2026-03-07
+2026-03-08 01:29:57,049 - __main__ - INFO - Smart Backfill Refrigerator: Chunk 10:00 to 11:59:59...
+2026-03-08 01:29:57,547 - __main__ - WARNING - Aborting backfill for Refrigerator for this chunk due to no data or quota.
+2026-03-08 01:29:57,547 - __main__ - WARNING - No historical logs found for Refrigerator on 2026-03-07
+2026-03-08 01:29:57,785 - __main__ - WARNING - Refrigerator is incomplete (143/144).
+2026-03-08 01:29:57,853 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-07. Proceeding to validation.
+2026-03-08 01:29:58,034 - __main__ - INFO - Daily check for 2026-03-07: Some devices are still incomplete. Collector will keep backfilling.
+2026-03-08 01:29:58,034 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-08 01:29:58,034 - __main__ - INFO - Next collection in 2 seconds
+2026-03-08 01:30:00,039 - __main__ - INFO - Starting collection at 2026-03-08 01:30:00
+2026-03-08 01:30:00,053 - __main__ - INFO - Starting collection at 2026-03-08 01:30:00
+2026-03-08 01:30:00,211 - __main__ - INFO - Starting collection at 2026-03-08 01:30:00
+2026-03-08 01:30:00,213 - __main__ - INFO - Starting collection at 2026-03-08 01:30:00
+2026-03-08 01:30:00,632 - __main__ - INFO - Starting collection at 2026-03-08 01:30:00
+2026-03-08 01:30:00,829 - __main__ - INFO - Starting collection at 2026-03-08 01:30:00
+2026-03-08 01:30:00,915 - __main__ - INFO - Starting collection at 2026-03-08 01:30:00
+2026-03-08 01:30:00,975 - __main__ - INFO - Starting collection at 2026-03-08 01:30:00
+2026-03-08 01:30:04,549 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:30:04,596 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:30:04,597 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:30:04,602 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:30:04,656 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:30:04,957 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:30:05,014 - __main__ - INFO - Next collection in 595 seconds
+2026-03-08 01:30:05,088 - __main__ - INFO - Next collection in 595 seconds
+2026-03-08 01:40:00,038 - __main__ - INFO - Starting collection at 2026-03-08 01:40:00
+2026-03-08 01:40:00,108 - __main__ - INFO - Starting collection at 2026-03-08 01:40:00
+2026-03-08 01:40:00,571 - __main__ - INFO - Starting collection at 2026-03-08 01:40:00
+2026-03-08 01:40:00,620 - __main__ - INFO - Starting collection at 2026-03-08 01:40:00
+2026-03-08 01:40:00,621 - __main__ - INFO - Starting collection at 2026-03-08 01:40:00
+2026-03-08 01:40:00,627 - __main__ - INFO - Starting collection at 2026-03-08 01:40:00
+2026-03-08 01:40:00,678 - __main__ - INFO - Starting collection at 2026-03-08 01:40:00
+2026-03-08 01:40:00,978 - __main__ - INFO - Starting collection at 2026-03-08 01:40:00
+2026-03-08 01:40:04,264 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:40:04,264 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:40:04,773 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:40:04,779 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:40:04,785 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:40:04,785 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:40:04,785 - __main__ - INFO - Next collection in 596 seconds
+2026-03-08 01:40:05,148 - __main__ - INFO - Next collection in 595 seconds
+2026-03-10 09:19:55,462 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-10 09:19:55,463 - __main__ - INFO - Starting completeness check for 2026-03-09
+2026-03-10 09:19:55,619 - __main__ - INFO - No missing intervals for Aircon on 2026-03-09. Proceeding to validation.
+2026-03-10 09:19:55,864 - __main__ - INFO - No missing intervals for Refrigerator on 2026-03-09. Proceeding to validation.
+2026-03-10 09:19:56,028 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-09. Proceeding to validation.
+2026-03-10 09:19:56,138 - __main__ - INFO - All devices complete (144/144) for 2026-03-09. Data is ready for local preprocessing.
+2026-03-10 09:19:56,138 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-10 09:19:56,138 - __main__ - INFO - Next collection in 4 seconds
+2026-03-10 09:20:00,143 - __main__ - INFO - Starting collection at 2026-03-10 09:20:00
+2026-03-10 09:20:04,851 - __main__ - INFO - Next collection in 596 seconds
+2026-03-10 09:30:00,856 - __main__ - INFO - Starting collection at 2026-03-10 09:30:00
+2026-03-10 09:30:04,839 - __main__ - INFO - Next collection in 596 seconds
+2026-03-10 09:39:38,714 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-10 09:39:38,714 - __main__ - INFO - Starting completeness check for 2026-03-09
+2026-03-10 09:39:38,819 - __main__ - INFO - No missing intervals for Aircon on 2026-03-09. Proceeding to validation.
+2026-03-10 09:39:38,934 - __main__ - INFO - No missing intervals for Refrigerator on 2026-03-09. Proceeding to validation.
+2026-03-10 09:39:39,130 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-09. Proceeding to validation.
+2026-03-10 09:39:39,238 - __main__ - INFO - All devices complete (144/144) for 2026-03-09. Data is ready for local preprocessing.
+2026-03-10 09:39:39,239 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-10 09:39:39,239 - __main__ - INFO - Next collection in 21 seconds
+2026-03-10 09:40:00,244 - __main__ - INFO - Starting collection at 2026-03-10 09:40:00
+2026-03-10 09:40:04,475 - __main__ - INFO - Next collection in 596 seconds
+2026-03-10 09:50:00,481 - __main__ - INFO - Starting collection at 2026-03-10 09:50:00
+2026-03-10 09:50:04,576 - __main__ - INFO - Next collection in 596 seconds
+2026-03-10 10:31:17,992 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-10 10:31:17,992 - __main__ - INFO - Starting completeness check for 2026-03-09
+2026-03-10 10:31:18,064 - __main__ - INFO - No missing intervals for Aircon on 2026-03-09. Proceeding to validation.
+2026-03-10 10:31:18,144 - __main__ - INFO - No missing intervals for Refrigerator on 2026-03-09. Proceeding to validation.
+2026-03-10 10:31:18,233 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-09. Proceeding to validation.
+2026-03-10 10:31:18,290 - __main__ - INFO - All devices complete (144/144) for 2026-03-09. Data is ready for local preprocessing.
+2026-03-10 10:31:18,290 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-10 10:31:18,290 - __main__ - INFO - Next collection in 522 seconds
+2026-03-10 10:31:38,253 - storage.db_client - INFO - Indexes verified for energybuckets
+2026-03-10 10:31:38,253 - __main__ - INFO - Starting completeness check for 2026-03-09
+2026-03-10 10:31:38,404 - __main__ - INFO - No missing intervals for Aircon on 2026-03-09. Proceeding to validation.
+2026-03-10 10:31:38,495 - __main__ - INFO - No missing intervals for Refrigerator on 2026-03-09. Proceeding to validation.
+2026-03-10 10:31:38,575 - __main__ - INFO - No missing intervals for Electric_Fan on 2026-03-09. Proceeding to validation.
+2026-03-10 10:31:38,628 - __main__ - INFO - All devices complete (144/144) for 2026-03-09. Data is ready for local preprocessing.
+2026-03-10 10:31:38,628 - __main__ - INFO - Collector started. Waiting for next 10-minute interval...
+2026-03-10 10:31:38,629 - __main__ - INFO - Next collection in 502 seconds
+2026-03-10 10:40:00,297 - __main__ - INFO - Starting collection at 2026-03-10 10:40:00
+2026-03-10 10:40:00,635 - __main__ - INFO - Starting collection at 2026-03-10 10:40:00
+2026-03-10 10:40:04,509 - __main__ - INFO - Next collection in 596 seconds
+2026-03-10 10:40:04,621 - __main__ - INFO - Next collection in 596 seconds
+2026-03-10 10:50:00,519 - __main__ - INFO - Starting collection at 2026-03-10 10:50:00
+2026-03-10 10:50:00,629 - __main__ - INFO - Starting collection at 2026-03-10 10:50:00
+2026-03-10 10:50:04,429 - __main__ - INFO - Next collection in 596 seconds
+2026-03-10 10:50:05,828 - __main__ - INFO - Next collection in 595 seconds

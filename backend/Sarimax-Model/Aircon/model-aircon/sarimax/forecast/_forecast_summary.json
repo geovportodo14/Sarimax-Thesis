@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-03-08T19:20:17.160566",
+  "config": {
+    "horizon": 24
+  },
+  "input_dir": "data",
+  "models_root": "model\\sarimax",
+  "ok": 1,
+  "failed": 0,
+  "results": [
+    {
+      "appliance": "aircon_final_hourly_with_weather",
+      "status": "ok",
+      "last_observed_timestamp": "2026-03-07 04:00:00",
+      "forecast_start": "2026-03-07 05:00:00",
+      "forecast_end": "2026-03-08 04:00:00",
+      "n_rows": 24,
+      "artifact": "model\\sarimax\\aircon_final_hourly_with_weather\\forecast\\forecast_2026-03-07.csv"
+    }
+  ],
+  "failures": []
+}

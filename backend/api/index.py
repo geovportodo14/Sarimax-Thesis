@@ -27,9 +27,15 @@ class ThresholdRequest(BaseModel):
     budget: float
     cost: float
 
+from .services.predict_service import PredictService
+
 # --- NEW MODEL FOR SARIMAX ---
 class PredictionRequest(BaseModel):
-    history: List[float]
+    appliance: str
+    history: List[float] # This is kWh history
+    watts: Optional[List[float]] = None # Average Watts history
+    temps: Optional[List[float]] = None # Temperature history
+    hums: Optional[List[float]] = None # Humidity history
     horizon: int
 
 @app.get("/")
@@ -53,31 +59,25 @@ def threshold_alert(req: ThresholdRequest):
 
 # --- NEW PREDICTION ROUTE (THE BRIDGE) ---
 @app.post("/predict")
-async def predict(req: PredictionRequest):
+async def predict(request: PredictionRequest):
     try:
-        history = req.history
-        horizon = req.horizon
-
-        # 1. Anchor the forecast to the last known actual power reading
-        # If no data exists yet today, we use a baseline (e.g., 250W)
-        last_val = history[-1] if history else 250.0
-
-        # 2. SARIMAX MODEL INTEGRATION
-        # Replace this simulation with: your_model.forecast(steps=horizon)
-        # For now, we generate a realistic fluctuating trend for the demo
-        forecast = []
-        current = last_val
-        for _ in range(horizon):
-            # Simulate natural appliance variance (+/- 15 Watts)
-            change = np.random.uniform(-15, 15)
-            current = max(0, current + change)
-            forecast.append(round(current, 2))
+        # Call the actual SARIMAX integration service
+        forecast = PredictService.get_forecast(
+            appliance=request.appliance,
+            history=request.history,
+            horizon=request.horizon,
+            watts=request.watts,
+            temps=request.temps,
+            hums=request.hums
+        )
 
         return {
             "status": "success",
             "forecast": forecast,
-            "horizon": horizon
+            "horizon": request.horizon
         }
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"Prediction Error: {e}")
         return {"status": "error", "message": str(e), "forecast": []}

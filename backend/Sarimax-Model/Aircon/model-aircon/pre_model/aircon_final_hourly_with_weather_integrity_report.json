@@ -1,0 +1,164 @@
+{
+  "appliance": "aircon_final_hourly_with_weather",
+  "input_file": "data\\aircon_final_hourly_with_weather.csv",
+  "timestamp": "2026-03-08T15:05:41.162116",
+  "basic": {
+    "n_rows": 10258,
+    "n_cols": 12,
+    "start": "2025-01-03 00:00:00",
+    "end": "2026-03-07 04:00:00",
+    "duplicate_timestamps": 0,
+    "inferred_frequency_first_head": "h",
+    "columns": [
+      "energy",
+      "power",
+      "temperature",
+      "humidity",
+      "rainfall",
+      "hour_of_day",
+      "day_of_week",
+      "is_weekend",
+      "lag_24",
+      "lag_168",
+      "rolling_mean_24",
+      "rolling_mean_168"
+    ]
+  },
+  "hourly_index_gap_check": {
+    "ok": true,
+    "start": "2025-01-03 00:00:00",
+    "end": "2026-03-07 04:00:00",
+    "n_full_hourly_index": 10277,
+    "n_original_unique_timestamps": 10258,
+    "missing_hour_timestamps_count": 19,
+    "missing_energy_after_reindex_count": 19
+  },
+  "missing_values": {
+    "n_rows": 10258,
+    "na_rows_count": 168,
+    "na_counts": {
+      "energy": 0,
+      "power": 0,
+      "temperature": 0,
+      "humidity": 0,
+      "rainfall": 0,
+      "hour_of_day": 0,
+      "day_of_week": 0,
+      "is_weekend": 0,
+      "lag_24": 24,
+      "lag_168": 168,
+      "rolling_mean_24": 23,
+      "rolling_mean_168": 167
+    },
+    "na_percent": {
+      "energy": 0.0,
+      "power": 0.0,
+      "temperature": 0.0,
+      "humidity": 0.0,
+      "rainfall": 0.0,
+      "hour_of_day": 0.0,
+      "day_of_week": 0.0,
+      "is_weekend": 0.0,
+      "lag_24": 0.23396373562097877,
+      "lag_168": 1.6377461493468513,
+      "rolling_mean_24": 0.2242152466367713,
+      "rolling_mean_168": 1.6279976603626438
+    },
+    "top_na_contributors_in_na_rows": [
+      {
+        "column": "lag_168",
+        "na_count_in_na_rows": 168
+      },
+      {
+        "column": "rolling_mean_168",
+        "na_count_in_na_rows": 167
+      },
+      {
+        "column": "lag_24",
+        "na_count_in_na_rows": 24
+      },
+      {
+        "column": "rolling_mean_24",
+        "na_count_in_na_rows": 23
+      },
+      {
+        "column": "humidity",
+        "na_count_in_na_rows": 0
+      },
+      {
+        "column": "temperature",
+        "na_count_in_na_rows": 0
+      },
+      {
+        "column": "power",
+        "na_count_in_na_rows": 0
+      },
+      {
+        "column": "energy",
+        "na_count_in_na_rows": 0
+      },
+      {
+        "column": "is_weekend",
+        "na_count_in_na_rows": 0
+      },
+      {
+        "column": "day_of_week",
+        "na_count_in_na_rows": 0
+      },
+      {
+        "column": "hour_of_day",
+        "na_count_in_na_rows": 0
+      },
+      {
+        "column": "rainfall",
+        "na_count_in_na_rows": 0
+      }
+    ]
+  },
+  "expected_na_diagnosis": {
+    "expected_cols_present": [
+      "lag_24",
+      "lag_168",
+      "rolling_mean_24",
+      "rolling_mean_168"
+    ],
+    "na_rows_total": 168,
+    "na_rows_only_expected_cols": 168,
+    "na_rows_with_unexpected_missing": 0,
+    "note": "If unexpected_missing > 0, check weather merge or upstream gaps."
+  },
+  "exog_object_coercion_preview": {
+    "object_columns_checked": 0,
+    "object_column_reports": [],
+    "note": "If new_nan_if_coerced > 0, you have non-numeric strings in exog."
+  },
+  "hybrid_split_preview": {
+    "synthetic_end": "2026-01-02 23:00:00",
+    "real_start": "2026-01-03 00:00:00",
+    "counts": {
+      "synthetic": 8760,
+      "real": 1498,
+      "total": 10258
+    },
+    "ranges": {
+      "synthetic": [
+        "2025-01-03 00:00:00",
+        "2026-01-02 23:00:00"
+      ],
+      "real": [
+        "2026-01-03 19:00:00",
+        "2026-03-07 04:00:00"
+      ],
+      "total": [
+        "2025-01-03 00:00:00",
+        "2026-03-07 04:00:00"
+      ]
+    }
+  },
+  "na_rows_sample": {
+    "saved": true,
+    "na_rows": 168,
+    "sample_rows_saved": 168,
+    "path": "model\\pre_model\\aircon_final_hourly_with_weather_na_rows_sample.csv"
+  }
+}

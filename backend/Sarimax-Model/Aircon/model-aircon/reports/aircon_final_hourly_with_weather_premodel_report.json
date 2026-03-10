@@ -1,0 +1,114 @@
+{
+  "input_file": "data\\aircon_final_hourly_with_weather.csv",
+  "appliance_key": "aircon_final_hourly_with_weather",
+  "config": {
+    "seasonal_period": 24,
+    "weekly_period": 168,
+    "adf_alpha": 0.05,
+    "max_acf_lag": 200,
+    "gap_threshold_hours": 2,
+    "min_adf_samples": 50
+  },
+  "integrity": {
+    "duplicate_timestamp_rows": 0,
+    "inferred_frequency_first_200": "h",
+    "start": "2025-01-03 00:00:00",
+    "end": "2026-03-07 04:00:00",
+    "n_rows_hourly_index": 10277,
+    "missing_hour_timestamps_count": 19,
+    "gap_blocks_count": 1,
+    "gap_blocks_ge_threshold_count": 1,
+    "gap_blocks_ge_threshold_examples": [
+      {
+        "gap_start": "2026-01-03 00:00:00",
+        "gap_end": "2026-01-03 18:00:00",
+        "gap_length_hours": 19
+      }
+    ]
+  },
+  "adf": {
+    "level_energy": {
+      "ok": true,
+      "adf_stat": -14.313802890547231,
+      "p_value": 1.1721408218184172e-26,
+      "used_lag": 31,
+      "n_obs": 10226,
+      "critical_values": {
+        "1%": -3.430989638398363,
+        "5%": -2.8618226828110243,
+        "10%": -2.5669204669168746
+      },
+      "ic_best": -22410.05659100955
+    },
+    "diff1_energy": {
+      "ok": true,
+      "adf_stat": -22.108709503375426,
+      "p_value": 0.0,
+      "used_lag": 39,
+      "n_obs": 10216,
+      "critical_values": {
+        "1%": -3.4309902646701196,
+        "5%": -2.861822959556732,
+        "10%": -2.5669206142287435
+      },
+      "ic_best": -22231.539757458882
+    },
+    "seasonal_diff_energy_s": {
+      "ok": true,
+      "adf_stat": -18.969623132323516,
+      "p_value": 0.0,
+      "used_lag": 39,
+      "n_obs": 10175,
+      "critical_values": {
+        "1%": -3.430992845257687,
+        "5%": -2.8618240999021802,
+        "10%": -2.5669212212352623
+      },
+      "ic_best": -19709.34219071458
+    },
+    "diff1_then_seasonal_s": {
+      "ok": true,
+      "adf_stat": -27.91925770443725,
+      "p_value": 0.0,
+      "used_lag": 38,
+      "n_obs": 10173,
+      "critical_values": {
+        "1%": -3.430992971672231,
+        "5%": -2.861824155763948,
+        "10%": -2.566921250970517
+      },
+      "ic_best": -19405.881272803388
+    },
+    "seasonal_s_then_diff1": {
+      "ok": true,
+      "adf_stat": -27.919257704437236,
+      "p_value": 0.0,
+      "used_lag": 38,
+      "n_obs": 10173,
+      "critical_values": {
+        "1%": -3.430992971672231,
+        "5%": -2.861824155763948,
+        "10%": -2.566921250970517
+      },
+      "ic_best": -19405.881272803388
+    }
+  },
+  "seasonality_signals": {
+    "acf_lag_24": 0.3574275502491707,
+    "acf_lag_168": 0.22903208133139358
+  },
+  "suggested_differencing": {
+    "rule_based_d": 0,
+    "rule_based_D": 0,
+    "p_values": {
+      "level": 1.1721408218184172e-26,
+      "diff1": 0.0,
+      "seasonal": 0.0
+    },
+    "notes": {
+      "level_stationary": true,
+      "diff1_stationary": true,
+      "seasonal_diff_stationary": true
+    }
+  }
+}

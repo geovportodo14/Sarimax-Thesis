@@ -1,0 +1,108 @@
+{
+  "input_file": "data\\aircon.csv",
+  "appliance_key": "aircon",
+  "config": {
+    "seasonal_period": 24,
+    "weekly_period": 168,
+    "adf_alpha": 0.05,
+    "max_acf_lag": 200,
+    "gap_threshold_hours": 2,
+    "min_adf_samples": 50
+  },
+  "integrity": {
+    "duplicate_timestamp_rows": 0,
+    "inferred_frequency_first_200": "h",
+    "start": "2025-01-03 00:00:00",
+    "end": "2026-02-27 00:00:00",
+    "n_rows_hourly_index": 10081,
+    "missing_hour_timestamps_count": 0,
+    "gap_blocks_count": 0,
+    "gap_blocks_ge_threshold_count": 0,
+    "gap_blocks_ge_threshold_examples": []
+  },
+  "adf": {
+    "level_energy": {
+      "ok": true,
+      "adf_stat": -16.019451842794602,
+      "p_value": 6.227813839784918e-29,
+      "used_lag": 31,
+      "n_obs": 10049,
+      "critical_values": {
+        "1%": -3.431000907672561,
+        "5%": -2.8618276626263275,
+        "10%": -2.566923117676416
+      },
+      "ic_best": -25532.93948379763
+    },
+    "diff1_energy": {
+      "ok": true,
+      "adf_stat": -23.984207411359368,
+      "p_value": 0.0,
+      "used_lag": 39,
+      "n_obs": 10040,
+      "critical_values": {
+        "1%": -3.431001491304817,
+        "5%": -2.861827920528921,
+        "10%": -2.5669232549582546
+      },
+      "ic_best": -25330.61473554939
+    },
+    "seasonal_diff_energy_s": {
+      "ok": true,
+      "adf_stat": -19.193368332021354,
+      "p_value": 0.0,
+      "used_lag": 39,
+      "n_obs": 10017,
+      "critical_values": {
+        "1%": -3.4310029875754076,
+        "5%": -2.8618285817191262,
+        "10%": -2.56692360691058
+      },
+      "ic_best": -22106.878446343348
+    },
+    "diff1_then_seasonal_s": {
+      "ok": true,
+      "adf_stat": -27.597222317920775,
+      "p_value": 0.0,
+      "used_lag": 39,
+      "n_obs": 10016,
+      "critical_values": {
+        "1%": -3.431003052786574,
+        "5%": -2.86182861053542,
+        "10%": -2.5669236222495284
+      },
+      "ic_best": -21752.376841795292
+    },
+    "seasonal_s_then_diff1": {
+      "ok": true,
+      "adf_stat": -27.597222317920718,
+      "p_value": 0.0,
+      "used_lag": 39,
+      "n_obs": 10016,
+      "critical_values": {
+        "1%": -3.431003052786574,
+        "5%": -2.86182861053542,
+        "10%": -2.5669236222495284
+      },
+      "ic_best": -21752.376841795292
+    }
+  },
+  "seasonality_signals": {
+    "acf_lag_24": 0.1510506221236576,
+    "acf_lag_168": 0.0402669388076376
+  },
+  "suggested_differencing": {
+    "rule_based_d": 0,
+    "rule_based_D": 0,
+    "p_values": {
+      "level": 6.227813839784918e-29,
+      "diff1": 0.0,
+      "seasonal": 0.0
+    },
+    "notes": {
+      "level_stationary": true,
+      "diff1_stationary": true,
+      "seasonal_diff_stationary": true
+    }
+  }
+}
