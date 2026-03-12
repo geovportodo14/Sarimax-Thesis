@@ -89,8 +89,9 @@ exports.getLiveForecast = async (req, res) => {
                 return match ? (match.avg_humidity || 70.0) : 70.0;
             });
 
+            const FASTAPI_URL = process.env.FASTAPI_URL || 'http://127.0.0.1:8000';
             try {
-                const pyRes = await axios.post('http://127.0.0.1:8000/predict', {
+                const pyRes = await axios.post(`${FASTAPI_URL}/predict`, {
                     appliance,
                     history: h_kwh,
                     watts: h_watts,
