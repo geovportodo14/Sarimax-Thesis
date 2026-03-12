@@ -46,6 +46,7 @@ logs/
 *.pkl
 backend/modeling/**/*.pkl
 backend/Sarimax-Model/**/*.pkl
+backend/Sarimax-ModelV2/**/*.pkl
 
 # Large Datasets and Files
 *.csv
@@ -53,6 +54,8 @@ backend/Sarimax-Model/**/*.pkl
 !backend/Sarimax-Model/**/coefficients.csv
 !backend/Sarimax-Model/**/search_results.csv
 !backend/modeling/**/search_results.csv
+!backend/Sarimax-ModelV2/**/coefficients.csv
+!backend/Sarimax-ModelV2/**/search_results.csv
 *.pdf
 data/generated_raw/
 data/jan3tofeb17/

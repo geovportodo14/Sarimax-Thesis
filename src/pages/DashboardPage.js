@@ -71,15 +71,23 @@ function DashboardPage() {
     const processedChartData = useMemo(() => {
         if (!chartData || !chartData.data) return { labels: [], actuals: [], forecasts: [] };
 
+        const currentGranularity = chartData.granularity || 60;
+        const maxForecastBuckets = Math.floor((selectedPeriod * 60) / currentGranularity);
+
+        const currentBucketIndex = chartData.current_bucket_index ?? -1;
+
         const labels = chartData.data.map(d => d.timestamp);
         const actuals = chartData.data.map(d => d.actual_kwh);
         const forecasts = chartData.data.map(d => d.forecast_kwh);
 
-        // Calculate sum of forecasts for the requested horizon
-        const totalForecastedKwh = forecasts.reduce((sum, val) => sum + (val || 0), 0);
+        // Calculate sum of forecasts strictly bounded by the selected horizon limit
+        const totalForecastedKwh = forecasts.reduce((sum, val, i) => {
+            if (i <= currentBucketIndex || i > currentBucketIndex + maxForecastBuckets) return sum;
+            return sum + (val || 0);
+        }, 0);
 
         return { labels, actuals, forecasts, totalForecastedKwh };
-    }, [chartData]);
+    }, [chartData, selectedPeriod]);
 
 
     const calculations = useMemo(() => {

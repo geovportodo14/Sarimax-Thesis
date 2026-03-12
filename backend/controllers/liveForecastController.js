@@ -173,20 +173,41 @@ exports.getLiveForecast = async (req, res) => {
                 });
             }
 
-            // 2. Populate Forecasts (full-day baseline + dynamic updates)
+            // 2. Populate Forecasts for the ENTIRE day (past + future)
+            // This allows the chart to overlay the full prediction line alongside actuals,
+            // so users can compare what the model predicted vs what actually happened all day.
             const hourlyKw = predictedHourly[hour];
-            if (hourlyKw !== null) {
-                payload.forecast_kwh = Number((hourlyKw * (granularity / 60.0)).toFixed(4));
-                targetAppliances.forEach(app => {
-                    const appHkw = appliancePredictedHourly[app][hour];
-                    if (appHkw !== null) {
-                        payload.breakdown[app].forecast = Number((appHkw * (granularity / 60.0)).toFixed(4));
-                    }
-                });
+
+            if (hourlyKw !== null && hourlyKw !== undefined) {
+                if (i < currentBucket) {
+                    // Past hours: show what the model predicted for comparison with actuals
+                    payload.forecast_kwh = Number((hourlyKw * (granularity / 60.0)).toFixed(4));
+                    targetAppliances.forEach(app => {
+                        const appHkw = appliancePredictedHourly[app][hour];
+                        if (appHkw !== null && appHkw !== undefined) {
+                            payload.breakdown[app].forecast = Number((appHkw * (granularity / 60.0)).toFixed(4));
+                        }
+                    });
+                } else if (i === currentBucket) {
+                    // Current bucket: bridge actual and forecast lines
+                    payload.forecast_kwh = payload.actual_kwh;
+                    targetAppliances.forEach(app => {
+                        payload.breakdown[app].forecast = payload.breakdown[app].actual;
+                    });
+                } else {
+                    // Future predictions
+                    payload.forecast_kwh = Number((hourlyKw * (granularity / 60.0)).toFixed(4));
+                    targetAppliances.forEach(app => {
+                        const appHkw = appliancePredictedHourly[app][hour];
+                        if (appHkw !== null && appHkw !== undefined) {
+                            payload.breakdown[app].forecast = Number((appHkw * (granularity / 60.0)).toFixed(4));
+                        }
+                    });
+                }
             }
 
             return payload;
-        }).filter(p => p.actual_kwh !== null || p.forecast_kwh !== null);
+        });
 
         res.status(200).json({
             date: todayStr,

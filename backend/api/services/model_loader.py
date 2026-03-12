@@ -16,30 +16,25 @@ logger = logging.getLogger(__name__)
 
 _SARIMAX_MODEL_ROOT = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    "Sarimax-Model"
-)
-
-_MODELING_ROOT = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    "modeling"
+    "Sarimax-ModelV2"
 )
 
 # Maps the API appliance key → directory containing best_params.json + coefficients.csv
 _APPLIANCE_PATHS = {
     "aircon": os.path.join(
         _SARIMAX_MODEL_ROOT,
-        "Aircon", "model-aircon", "sarimax",
+        "Model_aircon", "model", "sarimax",
         "aircon_final_hourly_with_weather"
     ),
     "electricfan": os.path.join(
         _SARIMAX_MODEL_ROOT,
-        "Electricfan", "Modeling", "model", "stageB", "sarimax",
+        "Model_efan", "model", "sarimax",
         "electric_fan_final_hourly_with_weather"
     ),
-    # Original refrigerator model — converged cleanly (AIC −92 064, order (1,0,1)(2,0,2)24)
     "refrigerator": os.path.join(
-        _MODELING_ROOT,
-        "refrigerator", "model", "sarimax", "refrigerator"
+        _SARIMAX_MODEL_ROOT,
+        "Refrigerator_Model", "model", "sarimax",
+        "refrigerator_final_hourly_with_weather"
     ),
 }
 
@@ -64,25 +59,25 @@ _APPLIANCE_PATHS = {
 # ---------------------------------------------------------------------------
 APPLIANCE_EVAL_METRICS = {
     "aircon": {
-        "mae_hourly": 0.022119,
-        "mae_daily": 0.022119 * 24,   # 0.5309
+        "mae_hourly": 0.018892,
+        "mae_daily": 0.018892 * 24,   # 0.453
         "mean_daily_kwh": 2.6314,
-        "mae_pct": 0.151,              # 15.1 %
-        "r2": 0.814,
+        "mae_pct": 0.172,              # 17.2 %
+        "r2": 0.8108,
     },
     "electricfan": {
-        "mae_hourly": 0.007383,
-        "mae_daily": 0.007383 * 24,   # 0.1772
+        "mae_hourly": 0.007501,
+        "mae_daily": 0.007501 * 24,   # 0.180
         "mean_daily_kwh": 0.8826,
-        "mae_pct": 0.082,              # 8.2 %
-        "r2": 0.837,
+        "mae_pct": 0.204,              # 20.4 %
+        "r2": 0.8080,
     },
     "refrigerator": {
-        "mae_hourly": 0.273094,
-        "mae_daily": 0.273094 * 24,   # 6.554
+        "mae_hourly": 0.201915,
+        "mae_daily": 0.201915 * 24,   # 4.846
         "mean_daily_kwh": 2.8667,
-        "mae_pct": 2.013,              # 201.3 % — excluded from budget range
-        "r2": -11.919,
+        "mae_pct": 1.69,               # 169.0 %
+        "r2": -4.375,
     },
 }
 

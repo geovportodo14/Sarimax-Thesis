@@ -188,9 +188,11 @@ function DashboardContent() {
     const actuals = slicedData.map(d => d.actual_kwh);
     const forecasts = slicedData.map(d => d.forecast_kwh);
 
-    // Sum only future-bucket forecasts (i > currentBucketIndex)
+    const maxForecastBuckets = Math.floor((selectedPeriod * 60) / currentGranularity);
+
+    // Sum only future-bucket forecasts (i > currentBucketIndex up to selected period limits)
     const totalForecastedKwh = forecasts.reduce((sum, val, i) => {
-      if (i <= currentBucketIndex) return sum;
+      if (i <= currentBucketIndex || i > currentBucketIndex + maxForecastBuckets) return sum;
       return sum + (val || 0);
     }, 0);
 
@@ -201,17 +203,17 @@ function DashboardContent() {
     const fanActuals = slicedData.map(d => d.breakdown?.electricfan?.actual ?? null);
     const fanForecasts = slicedData.map(d => d.breakdown?.electricfan?.forecast ?? null);
 
-    // Projected totals: only future buckets (after current_bucket_index)
+    // Projected totals: only future buckets bounded by selectedPeriod
     const projAircon = airconForecasts.reduce((sum, v, i) => {
-      if (i <= currentBucketIndex) return sum;
+      if (i <= currentBucketIndex || i > currentBucketIndex + maxForecastBuckets) return sum;
       return sum + (v || 0);
     }, 0);
     const projFridge = fridgeForecasts.reduce((sum, v, i) => {
-      if (i <= currentBucketIndex) return sum;
+      if (i <= currentBucketIndex || i > currentBucketIndex + maxForecastBuckets) return sum;
       return sum + (v || 0);
     }, 0);
     const projFan = fanForecasts.reduce((sum, v, i) => {
-      if (i <= currentBucketIndex) return sum;
+      if (i <= currentBucketIndex || i > currentBucketIndex + maxForecastBuckets) return sum;
       return sum + (v || 0);
     }, 0);
 
