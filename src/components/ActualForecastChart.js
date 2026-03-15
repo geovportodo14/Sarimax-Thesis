@@ -10,7 +10,8 @@ function ActualForecastChart({
     selectedFilter,
     onFilterChange,
     applianceFilters,
-    customDatasets
+    customDatasets,
+    showSlider = true
 }) {
 
     return (
@@ -26,6 +27,7 @@ function ActualForecastChart({
             actualData={actualData}
             forecastData={forecastData}
             unit="kWh"
+            showSlider={showSlider}
         />
     );
 }

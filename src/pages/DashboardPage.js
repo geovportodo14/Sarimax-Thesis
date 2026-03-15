@@ -196,6 +196,7 @@ function DashboardPage() {
                             onFilterChange={setSelectedFilter}
                             applianceFilters={['All Appliances']}
                             customDatasets={null}
+                            showSlider={true}
                         />
                     </div>
 

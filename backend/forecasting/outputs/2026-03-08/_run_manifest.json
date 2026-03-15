@@ -1,0 +1,63 @@
+{
+  "generated_at": "2026-03-15T23:51:28.101309",
+  "forecast_date": "2026-03-08",
+  "config": {
+    "horizon": 24,
+    "tariff": 11.5,
+    "budget": 200.0
+  },
+  "ok": 3,
+  "failed": 0,
+  "results": [
+    {
+      "appliance": "aircon",
+      "status": "ok",
+      "last_actual_ts": "2026-03-07 15:50:00",
+      "forecast_start": "2026-03-08 00:00:00",
+      "forecast_end": "2026-03-08 23:00:00",
+      "total_kwh": 9.837206,
+      "total_cost_php": 113.1279,
+      "n_rows": 24
+    },
+    {
+      "appliance": "electric_fan",
+      "status": "ok",
+      "last_actual_ts": "2026-03-07 15:50:00",
+      "forecast_start": "2026-03-08 00:00:00",
+      "forecast_end": "2026-03-08 23:00:00",
+      "total_kwh": 1.203101,
+      "total_cost_php": 13.8357,
+      "n_rows": 24
+    },
+    {
+      "appliance": "refrigerator",
+      "status": "ok",
+      "last_actual_ts": "2026-03-07 15:50:00",
+      "forecast_start": "2026-03-08 00:00:00",
+      "forecast_end": "2026-03-08 23:00:00",
+      "total_kwh": 5.349728,
+      "total_cost_php": 61.5219,
+      "n_rows": 24
+    }
+  ],
+  "failures": [],
+  "recommendation": {
+    "forecast_date": "2026-03-08",
+    "daily_budget_php": 200.0,
+    "predicted_cost_php": 188.4855,
+    "budget_remaining": 11.5145,
+    "budget_utilization": 0.9424,
+    "status": "warning",
+    "messages": [
+      "\u26a0\ufe0f Approaching daily budget limit. Predicted cost \u20b1188.49 (\u226590 % of \u20b1200.00).",
+      "\ud83d\udcca Highest usage: Aircon (\u20b1113.13, 60% of predicted daily spend).",
+      "\ud83d\udca1 Consider reducing aircon runtime during peak hours: 00:00, 22:00, 04:00, 14:00. This could save \u20b118.93.",
+      "\ud83d\udca1 Tips: limit high-draw appliances during 13:00\u201317:00 peak rate hours; set aircon to 25\u00b0C instead of 22\u00b0C; unplug standby devices overnight."
+    ],
+    "appliance_breakdown": {
+      "aircon": 113.1279,
+      "electric_fan": 13.8357,
+      "refrigerator": 61.5219
+    }
+  }
+}

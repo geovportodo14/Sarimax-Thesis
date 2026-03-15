@@ -17,12 +17,20 @@ import requests
 log = logging.getLogger("sarimax_pipeline.weather")
 
 # Open-Meteo free endpoint (no API key required)
-_OPEN_METEO_URL = (
+_FORECAST_URL = (
     "https://api.open-meteo.com/v1/forecast"
     "?latitude={lat}&longitude={lon}"
     "&hourly=temperature_2m,relativehumidity_2m,precipitation"
     "&timezone=Asia%2FManila"
     "&forecast_days=2"
+)
+
+_ARCHIVE_URL = (
+    "https://archive-api.open-meteo.com/v1/archive"
+    "?latitude={lat}&longitude={lon}"
+    "&start_date={date}&end_date={date}"
+    "&hourly=temperature_2m,relative_humidity_2m,precipitation"
+    "&timezone=Asia%2FManila"
 )
 
 
@@ -40,8 +48,14 @@ def fetch_weather_forecast(
 
     Returns None on any network/parse error (caller must handle gracefully).
     """
-    url = _OPEN_METEO_URL.format(lat=lat, lon=lon)
-    log.info("Fetching weather from Open-Meteo: lat=%s lon=%s", lat, lon)
+    today = date.today()
+    
+    if target_date < today:
+        log.info("Target date %s is in the past; fetching from Archive API.", target_date)
+        url = _ARCHIVE_URL.format(lat=lat, lon=lon, date=target_date)
+    else:
+        log.info("Target date %s is today/future; fetching from Forecast API.", target_date)
+        url = _FORECAST_URL.format(lat=lat, lon=lon)
 
     try:
         resp = requests.get(url, timeout=timeout)
@@ -53,10 +67,13 @@ def fetch_weather_forecast(
 
     try:
         hourly = data["hourly"]
+        # Archive API uses 'relative_humidity_2m', Forecast API uses 'relativehumidity_2m'
+        hum_key = "relative_humidity_2m" if "relative_humidity_2m" in hourly else "relativehumidity_2m"
+        
         df = pd.DataFrame({
             "timestamp":   pd.to_datetime(hourly["time"]),
             "temperature": hourly["temperature_2m"],
-            "humidity":    hourly["relativehumidity_2m"],
+            "humidity":    hourly[hum_key],
             "rainfall":    hourly["precipitation"],
         })
         df = df.set_index("timestamp")
@@ -68,8 +85,7 @@ def fetch_weather_forecast(
 
         if len(df) != 24:
             log.warning(
-                "Expected 24 weather rows for %s, got %d. "
-                "Rows outside the target date will be forward-filled.",
+                "Expected 24 weather rows for %s, got %d.",
                 target_date, len(df),
             )
 

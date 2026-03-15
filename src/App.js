@@ -662,6 +662,7 @@ function DashboardContent() {
                       forecastData={appData.forecast}
                       height={220}
                       unit="kWh"
+                      showSlider={true}
                       extraAction={
                         <div className="text-right">
                           <p className="text-heading-sm font-bold text-surface-900 tabular-nums">{appData.kwh.toFixed(2)} kWh</p>
