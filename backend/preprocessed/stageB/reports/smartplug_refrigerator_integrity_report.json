@@ -1,0 +1,55 @@
+{
+  "appliance": "refrigerator",
+  "n_rows": 8974,
+  "time_min": "2026-01-03 19:00:00+08:00",
+  "time_max": "2026-03-07 04:20:00+08:00",
+  "devices": 2,
+  "flag_counts": {
+    "flag_schema_missing_column": 0,
+    "flag_timestamp_parse_error": 0,
+    "flag_type_coercion_issue": 0,
+    "flag_interval_not_600": 11,
+    "flag_timestamp_missing": 0,
+    "flag_pf_missing_skip_physics_check": 0,
+    "flag_power_dev_gt_5pct": 19,
+    "flag_power_replaced_with_pcalc": 19,
+    "flag_voltage_out_of_range": 37,
+    "flag_current_out_of_range": 1025,
+    "flag_power_out_of_range": 0,
+    "flag_pf_out_of_range": 2787,
+    "flag_kwh_negative": 0,
+    "flag_kwh_decrease_reset_suspect": 471,
+    "flag_pf_calc_out_of_range": 4392,
+    "flag_pf_diverges_from_pf": 0,
+    "flag_zero_current_nonzero_power": 0,
+    "flag_power_ground_truth_assumed": 0
+  },
+  "missing_timestamps": {
+    "expected_interval_seconds": 600,
+    "n_devices": 2,
+    "gap_summary_overall": {
+      "n_gaps": 11,
+      "missing_intervals_total": 11,
+      "largest_gap_seconds": 1200.0
+    },
+    "gap_summary_by_device": [
+      {
+        "device_id": "a3986d20c19f33c7c107fw",
+        "n_gaps": 11,
+        "missing_intervals_total": 11,
+        "largest_gap_seconds": 1200.0
+      }
+    ]
+  },
+  "plots": {
+    "directory": "for_data\\preprocessed\\stageB\\plots",
+    "files": [
+      "refrigerator_power_vs_time.png",
+      "refrigerator_voltage_vs_time.png",
+      "refrigerator_current_vs_time.png",
+      "refrigerator_pf_vs_time.png",
+      "refrigerator_kwh_total_vs_time.png",
+      "refrigerator_energy_vs_time.png"
+    ]
+  }
+}

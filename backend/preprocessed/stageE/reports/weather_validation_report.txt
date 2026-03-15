@@ -1,0 +1,8 @@
+rows_in: 10661
+rows_hour_grid: 10661
+range_invalid_temp: 0
+range_invalid_humidity: 0
+range_invalid_rainfall: 0
+temporal_flags_temp: 13
+temporal_flags_humidity: 51
+remaining_nas: {'temperature': 0, 'humidity': 0, 'rainfall': 0}

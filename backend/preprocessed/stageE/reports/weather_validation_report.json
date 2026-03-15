@@ -1,0 +1,28 @@
+{
+  "stage": "3.3.3",
+  "component": "weather_validation",
+  "input_path": "for_data/preprocessed/stageA/weather/weather_combined_data.csv",
+  "output_path": "for_data/preprocessed/stageE/weather\\weather_hourly_validated.csv",
+  "plots_dir": "for_data/preprocessed/stageE/plots/weather",
+  "summary": {
+    "rows_in": 10661,
+    "rows_hour_grid": 10661,
+    "range_invalid_temp": 0,
+    "range_invalid_humidity": 0,
+    "range_invalid_rainfall": 0,
+    "temporal_flags_temp": 13,
+    "temporal_flags_humidity": 51,
+    "remaining_nas": {
+      "temperature": 0,
+      "humidity": 0,
+      "rainfall": 0
+    }
+  },
+  "plots_generated": [
+    "weather_temperature_validated.png",
+    "weather_humidity_validated.png",
+    "weather_rainfall_validated.png",
+    "weather_temperature_before_after.png",
+    "weather_humidity_before_after.png"
+  ]
+}

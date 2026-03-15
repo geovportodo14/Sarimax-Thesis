@@ -1,0 +1,596 @@
+{
+  "appliance": "aircon",
+  "n_rows": 8985,
+  "time_min": "2026-01-03 19:00:00+08:00",
+  "time_max": "2026-03-07 04:20:00+08:00",
+  "devices": 1,
+  "flag_counts": {
+    "flag_imputed_timestamp": 8,
+    "flag_reset_kwh_decrease": 93,
+    "flag_kwh_missing": 0,
+    "flag_dt_missing_or_zero": 1,
+    "flag_fallback_unavailable": 0,
+    "flag_hybrid_used_fallback": 3611,
+    "flag_hybrid_interval_diff_gt_10pct": 3519,
+    "flag_kwh_freeze_suspect": 1022,
+    "flag_zero_current_nonzero_power": 3,
+    "flag_minor_gap_interp": 0,
+    "flag_long_gap_no_interp": 0,
+    "flag_outlier_voltage": 216,
+    "flag_outlier_current": 185,
+    "flag_outlier_power": 59,
+    "flag_outlier_replaced": 385,
+    "flag_daily_net_missing_or_zero": 1296,
+    "flag_daily_dev_gt_5pct": 2475
+  },
+  "energy_source_counts": {
+    "interval": 3897,
+    "fallback": 3584,
+    "off": 1504
+  },
+  "timestamp_continuity": {
+    "before_fill": {
+      "expected_interval_seconds": 600,
+      "minor_gap_max_minutes": 20,
+      "n_devices": 1,
+      "n_missing_timestamps": 8,
+      "n_minor_gap_missing_timestamps": 8,
+      "n_long_gap_missing_timestamps": 0,
+      "largest_gap_seconds": 1200.0,
+      "export_csv": "for_data\\preprocessed\\stageC\\reports\\smartplug_aircon_missing_timestamps_before_fill.csv"
+    },
+    "after_fill": {
+      "expected_interval_seconds": 600,
+      "minor_gap_max_minutes": 20,
+      "n_devices": 1,
+      "n_missing_timestamps": 0,
+      "n_minor_gap_missing_timestamps": 0,
+      "n_long_gap_missing_timestamps": 0,
+      "largest_gap_seconds": null,
+      "export_csv": "for_data\\preprocessed\\stageC\\reports\\smartplug_aircon_missing_timestamps_after_fill.csv"
+    }
+  },
+  "timestamp_continuity_fill_summary": {
+    "inserted_rows_total": 8,
+    "inserted_rows_by_device_top10": {
+      "a3ed2fe218a724b4fepeni": 8
+    },
+    "minor_gap_max_minutes": 20,
+    "expected_interval_seconds": 600
+  },
+  "daily_consistency": {
+    "daily_consistency_tolerance_pct": 5.0,
+    "n_device_days": 64,
+    "device_day_rows": [
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-03",
+        "daily_total_kwh": 2.0469916666666665,
+        "daily_cum_net_kwh": 2.09,
+        "daily_dev_pct": -2.0578149920255173,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-04",
+        "daily_total_kwh": 4.615316666666667,
+        "daily_cum_net_kwh": 4.58,
+        "daily_dev_pct": 0.7711062590975254,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-05",
+        "daily_total_kwh": 4.5765666666666664,
+        "daily_cum_net_kwh": 4.5200000000000005,
+        "daily_dev_pct": 1.2514749262536722,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-06",
+        "daily_total_kwh": 4.0755083333333335,
+        "daily_cum_net_kwh": 4.010000000000001,
+        "daily_dev_pct": 1.6336242726516914,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-07",
+        "daily_total_kwh": 3.3137083333333335,
+        "daily_cum_net_kwh": 3.18,
+        "daily_dev_pct": 4.204664570230608,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-08",
+        "daily_total_kwh": 3.8644958333333332,
+        "daily_cum_net_kwh": 3.8,
+        "daily_dev_pct": 1.6972587719298267,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-09",
+        "daily_total_kwh": 3.670254166666666,
+        "daily_cum_net_kwh": 3.6,
+        "daily_dev_pct": 1.9515046296296128,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-10",
+        "daily_total_kwh": 4.291620833333333,
+        "daily_cum_net_kwh": 4.21,
+        "daily_dev_pct": 1.9387371338083856,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-11",
+        "daily_total_kwh": 4.6613,
+        "daily_cum_net_kwh": 4.640000000000001,
+        "daily_dev_pct": 0.45905172413791395,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-12",
+        "daily_total_kwh": 4.0915875,
+        "daily_cum_net_kwh": 3.9899999999999998,
+        "daily_dev_pct": 2.546052631578957,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-13",
+        "daily_total_kwh": 4.970624999999999,
+        "daily_cum_net_kwh": 4.94,
+        "daily_dev_pct": 0.6199392712550362,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-14",
+        "daily_total_kwh": 5.314541666666666,
+        "daily_cum_net_kwh": 5.25,
+        "daily_dev_pct": 1.2293650793650677,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-15",
+        "daily_total_kwh": 4.651108333333334,
+        "daily_cum_net_kwh": 4.6000000000000005,
+        "daily_dev_pct": 1.1110507246376853,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-16",
+        "daily_total_kwh": 4.173508333333334,
+        "daily_cum_net_kwh": 4.1000000000000005,
+        "daily_dev_pct": 1.792886178861798,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-17",
+        "daily_total_kwh": 4.527191666666667,
+        "daily_cum_net_kwh": 4.44,
+        "daily_dev_pct": 1.9637762762762734,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-18",
+        "daily_total_kwh": 5.0003833333333345,
+        "daily_cum_net_kwh": 5.010000000000001,
+        "daily_dev_pct": -0.19194943446439444,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-19",
+        "daily_total_kwh": 4.343512499999999,
+        "daily_cum_net_kwh": 4.25,
+        "daily_dev_pct": 2.2002941176470405,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-20",
+        "daily_total_kwh": 4.501216666666667,
+        "daily_cum_net_kwh": 4.45,
+        "daily_dev_pct": 1.1509363295880204,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-21",
+        "daily_total_kwh": 4.9407375,
+        "daily_cum_net_kwh": 4.82,
+        "daily_dev_pct": 2.50492738589211,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-22",
+        "daily_total_kwh": 3.7732999999999994,
+        "daily_cum_net_kwh": 3.7399999999999998,
+        "daily_dev_pct": 0.8903743315507933,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-23",
+        "daily_total_kwh": 3.9345625,
+        "daily_cum_net_kwh": 3.83,
+        "daily_dev_pct": 2.730091383812013,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-24",
+        "daily_total_kwh": 3.4263999999999997,
+        "daily_cum_net_kwh": 3.3800000000000003,
+        "daily_dev_pct": 1.3727810650887375,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-25",
+        "daily_total_kwh": 4.8246166666666666,
+        "daily_cum_net_kwh": 4.7700000000000005,
+        "daily_dev_pct": 1.1450034940600857,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-26",
+        "daily_total_kwh": 4.623225,
+        "daily_cum_net_kwh": 4.62,
+        "daily_dev_pct": 0.0698051948051859,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-27",
+        "daily_total_kwh": 4.141391666666667,
+        "daily_cum_net_kwh": 4.1000000000000005,
+        "daily_dev_pct": 1.0095528455284564,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-28",
+        "daily_total_kwh": 3.4894500000000006,
+        "daily_cum_net_kwh": 3.42,
+        "daily_dev_pct": 2.0307017543859844,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-29",
+        "daily_total_kwh": 3.900983333333334,
+        "daily_cum_net_kwh": 3.8400000000000003,
+        "daily_dev_pct": 1.588107638888896,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-30",
+        "daily_total_kwh": 4.056229166666666,
+        "daily_cum_net_kwh": 4.0200000000000005,
+        "daily_dev_pct": 0.9012230514095986,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-01-31",
+        "daily_total_kwh": 4.755029166666667,
+        "daily_cum_net_kwh": 4.66,
+        "daily_dev_pct": 2.0392525035765345,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-01",
+        "daily_total_kwh": 4.052970833333333,
+        "daily_cum_net_kwh": 3.97,
+        "daily_dev_pct": 2.0899454240134254,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-02",
+        "daily_total_kwh": 4.245245833333333,
+        "daily_cum_net_kwh": 4.1899999999999995,
+        "daily_dev_pct": 1.3185163086714373,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-03",
+        "daily_total_kwh": 4.568604166666666,
+        "daily_cum_net_kwh": 4.44,
+        "daily_dev_pct": 2.896490240240214,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-04",
+        "daily_total_kwh": 3.542504166666667,
+        "daily_cum_net_kwh": 3.5300000000000002,
+        "daily_dev_pct": 0.3542256846081172,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-05",
+        "daily_total_kwh": 3.0737083333333337,
+        "daily_cum_net_kwh": 2.98,
+        "daily_dev_pct": 3.1445749440716013,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-06",
+        "daily_total_kwh": 1.9908755833333334,
+        "daily_cum_net_kwh": 1.99,
+        "daily_dev_pct": 0.04399916247906402,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-07",
+        "daily_total_kwh": 0.0,
+        "daily_cum_net_kwh": 0.0,
+        "daily_dev_pct": null,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-08",
+        "daily_total_kwh": 0.0,
+        "daily_cum_net_kwh": 0.0,
+        "daily_dev_pct": null,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-09",
+        "daily_total_kwh": 0.0,
+        "daily_cum_net_kwh": 0.0,
+        "daily_dev_pct": null,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-10",
+        "daily_total_kwh": 0.0,
+        "daily_cum_net_kwh": 0.0,
+        "daily_dev_pct": null,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-11",
+        "daily_total_kwh": 0.0,
+        "daily_cum_net_kwh": 0.0,
+        "daily_dev_pct": null,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-12",
+        "daily_total_kwh": 0.0,
+        "daily_cum_net_kwh": 0.0,
+        "daily_dev_pct": null,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-13",
+        "daily_total_kwh": 0.0,
+        "daily_cum_net_kwh": 0.0,
+        "daily_dev_pct": null,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-14",
+        "daily_total_kwh": 0.0,
+        "daily_cum_net_kwh": 0.0,
+        "daily_dev_pct": null,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-15",
+        "daily_total_kwh": 0.0,
+        "daily_cum_net_kwh": 0.0,
+        "daily_dev_pct": null,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-16",
+        "daily_total_kwh": 2.914458333333333,
+        "daily_cum_net_kwh": 3.02,
+        "daily_dev_pct": -3.4947571743929426,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-17",
+        "daily_total_kwh": 4.873583333333333,
+        "daily_cum_net_kwh": 4.859999999999999,
+        "daily_dev_pct": 0.279492455418394,
+        "flag_daily_dev_gt_5pct": false
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-18",
+        "daily_total_kwh": 3.0812,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 211.2323232323232,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-19",
+        "daily_total_kwh": 3.779675,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 281.7853535353535,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-20",
+        "daily_total_kwh": 4.218891666666667,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 326.15067340067344,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-21",
+        "daily_total_kwh": 4.553358333333334,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 359.9351851851852,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-22",
+        "daily_total_kwh": 3.8656,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 290.4646464646465,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-23",
+        "daily_total_kwh": 3.882425,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 292.1641414141414,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-24",
+        "daily_total_kwh": 3.457491666666667,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 249.24158249158248,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-25",
+        "daily_total_kwh": 4.338725,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 338.2550505050505,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-26",
+        "daily_total_kwh": 3.1136333333333335,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 214.5084175084175,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-27",
+        "daily_total_kwh": 3.0319333333333334,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 206.25589225589226,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-02-28",
+        "daily_total_kwh": 2.7879,
+        "daily_cum_net_kwh": 0.73,
+        "daily_dev_pct": 281.9041095890411,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-03-01",
+        "daily_total_kwh": 2.9031833333333332,
+        "daily_cum_net_kwh": -0.73,
+        "daily_dev_pct": -497.69634703196346,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-03-02",
+        "daily_total_kwh": 1.4807833333333333,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 49.574074074074076,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-03-03",
+        "daily_total_kwh": 3.7449916666666665,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 278.2819865319865,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-03-04",
+        "daily_total_kwh": 3.495033333333333,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 253.03367003367003,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-03-05",
+        "daily_total_kwh": 3.54015,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 257.5909090909091,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-03-06",
+        "daily_total_kwh": 3.4163,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 245.0808080808081,
+        "flag_daily_dev_gt_5pct": true
+      },
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "day": "2026-03-07",
+        "daily_total_kwh": 2.245975,
+        "daily_cum_net_kwh": 0.99,
+        "daily_dev_pct": 126.86616161616162,
+        "flag_daily_dev_gt_5pct": true
+      }
+    ]
+  },
+  "power_energy_validation": {
+    "rule": "expected_power_w = energy_final * 6 * 1000 (for 10-min intervals)",
+    "all_valid_rows": {
+      "n": 5837,
+      "mean": 1.0009521496528264,
+      "median": 1.0,
+      "p05": 0.8551954923383495,
+      "p95": 1.1214255631408447
+    },
+    "interval_only_rows": {
+      "n": 2281,
+      "mean": 0.9936316578817128,
+      "median": 0.9916666666666667,
+      "p05": 0.9187500000000017,
+      "p95": 1.0900000000000234
+    }
+  }
+}

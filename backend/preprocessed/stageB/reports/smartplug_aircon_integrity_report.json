@@ -1,0 +1,55 @@
+{
+  "appliance": "aircon",
+  "n_rows": 8977,
+  "time_min": "2026-01-03 19:00:00+08:00",
+  "time_max": "2026-03-07 04:20:00+08:00",
+  "devices": 1,
+  "flag_counts": {
+    "flag_schema_missing_column": 0,
+    "flag_timestamp_parse_error": 0,
+    "flag_type_coercion_issue": 0,
+    "flag_interval_not_600": 8,
+    "flag_timestamp_missing": 0,
+    "flag_pf_missing_skip_physics_check": 3,
+    "flag_power_dev_gt_5pct": 1,
+    "flag_power_replaced_with_pcalc": 1,
+    "flag_voltage_out_of_range": 137,
+    "flag_current_out_of_range": 1664,
+    "flag_power_out_of_range": 0,
+    "flag_pf_out_of_range": 3166,
+    "flag_kwh_negative": 0,
+    "flag_kwh_decrease_reset_suspect": 93,
+    "flag_pf_calc_out_of_range": 2544,
+    "flag_pf_diverges_from_pf": 0,
+    "flag_zero_current_nonzero_power": 3,
+    "flag_power_ground_truth_assumed": 0
+  },
+  "missing_timestamps": {
+    "expected_interval_seconds": 600,
+    "n_devices": 1,
+    "gap_summary_overall": {
+      "n_gaps": 8,
+      "missing_intervals_total": 8,
+      "largest_gap_seconds": 1200.0
+    },
+    "gap_summary_by_device": [
+      {
+        "device_id": "a3ed2fe218a724b4fepeni",
+        "n_gaps": 8,
+        "missing_intervals_total": 8,
+        "largest_gap_seconds": 1200.0
+      }
+    ]
+  },
+  "plots": {
+    "directory": "for_data\\preprocessed\\stageB\\plots",
+    "files": [
+      "aircon_power_vs_time.png",
+      "aircon_voltage_vs_time.png",
+      "aircon_current_vs_time.png",
+      "aircon_pf_vs_time.png",
+      "aircon_kwh_total_vs_time.png",
+      "aircon_energy_vs_time.png"
+    ]
+  }
+}

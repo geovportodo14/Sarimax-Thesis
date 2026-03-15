@@ -1,0 +1,32 @@
+{
+  "smartplug": {
+    "rows": 7405,
+    "devices": [
+      "aircon",
+      "electric_fan",
+      "refrigerator"
+    ],
+    "time_min": "2026-02-18 00:00:00",
+    "time_max": "2026-03-07 04:20:00",
+    "missing_rates": {
+      "voltage_v": 0.0001350438892640108,
+      "current_a": 0.0004051316677920324,
+      "power_w": 0.0004051316677920324,
+      "kwh_total": 0.0004051316677920324
+    },
+    "pf_diagnostics": {
+      "pf_out_of_bounds_rate": 0.03457123565158676,
+      "zero_current_nonzero_power_rate": 0.0
+    }
+  },
+  "weather": {
+    "rows": 413,
+    "time_min": "2026-02-18 00:00:00",
+    "time_max": "2026-03-07 04:00:00",
+    "missing_rates": {
+      "temperature": 0.0,
+      "humidity": 0.0,
+      "rainfall": 0.0
+    }
+  }
+}

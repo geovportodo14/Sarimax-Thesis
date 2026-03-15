@@ -1,0 +1,39 @@
+{
+  "stage": "3.3.3",
+  "component": "smartplug_hourly_aggregation_and_features",
+  "appliance": "all_appliances",
+  "input_path": "for_data/preprocessed/stageD/sarimax/cleaned\\smartplug_all_appliances.csv",
+  "output_path": "for_data/preprocessed/stageE/smartplug\\smartplug_all_appliances.csv",
+  "plots_dir": "for_data/preprocessed/stageE/plots/smartplug",
+  "stepA_hourly_resampling_reconciliation": {
+    "rows_in": 26955,
+    "hours_out": 4494,
+    "flagged_hours_gt_5pct": 2070,
+    "adjusted_hours": 2070
+  },
+  "stepC_features_created": [
+    "hour_of_day",
+    "day_of_week",
+    "is_weekend",
+    "lag_24",
+    "lag_168",
+    "rolling_mean_24",
+    "rolling_mean_168"
+  ],
+  "plots_generated": [
+    "all_appliances_energy_hourly_vs_time.png",
+    "all_appliances_power_hourly_vs_time.png",
+    "all_appliances_reconciliation_compare.png",
+    "all_appliances_reconciliation_deviation.png",
+    "all_appliances_daily_total_energy.png",
+    "all_appliances_hourly_profile.png",
+    "all_appliances_day_of_week_profile.png",
+    "all_appliances_weekday_weekend_profile.png"
+  ],
+  "output_summary": {
+    "rows_final": 4494,
+    "time_min": "2026-01-03 19:00:00+08:00",
+    "time_max": "2026-03-07 04:00:00+08:00",
+    "device_count": 3
+  }
+}

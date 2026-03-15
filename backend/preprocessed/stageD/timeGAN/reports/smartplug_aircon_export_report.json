@@ -1,0 +1,40 @@
+{
+  "file": "smartplug_aircon.csv",
+  "input_path": "for_data\\preprocessed\\stageC\\smartplug\\smartplug_aircon.csv",
+  "outputs": {
+    "timeGAN_csv": "for_data\\preprocessed\\stageD\\timeGAN\\cleaned\\smartplug_aircon.csv",
+    "sarimax_csv": "for_data\\preprocessed\\stageD\\sarimax\\cleaned\\smartplug_aircon.csv"
+  },
+  "row_counts": {
+    "input": 8985,
+    "timeGAN": 8985,
+    "sarimax": 8985
+  },
+  "time_range": {
+    "time_min": "2026-01-03 19:00:00+08:00",
+    "time_max": "2026-03-07 04:20:00+08:00",
+    "timestamp_parse_na": 0
+  },
+  "columns": {
+    "timeGAN": [
+      "timestamp",
+      "device",
+      "device_id",
+      "switch",
+      "voltage_v",
+      "current_a",
+      "power_w",
+      "kwh_total",
+      "energy_final",
+      "pf"
+    ],
+    "sarimax": [
+      "timestamp",
+      "device",
+      "device_id",
+      "power_w",
+      "kwh_total",
+      "energy_final"
+    ]
+  }
+}

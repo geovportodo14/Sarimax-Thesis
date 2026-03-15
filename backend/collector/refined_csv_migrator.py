@@ -7,6 +7,7 @@ from datetime import datetime, time, timedelta
 import pytz
 from dotenv import load_dotenv
 
+from pathlib import Path
 from storage.db_client import MongoDBClient
 from utils.preprocessor import DataPreprocessor
 
@@ -14,11 +15,11 @@ from utils.preprocessor import DataPreprocessor
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-load_dotenv()
-
 # Configuration
+repo_root = Path(__file__).resolve().parents[2]
+load_dotenv(repo_root / ".env")
 MONGODB_URI = os.getenv("MONGODB_URI")
-DATABASE_NAME = os.getenv("DATABASE_NAME", "sarimax_thesis")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "Sarimax-Thesis")
 MANILA_TZ = pytz.timezone("Asia/Manila")
 
 DEVICES = {
@@ -138,7 +139,7 @@ class RefinedCSVMigrator:
                             "weather": {
                                 "temp": float(row['temp_C']) if row['temp_C'] else None,
                                 "humidity": float(row['humidity']) if row['humidity'] else None,
-                                "pressure": float(row['pressure']) if row['pressure'] else None
+                                "rainfall": float(row['rainfall']) if row.get('rainfall') else float(row.get('pressure')) if row.get('pressure') else None
                             }
                         }
                     device_readings[device_name][ts_str]["raw"][row['property']] = row['value']
@@ -223,7 +224,7 @@ class RefinedCSVMigrator:
                             "is_active": p["is_active"],
                             "total_kwh_accumulated": round(accumulated_kwh, 3)
                         },
-                        "weather": {"temp": None, "humidity": None, "pressure": None},
+                        "weather": {"temp": None, "humidity": None, "rainfall": None},
                         "processed_at": datetime.now()
                     }
                 daily_readings.append(reading)

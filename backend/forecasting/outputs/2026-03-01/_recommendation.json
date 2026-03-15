@@ -1,0 +1,15 @@
+{
+  "forecast_date": "2026-03-01",
+  "daily_budget_php": 200.0,
+  "predicted_cost_php": 0.0687,
+  "budget_remaining": 199.9313,
+  "budget_utilization": 0.0003,
+  "status": "within_budget",
+  "messages": [
+    "\u2705 Expected to stay within budget. Predicted cost \u20b10.07 vs. budget \u20b1200.00.",
+    "\ud83d\udcca Highest usage: Aircon (\u20b10.07, 100% of predicted daily spend)."
+  ],
+  "appliance_breakdown": {
+    "aircon": 0.0687
+  }
+}

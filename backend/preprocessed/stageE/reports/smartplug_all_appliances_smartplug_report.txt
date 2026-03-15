@@ -1,0 +1,22 @@
+Stage D Smartplug Report
+input: for_data/preprocessed/stageD/sarimax/cleaned\smartplug_all_appliances.csv
+output: for_data/preprocessed/stageE/smartplug\smartplug_all_appliances.csv
+
+STEP A (Hourly Resampling + Reconciliation)
+rows_in: 26960
+hours_out: 4494
+flagged_hours(>5%): 1440
+adjusted_hours: 1440
+
+STEP C (Features): created hour_of_day, day_of_week, is_weekend, lags, rolling means (NO is_holiday).
+
+PLOTS GENERATED
+smartplug_plots_dir: for_data/preprocessed/stageE/plots/smartplug
+- hourly energy vs time
+- hourly power vs time
+- reconciliation comparison
+- reconciliation deviation
+- daily total energy
+- hour-of-day profile
+- day-of-week profile
+- weekday vs weekend profile

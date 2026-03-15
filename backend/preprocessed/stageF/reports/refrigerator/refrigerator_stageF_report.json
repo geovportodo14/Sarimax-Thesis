@@ -1,0 +1,60 @@
+{
+  "appliance": "refrigerator",
+  "input_real_path": "for_data\\preprocessed\\stageE\\smartplug\\smartplug_refrigerator.csv",
+  "input_synthetic_path": "for_data\\synthetic\\stageG\\cleaned\\refrigerator_2024-12-19_to_2026-01-19_kwh10_scaled_stageD.csv",
+  "output_model_ready_path": "for_data\\preprocessed\\stageF\\model_ready\\refrigerator_final_hourly_with_weather.csv",
+  "synthetic_boundary_start": "2025-01-03 00:00:00",
+  "synthetic_boundary_end": "2026-01-02 23:00:00",
+  "real_boundary_start": "2026-01-03 00:00:00",
+  "synthetic_rows_used": 8760,
+  "real_rows_used": 1498,
+  "final_rows": 10258,
+  "final_start": "2025-01-03 00:00:00",
+  "final_end": "2026-03-07 04:00:00",
+  "weather_missing_count_before_enforcement": 0,
+  "missing_history_features": {
+    "lag_24": 24,
+    "lag_168": 168,
+    "rolling_mean_24": 23,
+    "rolling_mean_168": 167
+  },
+  "energy_summary": {
+    "count": 10258,
+    "min": 0.0,
+    "max": 0.82,
+    "mean": 0.03862551520536793,
+    "std": 0.04774175244645273,
+    "sum": 396.2205349766642,
+    "median": 0.032806164487182154
+  },
+  "power_summary": {
+    "count": 10258,
+    "min": 0.0,
+    "max": 226.7,
+    "mean": 34.711809470007175,
+    "std": 18.140861473667396,
+    "sum": 356073.7415433336,
+    "median": 32.8632399160479
+  },
+  "daily_energy_summary": {
+    "count": 429,
+    "min": 0.29497499999999943,
+    "max": 6.207699999999998,
+    "mean": 0.9235909906215949,
+    "std": 0.8013787857980494,
+    "sum": 396.2205349766642,
+    "median": 0.7787047977137003
+  },
+  "source_summary_before_weather_join": {
+    "synthetic": 8760,
+    "real": 1498
+  },
+  "boundary_check": {
+    "first_synthetic_ts_used": "2025-01-03 00:00:00",
+    "expected_first_synthetic": "2025-01-03 00:00:00",
+    "last_synthetic_ts_used": "2026-01-02 23:00:00",
+    "first_real_ts_used": "2026-01-03 19:00:00",
+    "expected_last_synthetic": "2026-01-02 23:00:00",
+    "expected_first_real": "2026-01-03 00:00:00"
+  }
+}

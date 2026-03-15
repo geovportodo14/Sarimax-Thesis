@@ -1,0 +1,60 @@
+{
+  "appliance": "electric_fan",
+  "input_real_path": "for_data\\preprocessed\\stageE\\smartplug\\smartplug_electric_fan.csv",
+  "input_synthetic_path": "for_data\\synthetic\\stageG\\cleaned\\electric_fan_2024-12-19_to_2026-01-19_kwh10_scaled_stageD.csv",
+  "output_model_ready_path": "for_data\\preprocessed\\stageF\\model_ready\\electric_fan_final_hourly_with_weather.csv",
+  "synthetic_boundary_start": "2025-01-03 00:00:00",
+  "synthetic_boundary_end": "2026-01-02 23:00:00",
+  "real_boundary_start": "2026-01-03 00:00:00",
+  "synthetic_rows_used": 8760,
+  "real_rows_used": 1498,
+  "final_rows": 10258,
+  "final_start": "2025-01-03 00:00:00",
+  "final_end": "2026-03-07 04:00:00",
+  "weather_missing_count_before_enforcement": 0,
+  "missing_history_features": {
+    "lag_24": 24,
+    "lag_168": 168,
+    "rolling_mean_24": 23,
+    "rolling_mean_168": 167
+  },
+  "energy_summary": {
+    "count": 10258,
+    "min": 0.0,
+    "max": 0.4499999999999999,
+    "mean": 0.0531307727127501,
+    "std": 0.04209189966435321,
+    "sum": 545.0154664873905,
+    "median": 0.04860188782318245
+  },
+  "power_summary": {
+    "count": 10258,
+    "min": 0.0,
+    "max": 453.31666666666666,
+    "mean": 53.004939317676566,
+    "std": 41.86405073012101,
+    "sum": 543724.6675207262,
+    "median": 48.24102940514754
+  },
+  "daily_energy_summary": {
+    "count": 429,
+    "min": 0.0,
+    "max": 4.488202905718736,
+    "mean": 1.2704323228144299,
+    "std": 0.80512751158682,
+    "sum": 545.0154664873904,
+    "median": 1.2011374999999984
+  },
+  "source_summary_before_weather_join": {
+    "synthetic": 8760,
+    "real": 1498
+  },
+  "boundary_check": {
+    "first_synthetic_ts_used": "2025-01-03 00:00:00",
+    "expected_first_synthetic": "2025-01-03 00:00:00",
+    "last_synthetic_ts_used": "2026-01-02 23:00:00",
+    "first_real_ts_used": "2026-01-03 19:00:00",
+    "expected_last_synthetic": "2026-01-02 23:00:00",
+    "expected_first_real": "2026-01-03 00:00:00"
+  }
+}

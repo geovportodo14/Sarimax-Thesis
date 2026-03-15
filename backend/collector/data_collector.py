@@ -23,7 +23,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Load config
-load_dotenv()
+from pathlib import Path
+repo_root = Path(__file__).resolve().parents[2]
+load_dotenv(repo_root / ".env")
 
 # Configuration (Hardcoded for reliability)
 ACCESS_ID = os.getenv("TUYA_ACCESS_ID", "trfs5ycjmhh4cs9sehnr")
@@ -31,7 +33,7 @@ ACCESS_SECRET = os.getenv("TUYA_ACCESS_SECRET", "367f3cd4abf8457a8116de9b2ed28f7
 ENDPOINT = os.getenv("TUYA_ENDPOINT", "https://openapi-sg.iotbing.com")
 WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 MONGODB_URI = os.getenv("MONGODB_URI")
-DATABASE_NAME = os.getenv("DATABASE_NAME", "sarimax_thesis")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "Sarimax-Thesis")
 ENABLE_INITIAL_BACKFILL = os.getenv("ENABLE_INITIAL_BACKFILL", "false").lower() == "true"
 
 DEVICES = {

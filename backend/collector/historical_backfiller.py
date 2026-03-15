@@ -5,7 +5,10 @@ import csv
 import time
 from datetime import datetime, time as dt_time, timedelta
 import pytz
+from pathlib import Path
 from dotenv import load_dotenv
+import requests
+import pandas as pd
 
 from tuya_client import TuyaClient
 from storage.db_client import MongoDBClient
@@ -18,14 +21,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-load_dotenv()
+# Load config
+repo_root = Path(__file__).resolve().parents[2]
+load_dotenv(repo_root / ".env")
 
 # Configuration (Hardcoded for reliability)
 ACCESS_ID = os.getenv("TUYA_ACCESS_ID", "trfs5ycjmhh4cs9sehnr")
 ACCESS_SECRET = os.getenv("TUYA_ACCESS_SECRET", "367f3cd4abf8457a8116de9b2ed28f70")
 ENDPOINT = os.getenv("TUYA_ENDPOINT", "https://openapi-sg.iotbing.com")
 MONGODB_URI = os.getenv("MONGODB_URI")
-DATABASE_NAME = os.getenv("DATABASE_NAME", "sarimax_thesis")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "Sarimax-Thesis")
 
 DEVICES = {
     "Aircon": "a3ed2fe218a724b4fepeni",
@@ -35,6 +40,32 @@ DEVICES = {
 
 MANILA_TZ = pytz.timezone("Asia/Manila")
 PROCESSED_DATA_DIR = "data/processed_data"
+
+def fetch_historical_weather(start_date, end_date):
+    """Fetch historical weather from Open-Meteo Archive API."""
+    url = (
+        "https://archive-api.open-meteo.com/v1/archive"
+        "?latitude=14.5995&longitude=120.9842"
+        f"&start_date={start_date}&end_date={end_date}"
+        "&hourly=temperature_2m,relative_humidity_2m,precipitation"
+        "&timezone=Asia%2FManila"
+    )
+    logger.info(f"Fetching historical weather from Open-Meteo: {start_date} to {end_date}")
+    try:
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+        hourly = data["hourly"]
+        df_weather = pd.DataFrame({
+            "timestamp": pd.to_datetime(hourly["time"]),
+            "temp": hourly["temperature_2m"],
+            "humidity": hourly["relative_humidity_2m"],
+            "rainfall": hourly["precipitation"]
+        })
+        return df_weather.set_index("timestamp")
+    except Exception as e:
+        logger.error(f"Failed to fetch historical weather: {e}")
+        return None
 
 class HistoricalBackfiller:
     def __init__(self, drop=False, export=False):
@@ -83,6 +114,9 @@ class HistoricalBackfiller:
     def process_day(self, date_obj):
         date_str = date_obj.strftime("%Y-%m-%d")
         logger.info(f"--- Processing Day: {date_str} ---")
+
+        # Fetch weather for the day
+        weather_df = fetch_historical_weather(date_str, date_str)
 
         for name, dev_id in DEVICES.items():
             if self.drop and self.db:
@@ -150,11 +184,21 @@ class HistoricalBackfiller:
                     "processed_data": processed
                 }
                 
+                # Weather lookup
+                weather_info = {"temp": None, "humidity": None, "rainfall": None}
+                if weather_df is not None:
+                    match_ts = pd.Timestamp(target_time.replace(tzinfo=None)).floor('h')
+                    if match_ts in weather_df.index:
+                        w_row = weather_df.loc[match_ts]
+                        weather_info = {
+                            "temp": float(w_row["temp"]),
+                            "humidity": int(w_row["humidity"]),
+                            "rainfall": float(w_row["rainfall"])
+                        }
+
                 if self.db:
-                    # We use a custom insert if we dropped data, or update if we didn't
-                    # To keep it simple, we store it via the db_client's method
                     self.db.store_reading(name, dev_id, target_time, reading["raw_data"], 
-                                         {"temp": None, "humidity": None, "pressure": None}, 
+                                         weather_info, 
                                          processed_data=processed)
                 
                 daily_readings.append(reading)
