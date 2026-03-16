@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
@@ -48,6 +48,7 @@ def generate_recommendations(
     tariff: float,
     daily_budget: float,
     forecast_date: str,
+    schedule_result: Optional[Dict[str, Any]] = None,
 ) -> BudgetRecommendation:
     """
     Parameters
@@ -130,6 +131,24 @@ def generate_recommendations(
             "💡 Tips: limit high-draw appliances during 13:00–17:00 peak rate hours; "
             "set aircon to 25°C instead of 22°C; unplug standby devices overnight."
         )
+
+    # ── Scheduling layer insights (MILP post-forecast optimizer) ────────────
+    if schedule_result:
+        savings = float(schedule_result.get("estimated_savings_php", 0.0) or 0.0)
+        opt_cost = float(schedule_result.get("optimized_total_cost_php", total_cost) or total_cost)
+        peak_reduction = float(schedule_result.get("peak_reduction_kwh", 0.0) or 0.0)
+        summary = schedule_result.get("optimization_summary", {}) or {}
+        top_actions = summary.get("top_actions", []) if isinstance(summary, dict) else []
+
+        if savings > 0:
+            messages.append(
+                f"🧠 Optimized schedule estimate: save ₱{savings:.2f} "
+                f"(from ₱{total_cost:.2f} to ₱{opt_cost:.2f})."
+            )
+        if peak_reduction > 0:
+            messages.append(f"📉 Peak-hour load reduction estimate: {peak_reduction:.3f} kWh.")
+        if top_actions:
+            messages.append(f"🕒 Top scheduling action: {top_actions[0]}")
 
     log.info(
         "[Recommender] date=%s | cost=₱%.2f | budget=₱%.2f | status=%s",

@@ -1,7 +1,7 @@
 {
   "appliance": "aircon_final_hourly_with_weather",
-  "input_file": "data\\aircon_final_hourly_with_weather.csv",
-  "timestamp": "2026-03-11T10:03:41.960377",
+  "input_file": "data/aircon_final_hourly_with_weather.csv",
+  "timestamp": "2026-03-16T13:03:16.991126",
   "basic": {
     "n_rows": 10372,
     "n_cols": 14,
@@ -96,11 +96,7 @@
         "na_count_in_na_rows": 0
       },
       {
-        "column": "sin_hour",
-        "na_count_in_na_rows": 0
-      },
-      {
-        "column": "rainfall",
+        "column": "temperature",
         "na_count_in_na_rows": 0
       },
       {
@@ -108,15 +104,15 @@
         "na_count_in_na_rows": 0
       },
       {
-        "column": "temperature",
+        "column": "rainfall",
         "na_count_in_na_rows": 0
       },
       {
-        "column": "is_weekend",
+        "column": "sin_hour",
         "na_count_in_na_rows": 0
       },
       {
-        "column": "cos_day_of_week",
+        "column": "cos_hour",
         "na_count_in_na_rows": 0
       },
       {
@@ -124,7 +120,11 @@
         "na_count_in_na_rows": 0
       },
       {
-        "column": "cos_hour",
+        "column": "cos_day_of_week",
+        "na_count_in_na_rows": 0
+      },
+      {
+        "column": "is_weekend",
         "na_count_in_na_rows": 0
       }
     ]
@@ -173,6 +173,6 @@
     "saved": true,
     "na_rows": 168,
     "sample_rows_saved": 168,
-    "path": "model\\pre_model\\aircon_final_hourly_with_weather_na_rows_sample.csv"
+    "path": "model/pre_model/aircon_final_hourly_with_weather_na_rows_sample.csv"
   }
 }

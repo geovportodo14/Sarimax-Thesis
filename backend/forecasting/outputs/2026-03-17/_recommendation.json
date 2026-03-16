@@ -1,0 +1,20 @@
+{
+  "forecast_date": "2026-03-17",
+  "daily_budget_php": 200.0,
+  "predicted_cost_php": 70.2786,
+  "budget_remaining": 129.7214,
+  "budget_utilization": 0.3514,
+  "status": "within_budget",
+  "messages": [
+    "\u2705 Expected to stay within budget. Predicted cost \u20b170.28 vs. budget \u20b1200.00.",
+    "\ud83d\udcca Highest usage: Refrigerator (\u20b142.99, 61% of predicted daily spend).",
+    "\ud83e\udde0 Optimized schedule estimate: save \u20b10.47 (from \u20b170.28 to \u20b166.35).",
+    "\ud83d\udcc9 Peak-hour load reduction estimate: 0.018 kWh.",
+    "\ud83d\udd52 Top scheduling action: Reduce aircon around 21:00 (high-cost slot)."
+  ],
+  "appliance_breakdown": {
+    "aircon": 22.5505,
+    "electric_fan": 4.7398,
+    "refrigerator": 42.9883
+  }
+}

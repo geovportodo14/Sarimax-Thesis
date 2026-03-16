@@ -13,8 +13,12 @@ const ForecastSchema = new mongoose.Schema({
     },
     forecast_date: { type: String, required: true, index: true }, // YYYY-MM-DD
     timestamp: { type: String, required: true }, // HH:00
-    predicted_kwh: { type: Number, required: true },
-    cost_php: { type: Number, required: true },
+    hour: { type: Number },
+    timestamp_dt: { type: Date },
+    predicted_kwh: { type: Number },
+    predicted_energy: { type: Number },
+    cost_php: { type: Number },
+    predicted_cost: { type: Number },
     generated_at: { type: Date, default: Date.now }
 });
 

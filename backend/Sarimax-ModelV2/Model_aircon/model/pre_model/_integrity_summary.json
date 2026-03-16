@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-11T10:03:41.905241",
+  "timestamp": "2026-03-16T13:03:16.964846",
   "config": {
     "expected_freq": "h",
     "sample_na_rows_max": 500,
@@ -14,14 +14,14 @@
     ]
   },
   "input_dir": "data",
-  "output_dir": "model\\pre_model",
+  "output_dir": "model/pre_model",
   "n_files": 1,
   "ok": 1,
   "failed": 0,
   "results": [
     {
       "appliance": "aircon_final_hourly_with_weather",
-      "report_path": "model\\pre_model\\aircon_final_hourly_with_weather_integrity_report.json",
+      "report_path": "model/pre_model/aircon_final_hourly_with_weather_integrity_report.json",
       "na_rows": 168,
       "duplicate_timestamps": 0,
       "missing_hour_timestamps_count": 0

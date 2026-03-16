@@ -1,6 +1,46 @@
 const EnergyBucket = require('../models/EnergyBucket');
 const Forecast = require('../models/Forecast');
 
+function extractForecastHour(record) {
+    if (typeof record.timestamp === 'string' && /^\d{2}:\d{2}$/.test(record.timestamp)) {
+        return Number.parseInt(record.timestamp.slice(0, 2), 10);
+    }
+
+    if (record.timestamp_dt) {
+        const d = new Date(record.timestamp_dt);
+        if (!Number.isNaN(d.getTime())) {
+            const hh = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Asia/Manila',
+                hour: '2-digit',
+                hour12: false
+            }).format(d);
+            return Number.parseInt(hh, 10);
+        }
+    }
+
+    if (typeof record.timestamp === 'string') {
+        const d = new Date(record.timestamp);
+        if (!Number.isNaN(d.getTime())) {
+            const hh = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Asia/Manila',
+                hour: '2-digit',
+                hour12: false
+            }).format(d);
+            return Number.parseInt(hh, 10);
+        }
+    }
+
+    return null;
+}
+
+function getGeneratedAtMs(record) {
+    if (record && record.generated_at) {
+        const t = new Date(record.generated_at).getTime();
+        if (!Number.isNaN(t)) return t;
+    }
+    return 0;
+}
+
 exports.getHistoricalData = async (req, res) => {
     try {
         const { date } = req.query; // Expects YYYY-MM-DD
@@ -62,8 +102,23 @@ exports.getHistoricalData = async (req, res) => {
         });
 
         // Process Forecasts (merge into bucketMap)
+        // Deduplicate by appliance+hour and keep latest generated row.
+        const latestPerHour = new Map();
         forecasts.forEach(f => {
-            const hour = parseInt(f.timestamp.split(':')[0], 10);
+            const hour = extractForecastHour(f);
+            if (hour === null || hour < 0 || hour > 23) return;
+
+            const appKey = f.appliance === 'electric_fan' ? 'electricfan' : f.appliance;
+            const dedupeKey = `${appKey}|${hour}`;
+            const prev = latestPerHour.get(dedupeKey);
+            if (!prev || getGeneratedAtMs(f) >= getGeneratedAtMs(prev)) {
+                latestPerHour.set(dedupeKey, f);
+            }
+        });
+
+        latestPerHour.forEach((f) => {
+            const hour = extractForecastHour(f);
+            if (hour === null || hour < 0 || hour > 23) return;
             const bucket = Math.floor((hour * 60) / granularity);
             if (!bucketMap[bucket]) {
                 bucketMap[bucket] = { total: 0, aircon: 0, refrigerator: 0, electricfan: 0, forecast_total: 0, forecasts: {} };
@@ -72,8 +127,9 @@ exports.getHistoricalData = async (req, res) => {
 
             // Map 'electric_fan' (forecast db) to 'electricfan' (response schema)
             const appKey = f.appliance === 'electric_fan' ? 'electricfan' : f.appliance;
-            bucketMap[bucket].forecasts[appKey] = f.predicted_kwh;
-            bucketMap[bucket].forecast_total += f.predicted_kwh;
+            const predicted = f.predicted_kwh ?? f.predicted_energy ?? 0;
+            bucketMap[bucket].forecasts[appKey] = predicted;
+            bucketMap[bucket].forecast_total += predicted;
         });
 
         // 3. Build Time-Series

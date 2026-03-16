@@ -1,5 +1,51 @@
 const EnergyBucket = require('../models/EnergyBucket');
-const axios = require('axios');
+
+function normalizeAppName(name) {
+    if (name === 'electric_fan') return 'electricfan';
+    return name;
+}
+
+function parseForecastHour(log) {
+    // Preferred: "HH:00" stored for JS compatibility.
+    if (typeof log.timestamp === 'string' && /^\d{2}:\d{2}$/.test(log.timestamp)) {
+        return Number.parseInt(log.timestamp.slice(0, 2), 10);
+    }
+
+    // Fallback: datetime fields interpreted in Manila timezone.
+    if (log.timestamp_dt) {
+        const d = new Date(log.timestamp_dt);
+        if (!Number.isNaN(d.getTime())) {
+            const hh = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Asia/Manila',
+                hour: '2-digit',
+                hour12: false
+            }).format(d);
+            return Number.parseInt(hh, 10);
+        }
+    }
+
+    if (typeof log.timestamp === 'string') {
+        const d = new Date(log.timestamp);
+        if (!Number.isNaN(d.getTime())) {
+            const hh = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'Asia/Manila',
+                hour: '2-digit',
+                hour12: false
+            }).format(d);
+            return Number.parseInt(hh, 10);
+        }
+    }
+
+    return null;
+}
+
+function getGeneratedAtMs(log) {
+    if (log && log.generated_at) {
+        const t = new Date(log.generated_at).getTime();
+        if (!Number.isNaN(t)) return t;
+    }
+    return 0;
+}
 
 exports.getLiveForecast = async (req, res) => {
     try {
@@ -47,62 +93,37 @@ exports.getLiveForecast = async (req, res) => {
             aggregate_total_kwh += kwh;
         });
 
-        // 2. Fetch History for Forecasting (from Yesterday)
-        const yesterday = new Date(now);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(yesterday);
+        // 2. Fetch hourly ML forecasts for today from Mongo.
+        const db = require('mongoose').connection.db;
+        const forecastCollection = db.collection('daily_forecasts');
+        const todayLogsAll = await forecastCollection.find({ forecast_date: todayStr }).toArray();
+        const normalizedLogs = todayLogsAll.map(log => ({
+            ...log,
+            appliance: normalizeAppName(log.appliance)
+        }));
 
-        const hourlyHistory = await EnergyBucket.aggregate([
-            { $match: { date: yesterdayStr, appliance_type: { $in: targetAppliances } } },
-            { $unwind: "$readings" },
-            {
-                $group: {
-                    _id: {
-                        hour: { $hour: { date: "$readings.timestamp", timezone: "Asia/Manila" } },
-                        appliance: "$appliance_type"
-                    },
-                    total_w: { $sum: "$readings.processed_data.power_w" },
-                    avg_temp: { $avg: "$readings.weather.temp" },
-                    avg_humidity: { $avg: "$readings.weather.humidity" },
-                    count: { $sum: 1 }
-                }
-            },
-            { $sort: { "_id.hour": 1 } }
-        ]);
-
-        // 3. Request Baseline Forecast (from start of today)
+        // 3. Build per-appliance 24-hour vectors in true hour order.
         const predictionPromises = targetAppliances.map(async (appliance) => {
-            const h_kwh = Array.from({ length: 24 }, (_, i) => {
-                const match = hourlyHistory.find(d => d._id.hour === i && d._id.appliance === appliance);
-                return match ? Number(((match.total_w / 6.0) / 1000.0).toFixed(6)) : 0.25;
-            });
-            const h_watts = Array.from({ length: 24 }, (_, i) => {
-                const match = hourlyHistory.find(d => d._id.hour === i && d._id.appliance === appliance);
-                return match ? Number((match.total_w / match.count).toFixed(2)) : 250.0;
-            });
-            const h_temp = Array.from({ length: 24 }, (_, i) => {
-                const match = hourlyHistory.find(d => d._id.hour === i && d._id.appliance === appliance);
-                return match ? (match.avg_temp || 30.0) : 30.0;
-            });
-            const h_hum = Array.from({ length: 24 }, (_, i) => {
-                const match = hourlyHistory.find(d => d._id.hour === i && d._id.appliance === appliance);
-                return match ? (match.avg_humidity || 70.0) : 70.0;
+            const appLogs = normalizedLogs.filter(log => log.appliance === appliance);
+            const hourly = Array(24).fill(null);
+            const latestByHour = new Map();
+
+            appLogs.forEach(log => {
+                const hour = parseForecastHour(log);
+                if (hour === null || hour < 0 || hour > 23) return;
+
+                const prev = latestByHour.get(hour);
+                if (!prev || getGeneratedAtMs(log) >= getGeneratedAtMs(prev)) {
+                    latestByHour.set(hour, log);
+                }
             });
 
-            const FASTAPI_URL = process.env.FASTAPI_URL || 'http://127.0.0.1:8000';
-            try {
-                const pyRes = await axios.post(`${FASTAPI_URL}/predict`, {
-                    appliance,
-                    history: h_kwh,
-                    watts: h_watts,
-                    temps: h_temp,
-                    hums: h_hum,
-                    horizon: 24
-                });
-                return { appliance, forecast: pyRes.data.forecast };
-            } catch (e) {
-                return { appliance, forecast: Array(24).fill(null) };
-            }
+            latestByHour.forEach((log, hour) => {
+                const value = log.predicted_energy ?? log.predicted_kwh ?? null;
+                hourly[hour] = typeof value === 'number' ? value : null;
+            });
+
+            return { appliance, forecast: hourly };
         });
 
         const predictions = await Promise.all(predictionPromises);

@@ -725,9 +725,33 @@ function DashboardContent() {
 
 function App() {
   const [showDashboard, setShowDashboard] = useState(false);
+  const [monthlySummary, setMonthlySummary] = useState(null);
+  const [loadingSummary, setLoadingSummary] = useState(true);
+
+  useEffect(() => {
+    // Fetch real MTD summary for the Landing Page
+    const fetchSummary = async () => {
+      try {
+        const res = await fetch(getApiUrl('/api/summary/month'));
+        if (res.ok) {
+          const data = await res.json();
+          setMonthlySummary(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch monthly summary for landing page:", err);
+      } finally {
+        setLoadingSummary(false);
+      }
+    };
+    fetchSummary();
+  }, []);
 
   if (!showDashboard) {
-    return <LandingPage onEnterDashboard={() => setShowDashboard(true)} />;
+    return <LandingPage
+      onEnterDashboard={() => setShowDashboard(true)}
+      monthlySummary={monthlySummary}
+      loadingSummary={loadingSummary}
+    />;
   }
 
   return (

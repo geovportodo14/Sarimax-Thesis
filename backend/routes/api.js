@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const historicalController = require('../controllers/historicalController');
 const liveForecastController = require('../controllers/liveForecastController');
+const summaryController = require('../controllers/summaryController');
+const dailyForecastsController = require('../controllers/dailyForecastsController');
 const axios = require('axios');
 
 // Proxy for Alerts (FastAPI on Port 8000)
@@ -25,5 +27,7 @@ router.post('/alerts/:type', async (req, res) => {
 // Define Phase 2 Routes
 router.get('/historical', historicalController.getHistoricalData);
 router.get('/live', liveForecastController.getLiveForecast);
+router.get('/summary/month', summaryController.getMonthlySummary);
+router.get('/forecast/daily', dailyForecastsController.getDailyForecasts);
 
 module.exports = router;

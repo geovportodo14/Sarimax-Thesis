@@ -21,9 +21,10 @@ Pipeline steps executed:
     5. Run SARIMAX get_forecast(steps=24)
     6. Post-process (clip negatives, round)
     7. Compute daily totals & cost
-    8. Generate budget-aware recommendations
-    9. Save outputs (CSV + optional MongoDB)
-   10. Write run manifest JSON
+    8. Run MILP appliance scheduling (post-forecast optimizer)
+    9. Generate budget-aware recommendations
+   10. Save outputs (CSV + optional MongoDB)
+   11. Write run manifest JSON
 """
 
 from __future__ import annotations
@@ -34,9 +35,9 @@ import logging
 import sys
 import traceback
 from dataclasses import asdict
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 
@@ -61,15 +62,20 @@ from forecasting.pipeline.forecaster import (
 )
 from forecasting.pipeline.logger    import get_logger
 from forecasting.pipeline.recommender import generate_recommendations
+from forecasting.pipeline.scheduler import optimize_schedule
 from forecasting.pipeline.storage   import (
     save_forecast_csv,
     save_recommendation_json,
     save_run_manifest,
+    save_schedule_csv,
+    save_schedule_json,
     save_to_mongo,
 )
 from forecasting.pipeline.weather   import fallback_weather, fetch_weather_forecast
+from forecasting.pipeline.viz        import generate_forecast_plot
 
 log = get_logger("sarimax_pipeline", LOGS_DIR)
+MANILA_TZ = ZoneInfo("Asia/Manila")
 
 
 # =============================================================================
@@ -149,9 +155,15 @@ def load_history_from_mongo(cfg: PipelineConfig, appliance: str, target_date: Op
 
     df = pd.DataFrame(all_readings)
     df["timestamp"] = pd.to_datetime(df["timestamp"])
+    
+    # Ensure timestamps are localized to UTC and then converted to Manila local time
+    if df["timestamp"].dt.tz is None:
+        df["timestamp"] = df["timestamp"].dt.tz_localize("UTC")
+    df["timestamp"] = df["timestamp"].dt.tz_convert("Asia/Manila")
+    
     df = df.sort_values("timestamp").drop_duplicates("timestamp").set_index("timestamp")
 
-    log.info("[%s] History loaded from Mongo | rows=%d | last_ts=%s", 
+    log.info("[%s] History loaded from Mongo (Manila Time) | rows=%d | last_ts=%s", 
              appliance, len(df), df.index.max())
     return df
 
@@ -187,10 +199,19 @@ def run_appliance(
     if force_date:
         # Allow operator override (e.g. backfill runs)
         start_ts = pd.Timestamp(force_date)
+        if start_ts.tzinfo is None:
+            start_ts = start_ts.tz_localize(MANILA_TZ)
+        else:
+            start_ts = start_ts.tz_convert(MANILA_TZ)
         future_idx = pd.date_range(start=start_ts, periods=cfg.horizon, freq="h")
         log.info("[%s] Forced forecast date: %s", appliance, force_date)
     else:
         future_idx = build_forecast_index(last_actual_ts, cfg.horizon)
+
+    if future_idx.tz is None:
+        future_idx = future_idx.tz_localize(MANILA_TZ)
+    else:
+        future_idx = future_idx.tz_convert(MANILA_TZ)
 
     forecast_date = future_idx[0].strftime("%Y-%m-%d")
 
@@ -226,6 +247,7 @@ def run_appliance(
         model_dir    = model_dir,
         future_exog  = future_exog,
         future_idx   = future_idx,
+        history      = history,
         horizon      = cfg.horizon,
         generated_at = generated_at,
     )
@@ -258,8 +280,9 @@ def run_appliance(
 # =============================================================================
 
 def run_pipeline(cfg: PipelineConfig, force_date: Optional[str] = None) -> None:
-    generated_at  = datetime.now().isoformat()
-    forecast_date = force_date or (pd.Timestamp.now() + pd.Timedelta(days=1)).strftime("%Y-%m-%d")
+    now_mnl = pd.Timestamp.now(tz=MANILA_TZ)
+    generated_at  = now_mnl.isoformat()
+    forecast_date = force_date or (now_mnl + pd.Timedelta(days=1)).strftime("%Y-%m-%d")
 
     log.info("=" * 60)
     log.info("SARIMAX Daily Forecasting Pipeline")
@@ -287,6 +310,9 @@ def run_pipeline(cfg: PipelineConfig, force_date: Optional[str] = None) -> None:
             "horizon": cfg.horizon,
             "tariff":  cfg.tariff,
             "budget":  cfg.daily_budget,
+            "scheduler_enabled": cfg.scheduler_enabled,
+            "scheduler_max_shift_hours": cfg.scheduler_max_shift_hours,
+            "scheduler_peak_penalty": cfg.scheduler_peak_penalty,
         },
         "ok":       0,
         "failed":   0,
@@ -313,13 +339,54 @@ def run_pipeline(cfg: PipelineConfig, force_date: Optional[str] = None) -> None:
                 "traceback": tb,
             })
 
-    # ── Step 8: Budget recommendation ─────────────────────────────────────────
+    # ── Step 8: Post-forecast optimization (MILP scheduler) ──────────────────
+    schedule_dict: Optional[Dict[str, Any]] = None
+    if all_forecasts and cfg.scheduler_enabled:
+        try:
+            schedule = optimize_schedule(
+                appliance_forecasts=all_forecasts,
+                forecast_date=forecast_date,
+                generated_at=generated_at,
+                base_tariff=cfg.tariff,
+                appliance_rules=cfg.scheduler_appliance_rules,
+                comfort_penalty=cfg.scheduler_comfort_penalty,
+                tariff_multipliers=cfg.scheduler_tariff_multipliers,
+                max_shift_default=cfg.scheduler_max_shift_hours,
+                peak_penalty=cfg.scheduler_peak_penalty,
+                horizon=cfg.horizon,
+            )
+            schedule_dict = schedule.to_dict()
+            manifest["optimization"] = {
+                "status": schedule.status,
+                "solver": schedule.solver,
+                "baseline_total_cost_php": schedule.baseline_total_cost_php,
+                "optimized_total_cost_php": schedule.optimized_total_cost_php,
+                "estimated_savings_php": schedule.estimated_savings_php,
+                "estimated_savings_pct": schedule.estimated_savings_pct,
+                "baseline_peak_kwh": schedule.baseline_peak_kwh,
+                "optimized_peak_kwh": schedule.optimized_peak_kwh,
+                "peak_reduction_kwh": schedule.peak_reduction_kwh,
+            }
+
+            if not cfg.dry_run and cfg.save_csv:
+                save_schedule_json(schedule_dict, cfg.outputs_dir, forecast_date)
+                save_schedule_csv(schedule.to_csv_rows(), cfg.outputs_dir, forecast_date)
+        except Exception as exc:
+            tb = traceback.format_exc()
+            log.error("[scheduler] FAILED: %s\n%s", exc, tb)
+            manifest["optimization"] = {
+                "status": "error",
+                "error": str(exc),
+            }
+
+    # ── Step 9: Budget recommendation ─────────────────────────────────────────
     if all_forecasts:
         rec = generate_recommendations(
             appliance_forecasts = all_forecasts,
             tariff              = cfg.tariff,
             daily_budget        = cfg.daily_budget,
             forecast_date       = forecast_date,
+            schedule_result     = schedule_dict,
         )
         log.info("Budget status: %s | predicted ₱%.2f | budget ₱%.2f",
                  rec.status, rec.predicted_cost_php, rec.daily_budget_php)
@@ -333,11 +400,20 @@ def run_pipeline(cfg: PipelineConfig, force_date: Optional[str] = None) -> None:
     else:
         log.warning("No successful forecasts — skipping recommendation layer.")
 
-    # ── Step 9: Save run manifest ─────────────────────────────────────────────
+    # ── Step 10: Save run manifest ────────────────────────────────────────────
     if not cfg.dry_run:
         save_run_manifest(manifest, cfg.outputs_dir, forecast_date)
 
-    # ── Summary ───────────────────────────────────────────────────────────────
+    # ── Step 11: Automatic Visualization ──────────────────────────────────────
+    if manifest["ok"] > 0 and not cfg.dry_run:
+        try:
+            plot_file = generate_forecast_plot(cfg.outputs_dir, forecast_date, cfg.appliances)
+            if plot_file:
+                log.info("Pipeline visualization complete.")
+        except Exception as e:
+            log.error(f"Visualization failed: {e}")
+
+    # Summary ───────────────────────────────────────────────────────────────
     log.info("=" * 60)
     log.info("[DONE] OK=%d | FAILED=%d", manifest["ok"], manifest["failed"])
     log.info("=" * 60)

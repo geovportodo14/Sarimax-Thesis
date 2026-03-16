@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-03-16T14:02:42.652039",
+  "forecast_date": "2026-02-15",
+  "config": {
+    "horizon": 24,
+    "tariff": 11.5,
+    "budget": 200.0
+  },
+  "ok": 3,
+  "failed": 0,
+  "results": [
+    {
+      "appliance": "aircon",
+      "status": "ok",
+      "last_actual_ts": "2026-02-14 23:50:00+08:00",
+      "forecast_start": "2026-02-15 00:00:00",
+      "forecast_end": "2026-02-15 23:00:00",
+      "total_kwh": 0.514691,
+      "total_cost_php": 5.9189,
+      "n_rows": 24
+    },
+    {
+      "appliance": "electric_fan",
+      "status": "ok",
+      "last_actual_ts": "2026-02-14 23:50:00+08:00",
+      "forecast_start": "2026-02-15 00:00:00",
+      "forecast_end": "2026-02-15 23:00:00",
+      "total_kwh": 0.371486,
+      "total_cost_php": 4.2721,
+      "n_rows": 24
+    },
+    {
+      "appliance": "refrigerator",
+      "status": "ok",
+      "last_actual_ts": "2026-02-14 23:50:00+08:00",
+      "forecast_start": "2026-02-15 00:00:00",
+      "forecast_end": "2026-02-15 23:00:00",
+      "total_kwh": 2.95401,
+      "total_cost_php": 33.9711,
+      "n_rows": 24
+    }
+  ],
+  "failures": [],
+  "recommendation": {
+    "forecast_date": "2026-02-15",
+    "daily_budget_php": 200.0,
+    "predicted_cost_php": 44.1621,
+    "budget_remaining": 155.8379,
+    "budget_utilization": 0.2208,
+    "status": "within_budget",
+    "messages": [
+      "\u2705 Expected to stay within budget. Predicted cost \u20b144.16 vs. budget \u20b1200.00.",
+      "\ud83d\udcca Highest usage: Refrigerator (\u20b133.97, 77% of predicted daily spend)."
+    ],
+    "appliance_breakdown": {
+      "aircon": 5.9189,
+      "electric_fan": 4.2721,
+      "refrigerator": 33.9711
+    }
+  }
+}

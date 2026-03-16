@@ -145,18 +145,38 @@ def compute_power_feature(
     power_col: str = "power",
 ) -> pd.DataFrame:
     """
-    If 'power' was an exog column at training time, forward-fill from the
-    last observed power reading.  Power (kW) is typically co-logged with
-    energy (kWh) in the historical dataset.
+    Computes expected power (kW) by taking the historic average for each hour
+    of the day over the last 30 days. This mimics Time-of-Use behavior so the
+    model doesn't flatline. If no prior hourly data, falls back to flat mean.
     """
-    if power_col in history.columns:
-        last_power = float(history[power_col].iloc[-1])
-    else:
-        # Approximate: energy per hour ≈ average kW in last 24h
-        last_power = float(history["energy"].iloc[-24:].mean())
+    out = pd.DataFrame(index=future_idx, dtype=float)
 
-    out = pd.DataFrame({"power": last_power}, index=future_idx, dtype=float)
-    log.debug("power forward-fill value: %.4f", last_power)
+    # Use the last 30 days of data to establish the daily time-of-use profile
+    if len(history) > 0:
+        cutoff = history.index[-1] - pd.Timedelta(days=30)
+        recent_history = history.loc[cutoff:]
+    else:
+        recent_history = history
+
+    if power_col in recent_history.columns and not recent_history[power_col].dropna().empty:
+        # Calculate the mean power usage per hour-of-use (0-23)
+        hourly_profile = recent_history.groupby(recent_history.index.hour)[power_col].mean()
+        
+        # Map this profile to the future 24 hours
+        out["power"] = future_idx.hour.map(hourly_profile).values
+        
+        # If any specific hour has missing data in the profile, fill with the overall mean
+        if out["power"].isna().any():
+            overall_mean = float(recent_history[power_col].mean())
+            out["power"] = out["power"].fillna(overall_mean)
+            
+        log.debug("Built dynamic Time-of-Use power profile.")
+    else:
+        # Fallback to older flat-fill if `power` column is entirely missing
+        log.warning("No power column or history found; falling back to flat prediction.")
+        last_power = float(history["energy"].iloc[-24:].mean()) if len(history) >= 24 else 0.0
+        out["power"] = last_power
+
     return out
 
 

@@ -72,7 +72,19 @@ def load_best_model(model_dir: Path) -> SARIMAXResults:
     if not p.exists():
         raise FileNotFoundError(f"best_model.pkl not found: {p}")
     log.info("Loading model: %s", p)
-    return SARIMAXResults.load(str(p))
+    try:
+        return SARIMAXResults.load(str(p))
+    except NotImplementedError as exc:
+        # Common compatibility issue: model pickles serialized with newer pandas
+        # StringDtype internals cannot be restored in older runtimes.
+        if "StringDtype" in str(exc):
+            raise RuntimeError(
+                "Model deserialization failed due to pandas/runtime mismatch.\n"
+                "Use the project virtualenv/interpreter that matches model training.\n"
+                "Recommended: backend/venv/bin/python3 (Python 3.14, pandas 3.0.x, statsmodels 0.14.6).\n"
+                "Do not run the pipeline with legacy Python 3.9 site-packages."
+            ) from exc
+        raise
 
 
 # ---------------------------------------------------------------------------
@@ -104,6 +116,7 @@ def forecast_appliance(
     model_dir: Path,
     future_exog: pd.DataFrame,
     future_idx: pd.DatetimeIndex,
+    history: Optional[pd.DataFrame] = None,
     horizon: int = 24,
     generated_at: Optional[str] = None,
 ) -> ApplianceForecast:
@@ -154,7 +167,28 @@ def forecast_appliance(
 
     log.info("[%s] Running get_forecast(steps=%d)", appliance, horizon)
     try:
-        fc = model_result.get_forecast(
+        # ── Lite Refit (State Update) ────────────────────────────────────────
+        # We 'apply' the model to the recent history to synchronize internal
+        # states (filters) with actual observations before forecasting.
+        active_model = model_result
+        if history is not None and not history.empty:
+            log.info("[%s] Applying 'Lite Refit' (State Update) using %d history rows.", appliance, len(history))
+            
+            # Align history columns with exog_cols
+            y_hist = history["energy"].astype(float)
+            X_hist = None
+            if exog_cols:
+                # Ensure all required columns exist in history
+                missing = [c for c in exog_cols if c not in history.columns]
+                if missing:
+                    log.warning("[%s] History missing exog cols for Lite-Refit: %s. Filling with 0.", appliance, missing)
+                    for c in missing: history[c] = 0.0
+                X_hist = history[exog_cols].astype(float)
+
+            # Apply parameters to the new data window
+            active_model = model_result.apply(endog=y_hist, exog=X_hist)
+
+        fc = active_model.get_forecast(
             steps=horizon,
             exog=future_exog.values if exog_cols else None,
         )

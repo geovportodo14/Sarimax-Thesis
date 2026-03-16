@@ -4,3 +4,4 @@ numpy>=1.26.0
 requests>=2.31.0
 pymongo>=4.6.0
 python-dotenv>=1.0.0
+pulp>=2.8.0
