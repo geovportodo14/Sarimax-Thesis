@@ -1,0 +1,155 @@
+{
+  "models_root": "/Users/geovannyportodo/Sarimax-Thesis/backend/Sarimax-ModelV3",
+  "min_r2_threshold": 0.0,
+  "pass_count": 2,
+  "check_count": 1,
+  "results": [
+    {
+      "appliance": "aircon",
+      "status": "PASS",
+      "model_dir": "/Users/geovannyportodo/Sarimax-Thesis/backend/Sarimax-ModelV3/Final_Aircon/model/sarimax/aircon_model_ready",
+      "rows_scored": 480,
+      "rows_lag24_comp": 456,
+      "model": {
+        "MAE": 0.07550655598210802,
+        "RMSE": 0.11857251246095517,
+        "R2": 0.6887846028644429
+      },
+      "baselines": {
+        "mean": {
+          "MAE": 0.18992491319444446,
+          "RMSE": 0.21254626845145713
+        },
+        "lag24": {
+          "MAE": 0.046864035087719295,
+          "RMSE": 0.12060610819246816
+        }
+      },
+      "improvement_pct": {
+        "vs_mean_MAE": 60.24399605500692,
+        "vs_mean_RMSE": 44.21331725800887,
+        "vs_lag24_MAE": -61.11834126271063,
+        "vs_lag24_RMSE": 1.6861465492839658
+      },
+      "checks": {
+        "beats_mean": true,
+        "beats_lag24_rmse": true,
+        "r2_gte_threshold": true,
+        "min_r2_threshold": 0.0
+      },
+      "eval_metrics_json": {
+        "n_test_total": 480,
+        "n_scored": 480,
+        "horizon": 24,
+        "refit_every": 1,
+        "MAE": 0.07550655598210802,
+        "RMSE": 0.11857251246095517,
+        "NRMSE": 0.8529118234865649,
+        "sMAPE": 99.40974146719083,
+        "MAPE_nonzero": 43.2066107360111,
+        "R2": 0.6887846028644429,
+        "n_forecast_days": 20,
+        "note_mape_nonzero": "MAPE computed only on hours where actual_energy != 0",
+        "note_clip": "Predictions were clipped at 0 to enforce non-negative energy."
+      }
+    },
+    {
+      "appliance": "electric_fan",
+      "status": "PASS",
+      "model_dir": "/Users/geovannyportodo/Sarimax-Thesis/backend/Sarimax-ModelV3/Final_electricfan/sarimax/electric_fan_model_ready",
+      "rows_scored": 480,
+      "rows_lag24_comp": 456,
+      "model": {
+        "MAE": 0.008622845823965799,
+        "RMSE": 0.012171693630331729,
+        "R2": 0.544034108936319
+      },
+      "baselines": {
+        "mean": {
+          "MAE": 0.017397916666666666,
+          "RMSE": 0.018025396821028813
+        },
+        "lag24": {
+          "MAE": 0.008508771929824563,
+          "RMSE": 0.015921958796888798
+        }
+      },
+      "improvement_pct": {
+        "vs_mean_MAE": 50.437480595095394,
+        "vs_mean_RMSE": 32.47475353146195,
+        "vs_lag24_MAE": -1.3406622610413301,
+        "vs_lag24_RMSE": 23.554043911292393
+      },
+      "checks": {
+        "beats_mean": true,
+        "beats_lag24_rmse": true,
+        "r2_gte_threshold": true,
+        "min_r2_threshold": 0.0
+      },
+      "eval_metrics_json": {
+        "n_test_total": 480,
+        "n_scored": 480,
+        "horizon": 24,
+        "refit_every": 1,
+        "MAE": 0.008622845823965804,
+        "RMSE": 0.012171693630331725,
+        "NRMSE": 0.774855827925627,
+        "sMAPE": 100.251811258889,
+        "MAPE_nonzero": 33.59902338156397,
+        "R2": 0.5440341089363192,
+        "n_forecast_days": 20,
+        "note_mape_nonzero": "MAPE computed only on hours where actual_energy != 0",
+        "note_clip": "Predictions were clipped at 0 to enforce non-negative energy."
+      }
+    },
+    {
+      "appliance": "refrigerator",
+      "status": "CHECK",
+      "model_dir": "/Users/geovannyportodo/Sarimax-Thesis/backend/Sarimax-ModelV3/Final_Ref/model/sarimax/refrigerator_model_ready",
+      "rows_scored": 480,
+      "rows_lag24_comp": 456,
+      "model": {
+        "MAE": 0.02584492367961424,
+        "RMSE": 0.03273291768155188,
+        "R2": -0.08312557855028824
+      },
+      "baselines": {
+        "mean": {
+          "MAE": 0.025892447916666672,
+          "RMSE": 0.031451786018444165
+        },
+        "lag24": {
+          "MAE": 0.03359649122807017,
+          "RMSE": 0.04163858702963588
+        }
+      },
+      "improvement_pct": {
+        "vs_mean_MAE": 0.18354478188152543,
+        "vs_mean_RMSE": -4.073319277819144,
+        "vs_lag24_MAE": 23.07255092751897,
+        "vs_lag24_RMSE": 21.38802006356622
+      },
+      "checks": {
+        "beats_mean": false,
+        "beats_lag24_rmse": true,
+        "r2_gte_threshold": false,
+        "min_r2_threshold": 0.0
+      },
+      "eval_metrics_json": {
+        "n_test_total": 480,
+        "n_scored": 480,
+        "horizon": 24,
+        "refit_every": 1,
+        "MAE": 0.025844923679614232,
+        "RMSE": 0.03273291768155187,
+        "NRMSE": 0.32348775966944404,
+        "sMAPE": 26.21889077675671,
+        "MAPE_nonzero": 27.129921737468944,
+        "R2": -0.08312557855028757,
+        "n_forecast_days": 20,
+        "note_mape_nonzero": "MAPE computed only on hours where actual_energy != 0",
+        "note_clip": "Predictions were clipped at 0 to enforce non-negative energy."
+      }
+    }
+  ]
+}

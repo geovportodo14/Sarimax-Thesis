@@ -165,6 +165,23 @@ def forecast_appliance(
             f"[{appliance}] future_exog must have {horizon} rows, got {len(future_exog)}"
         )
 
+    # Defensive cleaning in case upstream feature engineering leaves NaN/inf.
+    clean_future_exog = future_exog.copy()
+    if exog_cols:
+        clean_future_exog = clean_future_exog.astype(float)
+        clean_future_exog = clean_future_exog.replace(
+            [float("inf"), float("-inf")],
+            float("nan"),
+        )
+        n_bad_future = int(clean_future_exog.isna().sum().sum())
+        if n_bad_future:
+            log.warning(
+                "[%s] future_exog has %d NaN/inf cells. Applying ffill/bfill then zero-fill.",
+                appliance,
+                n_bad_future,
+            )
+            clean_future_exog = clean_future_exog.ffill().bfill().fillna(0.0)
+
     log.info("[%s] Running get_forecast(steps=%d)", appliance, horizon)
     try:
         # ── Lite Refit (State Update) ────────────────────────────────────────
@@ -173,24 +190,52 @@ def forecast_appliance(
         active_model = model_result
         if history is not None and not history.empty:
             log.info("[%s] Applying 'Lite Refit' (State Update) using %d history rows.", appliance, len(history))
-            
+
+            history_df = history.copy()
+
             # Align history columns with exog_cols
-            y_hist = history["energy"].astype(float)
+            y_hist = history_df["energy"].astype(float).replace(
+                [float("inf"), float("-inf")],
+                float("nan"),
+            )
             X_hist = None
             if exog_cols:
                 # Ensure all required columns exist in history
-                missing = [c for c in exog_cols if c not in history.columns]
+                missing = [c for c in exog_cols if c not in history_df.columns]
                 if missing:
                     log.warning("[%s] History missing exog cols for Lite-Refit: %s. Filling with 0.", appliance, missing)
-                    for c in missing: history[c] = 0.0
-                X_hist = history[exog_cols].astype(float)
+                    for c in missing:
+                        history_df[c] = 0.0
+                X_hist = history_df[exog_cols].astype(float).replace(
+                    [float("inf"), float("-inf")],
+                    float("nan"),
+                )
 
-            # Apply parameters to the new data window
-            active_model = model_result.apply(endog=y_hist, exog=X_hist)
+            # Drop invalid rows so statsmodels state update receives finite inputs.
+            valid_mask = y_hist.notna()
+            if X_hist is not None:
+                valid_mask &= X_hist.notna().all(axis=1)
+            n_dropped = int((~valid_mask).sum())
+            if n_dropped:
+                log.warning(
+                    "[%s] Lite Refit dropped %d history rows with NaN/inf in endog/exog.",
+                    appliance,
+                    n_dropped,
+                )
+
+            y_hist = y_hist.loc[valid_mask]
+            if X_hist is not None:
+                X_hist = X_hist.loc[valid_mask]
+
+            if len(y_hist) > 0:
+                # Apply parameters to the new data window
+                active_model = model_result.apply(endog=y_hist, exog=X_hist)
+            else:
+                log.warning("[%s] No valid rows left for Lite Refit. Using loaded model state.", appliance)
 
         fc = active_model.get_forecast(
             steps=horizon,
-            exog=future_exog.values if exog_cols else None,
+            exog=clean_future_exog.values if exog_cols else None,
         )
         preds = fc.predicted_mean.values
     except Exception as exc:

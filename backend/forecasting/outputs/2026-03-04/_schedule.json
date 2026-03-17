@@ -1,0 +1,731 @@
+{
+  "forecast_date": "2026-03-04",
+  "generated_at": "2026-03-17T03:52:32.270039+08:00",
+  "status": "ok",
+  "solver": "cbc",
+  "objective": 77.481255,
+  "baseline_total_cost_php": 77.8896,
+  "optimized_total_cost_php": 75.9894,
+  "estimated_savings_php": 1.9001,
+  "estimated_savings_pct": 2.44,
+  "baseline_peak_kwh": 0.724283,
+  "optimized_peak_kwh": 0.790504,
+  "peak_reduction_kwh": -0.066221,
+  "tariff_by_hour": [
+    9.775,
+    9.775,
+    9.775,
+    9.775,
+    9.775,
+    9.775,
+    11.5,
+    11.5,
+    11.5,
+    11.5,
+    11.5,
+    11.5,
+    11.5,
+    14.375,
+    14.375,
+    14.375,
+    14.375,
+    14.375,
+    11.5,
+    11.5,
+    11.5,
+    11.5,
+    9.775,
+    9.775
+  ],
+  "appliances": [
+    {
+      "appliance": "aircon",
+      "schedulable": true,
+      "baseline_total_kwh": 4.522274,
+      "optimized_total_kwh": 4.522274,
+      "shifted_kwh": 0.400795,
+      "hourly": [
+        {
+          "hour": 0,
+          "timestamp": "2026-03-04T00:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.589406,
+          "optimized_kwh": 0.621039,
+          "delta_kwh": 0.031633,
+          "action": "Shift usage into this hour"
+        },
+        {
+          "hour": 1,
+          "timestamp": "2026-03-04T01:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.451421,
+          "optimized_kwh": 0.451421,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 2,
+          "timestamp": "2026-03-04T02:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.330413,
+          "optimized_kwh": 0.330413,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 3,
+          "timestamp": "2026-03-04T03:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.277434,
+          "optimized_kwh": 0.277434,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 4,
+          "timestamp": "2026-03-04T04:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.255679,
+          "optimized_kwh": 0.255679,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 5,
+          "timestamp": "2026-03-04T05:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.000655,
+          "optimized_kwh": 0.032874,
+          "delta_kwh": 0.032219,
+          "action": "Shift usage into this hour"
+        },
+        {
+          "hour": 6,
+          "timestamp": "2026-03-04T06:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.007372,
+          "optimized_kwh": 0.007372,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 7,
+          "timestamp": "2026-03-04T07:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.023606,
+          "optimized_kwh": 0.023606,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 8,
+          "timestamp": "2026-03-04T08:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.032874,
+          "optimized_kwh": 0.032874,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 9,
+          "timestamp": "2026-03-04T09:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.04162,
+          "optimized_kwh": 0.04162,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 10,
+          "timestamp": "2026-03-04T10:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.045014,
+          "optimized_kwh": 0.045014,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 11,
+          "timestamp": "2026-03-04T11:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.046667,
+          "optimized_kwh": 0.046667,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 12,
+          "timestamp": "2026-03-04T12:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.050249,
+          "optimized_kwh": 0.113085,
+          "delta_kwh": 0.062836,
+          "action": "Shift usage into this hour"
+        },
+        {
+          "hour": 13,
+          "timestamp": "2026-03-04T13:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.059722,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.059722,
+          "action": "Reduce usage in this hour"
+        },
+        {
+          "hour": 14,
+          "timestamp": "2026-03-04T14:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.066966,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.066966,
+          "action": "Reduce usage in this hour"
+        },
+        {
+          "hour": 15,
+          "timestamp": "2026-03-04T15:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.077499,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.077499,
+          "action": "Reduce usage in this hour"
+        },
+        {
+          "hour": 16,
+          "timestamp": "2026-03-04T16:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.089125,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.089125,
+          "action": "Reduce usage in this hour"
+        },
+        {
+          "hour": 17,
+          "timestamp": "2026-03-04T17:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.107483,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.107483,
+          "action": "Reduce usage in this hour"
+        },
+        {
+          "hour": 18,
+          "timestamp": "2026-03-04T18:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.128944,
+          "optimized_kwh": 0.128944,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 19,
+          "timestamp": "2026-03-04T19:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.150879,
+          "optimized_kwh": 0.150879,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 20,
+          "timestamp": "2026-03-04T20:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.285274,
+          "optimized_kwh": 0.285274,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 21,
+          "timestamp": "2026-03-04T21:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.407169,
+          "optimized_kwh": 0.407169,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 22,
+          "timestamp": "2026-03-04T22:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.498208,
+          "optimized_kwh": 0.620629,
+          "delta_kwh": 0.122421,
+          "action": "Shift usage into this hour"
+        },
+        {
+          "hour": 23,
+          "timestamp": "2026-03-04T23:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.498595,
+          "optimized_kwh": 0.650281,
+          "delta_kwh": 0.151686,
+          "action": "Shift usage into this hour"
+        }
+      ]
+    },
+    {
+      "appliance": "electric_fan",
+      "schedulable": true,
+      "baseline_total_kwh": 0.4071,
+      "optimized_total_kwh": 0.4071,
+      "shifted_kwh": 0.075059,
+      "hourly": [
+        {
+          "hour": 0,
+          "timestamp": "2026-03-04T00:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.037489,
+          "optimized_kwh": 0.037489,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 1,
+          "timestamp": "2026-03-04T01:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.038653,
+          "optimized_kwh": 0.038653,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 2,
+          "timestamp": "2026-03-04T02:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.038832,
+          "optimized_kwh": 0.063986,
+          "delta_kwh": 0.025154,
+          "action": "Shift usage into this hour"
+        },
+        {
+          "hour": 3,
+          "timestamp": "2026-03-04T03:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.038517,
+          "optimized_kwh": 0.038517,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 4,
+          "timestamp": "2026-03-04T04:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.037278,
+          "optimized_kwh": 0.049602,
+          "delta_kwh": 0.012324,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 5,
+          "timestamp": "2026-03-04T05:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.030212,
+          "optimized_kwh": 0.030212,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 6,
+          "timestamp": "2026-03-04T06:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.015022,
+          "optimized_kwh": 0.008065,
+          "delta_kwh": -0.006957,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 7,
+          "timestamp": "2026-03-04T07:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.012324,
+          "optimized_kwh": 0.006273,
+          "delta_kwh": -0.006051,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 8,
+          "timestamp": "2026-03-04T08:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.010132,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.010132,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 9,
+          "timestamp": "2026-03-04T09:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.008065,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.008065,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 10,
+          "timestamp": "2026-03-04T10:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.006273,
+          "optimized_kwh": 0.004752,
+          "delta_kwh": -0.001521,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 11,
+          "timestamp": "2026-03-04T11:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.004752,
+          "optimized_kwh": 0.00297,
+          "delta_kwh": -0.001782,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 12,
+          "timestamp": "2026-03-04T12:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.003222,
+          "optimized_kwh": 0.003222,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 13,
+          "timestamp": "2026-03-04T13:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.001704,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.001704,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 14,
+          "timestamp": "2026-03-04T14:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.001266,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.001266,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 15,
+          "timestamp": "2026-03-04T15:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.001831,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.001831,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 16,
+          "timestamp": "2026-03-04T16:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.003153,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.003153,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 17,
+          "timestamp": "2026-03-04T17:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.004354,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.004354,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 18,
+          "timestamp": "2026-03-04T18:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.005308,
+          "optimized_kwh": 0.005308,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 19,
+          "timestamp": "2026-03-04T19:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.007479,
+          "optimized_kwh": 0.00403,
+          "delta_kwh": -0.003449,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 20,
+          "timestamp": "2026-03-04T20:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.010001,
+          "optimized_kwh": 0.0,
+          "delta_kwh": -0.010001,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 21,
+          "timestamp": "2026-03-04T21:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.020101,
+          "optimized_kwh": 0.005308,
+          "delta_kwh": -0.014793,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 22,
+          "timestamp": "2026-03-04T22:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.03103,
+          "optimized_kwh": 0.068611,
+          "delta_kwh": 0.037581,
+          "action": "Shift usage into this hour"
+        },
+        {
+          "hour": 23,
+          "timestamp": "2026-03-04T23:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.040102,
+          "optimized_kwh": 0.040102,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        }
+      ]
+    },
+    {
+      "appliance": "refrigerator",
+      "schedulable": false,
+      "baseline_total_kwh": 2.211606,
+      "optimized_total_kwh": 2.211606,
+      "shifted_kwh": 0.0,
+      "hourly": [
+        {
+          "hour": 0,
+          "timestamp": "2026-03-04T00:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.097388,
+          "optimized_kwh": 0.097388,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 1,
+          "timestamp": "2026-03-04T01:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.094525,
+          "optimized_kwh": 0.094525,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 2,
+          "timestamp": "2026-03-04T02:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.092089,
+          "optimized_kwh": 0.092089,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 3,
+          "timestamp": "2026-03-04T03:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.088975,
+          "optimized_kwh": 0.088975,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 4,
+          "timestamp": "2026-03-04T04:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.086639,
+          "optimized_kwh": 0.086639,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 5,
+          "timestamp": "2026-03-04T05:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.084649,
+          "optimized_kwh": 0.084649,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 6,
+          "timestamp": "2026-03-04T06:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.082393,
+          "optimized_kwh": 0.082393,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 7,
+          "timestamp": "2026-03-04T07:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.08115,
+          "optimized_kwh": 0.08115,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 8,
+          "timestamp": "2026-03-04T08:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.080192,
+          "optimized_kwh": 0.080192,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 9,
+          "timestamp": "2026-03-04T09:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.081806,
+          "optimized_kwh": 0.081806,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 10,
+          "timestamp": "2026-03-04T10:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.083523,
+          "optimized_kwh": 0.083523,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 11,
+          "timestamp": "2026-03-04T11:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.084932,
+          "optimized_kwh": 0.084932,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 12,
+          "timestamp": "2026-03-04T12:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.087116,
+          "optimized_kwh": 0.087116,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 13,
+          "timestamp": "2026-03-04T13:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.09119,
+          "optimized_kwh": 0.09119,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 14,
+          "timestamp": "2026-03-04T14:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.093093,
+          "optimized_kwh": 0.093093,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 15,
+          "timestamp": "2026-03-04T15:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.096475,
+          "optimized_kwh": 0.096475,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 16,
+          "timestamp": "2026-03-04T16:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.098247,
+          "optimized_kwh": 0.098247,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 17,
+          "timestamp": "2026-03-04T17:00:00+08:00",
+          "tariff_php_per_kwh": 14.375,
+          "baseline_kwh": 0.099737,
+          "optimized_kwh": 0.099737,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 18,
+          "timestamp": "2026-03-04T18:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.100263,
+          "optimized_kwh": 0.100263,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 19,
+          "timestamp": "2026-03-04T19:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.101274,
+          "optimized_kwh": 0.101274,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 20,
+          "timestamp": "2026-03-04T20:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.102287,
+          "optimized_kwh": 0.102287,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 21,
+          "timestamp": "2026-03-04T21:00:00+08:00",
+          "tariff_php_per_kwh": 11.5,
+          "baseline_kwh": 0.102278,
+          "optimized_kwh": 0.102278,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 22,
+          "timestamp": "2026-03-04T22:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.101264,
+          "optimized_kwh": 0.101264,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        },
+        {
+          "hour": 23,
+          "timestamp": "2026-03-04T23:00:00+08:00",
+          "tariff_php_per_kwh": 9.775,
+          "baseline_kwh": 0.100121,
+          "optimized_kwh": 0.100121,
+          "delta_kwh": 0.0,
+          "action": "Keep baseline usage"
+        }
+      ]
+    }
+  ],
+  "optimization_summary": {
+    "status": "ok",
+    "solver_status": "Optimal",
+    "estimated_savings_php": 1.9001,
+    "estimated_savings_pct": 2.44,
+    "peak_reduction_kwh": -0.066221,
+    "top_actions": [
+      "Reduce aircon around 17:00 (high-cost slot).",
+      "Reduce aircon around 16:00 (high-cost slot).",
+      "Reduce aircon around 15:00 (high-cost slot).",
+      "Reduce aircon around 14:00 (high-cost slot).",
+      "Reduce aircon around 13:00 (high-cost slot)."
+    ]
+  }
+}

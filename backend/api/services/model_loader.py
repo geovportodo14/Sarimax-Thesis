@@ -10,31 +10,27 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Model paths — appliance → directory containing best_params.json + coefficients.csv
 # ---------------------------------------------------------------------------
-# Aircon:       Sarimax-Model/Aircon/model-aircon/sarimax/<appliance_dir>/
-# Electricfan:  Sarimax-Model/Electricfan/Modeling/model/stageB/sarimax/<appliance_dir>/
-# Refrigerator: backend/modeling/refrigerator/model/sarimax/refrigerator/  (original)
-
 _SARIMAX_MODEL_ROOT = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    "Sarimax-ModelV2"
+    "Sarimax-ModelV3"
 )
 
 # Maps the API appliance key → directory containing best_params.json + coefficients.csv
 _APPLIANCE_PATHS = {
     "aircon": os.path.join(
         _SARIMAX_MODEL_ROOT,
-        "Model_aircon", "model", "sarimax",
-        "aircon_final_hourly_with_weather"
+        "Final_Aircon", "model", "sarimax",
+        "aircon_model_ready"
     ),
     "electricfan": os.path.join(
         _SARIMAX_MODEL_ROOT,
-        "Model_efan", "model", "sarimax",
-        "electric_fan_final_hourly_with_weather"
+        "Final_electricfan", "sarimax",
+        "electric_fan_model_ready"
     ),
     "refrigerator": os.path.join(
         _SARIMAX_MODEL_ROOT,
-        "Refrigerator_Model", "model", "sarimax",
-        "refrigerator_final_hourly_with_weather"
+        "Final_Ref", "model", "sarimax",
+        "refrigerator_model_ready"
     ),
 }
 

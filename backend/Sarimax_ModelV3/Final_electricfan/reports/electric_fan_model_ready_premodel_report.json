@@ -1,0 +1,108 @@
+{
+  "input_file": "data/electric_fan_model_ready.csv",
+  "appliance_key": "electric_fan_model_ready",
+  "config": {
+    "seasonal_period": 24,
+    "weekly_period": 168,
+    "adf_alpha": 0.05,
+    "max_acf_lag": 200,
+    "gap_threshold_hours": 2,
+    "min_adf_samples": 50
+  },
+  "integrity": {
+    "duplicate_timestamp_rows": 0,
+    "inferred_frequency_first_200": "h",
+    "start": "2024-12-27 00:00:00",
+    "end": "2026-03-10 23:00:00",
+    "n_rows_hourly_index": 10536,
+    "missing_hour_timestamps_count": 0,
+    "gap_blocks_count": 0,
+    "gap_blocks_ge_threshold_count": 0,
+    "gap_blocks_ge_threshold_examples": []
+  },
+  "adf": {
+    "level_energy": {
+      "ok": true,
+      "adf_stat": -20.432182047356847,
+      "p_value": 0.0,
+      "used_lag": 39,
+      "n_obs": 10496,
+      "critical_values": {
+        "1%": -3.4309731802588552,
+        "5%": -2.8618154100376545,
+        "10%": -2.5669165956198325
+      },
+      "ic_best": -64033.20957676355
+    },
+    "diff1_energy": {
+      "ok": true,
+      "adf_stat": -23.648637878943795,
+      "p_value": 0.0,
+      "used_lag": 38,
+      "n_obs": 10496,
+      "critical_values": {
+        "1%": -3.4309731802588552,
+        "5%": -2.8618154100376545,
+        "10%": -2.5669165956198325
+      },
+      "ic_best": -63617.21354052676
+    },
+    "seasonal_diff_energy_s": {
+      "ok": true,
+      "adf_stat": -22.14840566584628,
+      "p_value": 0.0,
+      "used_lag": 38,
+      "n_obs": 10473,
+      "critical_values": {
+        "1%": -3.430974549175243,
+        "5%": -2.8618160149568146,
+        "10%": -2.566916917618018
+      },
+      "ic_best": -61140.63243030809
+    },
+    "diff1_then_seasonal_s": {
+      "ok": true,
+      "adf_stat": -28.99605544236965,
+      "p_value": 0.0,
+      "used_lag": 39,
+      "n_obs": 10471,
+      "critical_values": {
+        "1%": -3.430974668495725,
+        "5%": -2.861816067684087,
+        "10%": -2.5669169456847225
+      },
+      "ic_best": -60679.84911958508
+    },
+    "seasonal_s_then_diff1": {
+      "ok": true,
+      "adf_stat": -28.99605544236945,
+      "p_value": 0.0,
+      "used_lag": 39,
+      "n_obs": 10471,
+      "critical_values": {
+        "1%": -3.430974668495725,
+        "5%": -2.861816067684087,
+        "10%": -2.5669169456847225
+      },
+      "ic_best": -60679.84911958508
+    }
+  },
+  "seasonality_signals": {
+    "acf_lag_24": 0.5625562031805724,
+    "acf_lag_168": 0.6163370667146868
+  },
+  "suggested_differencing": {
+    "rule_based_d": 0,
+    "rule_based_D": 0,
+    "p_values": {
+      "level": 0.0,
+      "diff1": 0.0,
+      "seasonal": 0.0
+    },
+    "notes": {
+      "level_stationary": true,
+      "diff1_stationary": true,
+      "seasonal_diff_stationary": true
+    }
+  }
+}

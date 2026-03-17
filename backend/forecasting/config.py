@@ -28,10 +28,9 @@ try:
 except ImportError:
     pass
 
-# Where the trained model artefacts live (one sub-folder per appliance)
-# Where the trained model artefacts live
-# (This points to the root of the ModelV2 folder provided by the user)
-MODELS_ROOT = BACKEND_ROOT / "Sarimax-ModelV2"
+# Where the trained model artefacts live (one sub-folder per appliance).
+# V3 model root (hyphenated path is kept for runtime consistency).
+MODELS_ROOT = BACKEND_ROOT / "Sarimax-ModelV3"
 
 # Historical hourly CSVs produced by the daily ingestion job
 HISTORY_DIR = BACKEND_ROOT / "forecasting" / "history"
@@ -49,9 +48,9 @@ APPLIANCES = ["aircon", "electric_fan", "refrigerator"]
 # Maps the appliance key to the full relative path from MODELS_ROOT
 # to the folder containing best_model.pkl
 APPLIANCE_MODEL_DIR: dict[str, str] = {
-    "aircon":       "Model_aircon/model/sarimax/aircon_final_hourly_with_weather",
-    "electric_fan": "Model_efan/model/sarimax/electric_fan_final_hourly_with_weather",
-    "refrigerator": "Refrigerator_Model/model/sarimax/refrigerator_final_hourly_with_weather",
+    "aircon":       "Final_Aircon/model/sarimax/aircon_model_ready",
+    "electric_fan": "Final_electricfan/sarimax/electric_fan_model_ready",
+    "refrigerator": "Final_Ref/model/sarimax/refrigerator_model_ready",
 }
 
 # ---------------------------------------------------------------------------

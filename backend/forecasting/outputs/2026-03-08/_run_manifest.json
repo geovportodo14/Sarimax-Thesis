@@ -1,10 +1,13 @@
 {
-  "generated_at": "2026-03-16T13:33:14.958417",
+  "generated_at": "2026-03-17T03:51:17.419215+08:00",
   "forecast_date": "2026-03-08",
   "config": {
     "horizon": 24,
     "tariff": 11.5,
-    "budget": 200.0
+    "budget": 200.0,
+    "scheduler_enabled": true,
+    "scheduler_max_shift_hours": 3,
+    "scheduler_peak_penalty": 1.0
   },
   "ok": 3,
   "failed": 0,
@@ -13,49 +16,63 @@
       "appliance": "aircon",
       "status": "ok",
       "last_actual_ts": "2026-03-07 23:50:00+08:00",
-      "forecast_start": "2026-03-08 00:00:00",
-      "forecast_end": "2026-03-08 23:00:00",
-      "total_kwh": 3.052317,
-      "total_cost_php": 35.1016,
+      "forecast_start": "2026-03-08 00:00:00+08:00",
+      "forecast_end": "2026-03-08 23:00:00+08:00",
+      "total_kwh": 2.404373,
+      "total_cost_php": 27.6503,
       "n_rows": 24
     },
     {
       "appliance": "electric_fan",
       "status": "ok",
       "last_actual_ts": "2026-03-07 23:50:00+08:00",
-      "forecast_start": "2026-03-08 00:00:00",
-      "forecast_end": "2026-03-08 23:00:00",
-      "total_kwh": 0.448359,
-      "total_cost_php": 5.1561,
+      "forecast_start": "2026-03-08 00:00:00+08:00",
+      "forecast_end": "2026-03-08 23:00:00+08:00",
+      "total_kwh": 0.442853,
+      "total_cost_php": 5.0928,
       "n_rows": 24
     },
     {
       "appliance": "refrigerator",
       "status": "ok",
       "last_actual_ts": "2026-03-07 23:50:00+08:00",
-      "forecast_start": "2026-03-08 00:00:00",
-      "forecast_end": "2026-03-08 23:00:00",
-      "total_kwh": 3.315402,
-      "total_cost_php": 38.1271,
+      "forecast_start": "2026-03-08 00:00:00+08:00",
+      "forecast_end": "2026-03-08 23:00:00+08:00",
+      "total_kwh": 2.228444,
+      "total_cost_php": 25.6271,
       "n_rows": 24
     }
   ],
   "failures": [],
+  "optimization": {
+    "status": "ok",
+    "solver": "cbc",
+    "baseline_total_cost_php": 54.2648,
+    "optimized_total_cost_php": 53.68,
+    "estimated_savings_php": 0.5848,
+    "estimated_savings_pct": 1.08,
+    "baseline_peak_kwh": 0.628607,
+    "optimized_peak_kwh": 0.603167,
+    "peak_reduction_kwh": 0.02544
+  },
   "recommendation": {
     "forecast_date": "2026-03-08",
     "daily_budget_php": 200.0,
-    "predicted_cost_php": 78.3848,
-    "budget_remaining": 121.6152,
-    "budget_utilization": 0.3919,
+    "predicted_cost_php": 58.3702,
+    "budget_remaining": 141.6298,
+    "budget_utilization": 0.2919,
     "status": "within_budget",
     "messages": [
-      "\u2705 Expected to stay within budget. Predicted cost \u20b178.38 vs. budget \u20b1200.00.",
-      "\ud83d\udcca Highest usage: Refrigerator (\u20b138.13, 49% of predicted daily spend)."
+      "\u2705 Expected to stay within budget. Predicted cost \u20b158.37 vs. budget \u20b1200.00.",
+      "\ud83d\udcca Highest usage: Aircon (\u20b127.65, 47% of predicted daily spend).",
+      "\ud83e\udde0 Optimized schedule estimate: save \u20b10.58 (from \u20b158.37 to \u20b153.68).",
+      "\ud83d\udcc9 Peak-hour load reduction estimate: 0.025 kWh.",
+      "\ud83d\udd52 Top scheduling action: Reduce aircon around 21:00 (high-cost slot)."
     ],
     "appliance_breakdown": {
-      "aircon": 35.1016,
-      "electric_fan": 5.1561,
-      "refrigerator": 38.1271
+      "aircon": 27.6503,
+      "electric_fan": 5.0928,
+      "refrigerator": 25.6271
     }
   }
 }

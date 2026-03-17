@@ -107,6 +107,15 @@ def load_history_from_csv(history_dir: Path, appliance: str) -> pd.DataFrame:
         raise ValueError(f"{path.name}: must contain 'timestamp' and 'energy' columns.")
 
     df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+    df = df.dropna(subset=["timestamp"])
+
+    # Normalize CSV history to Manila time (+08:00) so it aligns with
+    # forecast windows and lag lookups.
+    if getattr(df["timestamp"].dt, "tz", None) is None:
+        df["timestamp"] = df["timestamp"].dt.tz_localize(MANILA_TZ)
+    else:
+        df["timestamp"] = df["timestamp"].dt.tz_convert(MANILA_TZ)
+
     df = df.sort_values("timestamp").drop_duplicates("timestamp").set_index("timestamp")
     return df
 
