@@ -5,17 +5,28 @@ import { calculateMeralcoBill } from '../utils/meralcoCalculator';
 import BillBreakdownModal from '../components/BillBreakdownModal';
 import { getApiUrl } from '../utils/api';
 
+const formatApplianceName = (appliance) => {
+    if (appliance === 'aircon') return 'Air Conditioner';
+    if (appliance === 'electric_fan') return 'Electric Fan';
+    if (appliance === 'refrigerator') return 'Refrigerator';
+    return appliance;
+};
+
+const formatHourLabel = (hour) => `${String(hour).padStart(2, '0')}:00`;
+
 export default function LandingPage({ onEnterDashboard, monthlySummary, loadingSummary }) {
     const [budgetTarget, setBudgetTarget] = useState(4500);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [tomorrowForecast, setTomorrowForecast] = useState(null);
     const [showSavingStrategy, setShowSavingStrategy] = useState(false);
+    const [showMilpRationale, setShowMilpRationale] = useState(false);
 
     useEffect(() => {
         if (!showSavingStrategy) return undefined;
         const handleEscape = (event) => {
             if (event.key === 'Escape') {
                 setShowSavingStrategy(false);
+                setShowMilpRationale(false);
             }
         };
         window.addEventListener('keydown', handleEscape);
@@ -51,28 +62,53 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
         return 0;
     }, [tomorrowForecast]);
 
-    const optimizationSummary = tomorrowForecast?.optimization_summary || tomorrowForecast?.schedule?.optimization_summary || null;
+    const scheduleData = tomorrowForecast?.schedule || null;
+    const scheduleAppliances = useMemo(
+        () => (Array.isArray(scheduleData?.appliances) ? scheduleData.appliances : []),
+        [scheduleData]
+    );
+    const optimizationSummary = tomorrowForecast?.optimization_summary || scheduleData?.optimization_summary || null;
+    const baselineTotalCostPhp = Number(scheduleData?.baseline_total_cost_php ?? 0);
+    const optimizedTotalCostPhp = Number(scheduleData?.optimized_total_cost_php ?? 0);
     const estimatedSavingsPhp = Number(
-        tomorrowForecast?.schedule?.estimated_savings_php
+        scheduleData?.estimated_savings_php
         ?? optimizationSummary?.estimated_savings_php
+        ?? Math.max(0, baselineTotalCostPhp - optimizedTotalCostPhp)
+        ?? 0
+    );
+    const estimatedSavingsPct = Number(
+        scheduleData?.estimated_savings_pct
+        ?? optimizationSummary?.estimated_savings_pct
         ?? 0
     );
     const peakReductionKwh = Number(
-        tomorrowForecast?.schedule?.peak_reduction_kwh
+        scheduleData?.peak_reduction_kwh
         ?? optimizationSummary?.peak_reduction_kwh
         ?? 0
     );
-    const hasOptimizationData = estimatedSavingsPhp > 0 || peakReductionKwh > 0;
-    const formatApplianceName = (appliance) => {
-        if (appliance === 'aircon') return 'Air Conditioner';
-        if (appliance === 'electric_fan') return 'Electric Fan';
-        if (appliance === 'refrigerator') return 'Refrigerator';
-        return appliance;
-    };
+    const hasOptimizationData = scheduleAppliances.length > 0;
+    const forecastDateLabel = useMemo(() => {
+        const raw = scheduleData?.forecast_date || tomorrowForecast?.forecast_date;
+        if (!raw) return 'Tomorrow';
+        const dt = new Date(`${raw}T00:00:00+08:00`);
+        if (Number.isNaN(dt.getTime())) return raw;
+        return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'Asia/Manila' }).format(dt);
+    }, [scheduleData, tomorrowForecast]);
+    const generatedAtLabel = useMemo(() => {
+        const raw = scheduleData?.generated_at;
+        if (!raw) return 'Pending run';
+        const dt = new Date(raw);
+        if (Number.isNaN(dt.getTime())) return 'Pending run';
+        return new Intl.DateTimeFormat('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Manila'
+        }).format(dt);
+    }, [scheduleData]);
     const appliancePriorities = useMemo(() => {
-        const scheduleApps = tomorrowForecast?.schedule?.appliances;
-        if (!Array.isArray(scheduleApps)) return [];
-        return scheduleApps
+        if (!scheduleAppliances.length) return [];
+        return scheduleAppliances
             .filter((app) => app.schedulable)
             .map((app) => ({
                 appliance: app.appliance,
@@ -80,48 +116,84 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                 shifted: Number(app.shifted_kwh || 0)
             }))
             .sort((a, b) => b.shifted - a.shifted)
-            .slice(0, 2);
-    }, [tomorrowForecast]);
-    const topRecommendedAction = useMemo(() => {
-        const topActions = optimizationSummary?.top_actions;
-        if (Array.isArray(topActions) && topActions.length > 0) {
-            return topActions[0];
-        }
-
-        const scheduleApps = tomorrowForecast?.schedule?.appliances;
-        if (!Array.isArray(scheduleApps)) {
-            return 'Follow the optimizer schedule to avoid peak-rate hours.';
-        }
-
-        const candidates = [];
-        scheduleApps.forEach((app) => {
+            .slice(0, 3);
+    }, [scheduleAppliances]);
+    const optimizerActionCards = useMemo(() => {
+        if (!scheduleAppliances.length) return [];
+        const cards = [];
+        scheduleAppliances.forEach((app) => {
             (app.hourly || []).forEach((row) => {
-                const reduction = Math.abs(Math.min(0, Number(row.delta_kwh || 0)));
-                if (reduction < 0.03) return;
-                candidates.push({
+                const hour = Number(row.hour ?? -1);
+                if (hour < 0 || hour > 23) return;
+
+                const baseline = Number(row.baseline_kwh || 0);
+                const optimized = Number(row.optimized_kwh || 0);
+                const reductionKwh = Math.max(0, baseline - optimized);
+                if (reductionKwh < 0.02) return;
+
+                const tariff = Number(row.tariff_php_per_kwh || 0);
+                const pesoImpact = reductionKwh * tariff;
+                cards.push({
                     appliance: app.appliance,
-                    hour: Number(row.hour ?? 0),
-                    reduction,
-                    tariff: Number(row.tariff_php_per_kwh || 0)
+                    applianceLabel: formatApplianceName(app.appliance),
+                    hour,
+                    hourLabel: formatHourLabel(hour),
+                    reductionKwh,
+                    pesoImpact,
+                    action: row.action || 'Shift usage away from expensive hours'
                 });
             });
         });
 
-        candidates.sort((a, b) => (b.reduction * b.tariff) - (a.reduction * a.tariff));
-        if (candidates.length === 0) {
-            return 'Shift discretionary usage away from peak-rate hours.';
+        cards.sort((a, b) => (b.pesoImpact - a.pesoImpact) || (b.reductionKwh - a.reductionKwh));
+        return cards.slice(0, 3);
+    }, [scheduleAppliances]);
+    const scheduleHourProfile = useMemo(() => {
+        if (!scheduleAppliances.length) return [];
+        const byHour = Array.from({ length: 24 }, (_, hour) => ({
+            hour,
+            baseline: 0,
+            optimized: 0
+        }));
+
+        scheduleAppliances.forEach((app) => {
+            (app.hourly || []).forEach((row) => {
+                const hour = Number(row.hour ?? -1);
+                if (hour < 0 || hour > 23) return;
+                byHour[hour].baseline += Number(row.baseline_kwh || 0);
+                byHour[hour].optimized += Number(row.optimized_kwh || 0);
+            });
+        });
+
+        const maxKwh = Math.max(...byHour.map((h) => Math.max(h.baseline, h.optimized)), 0.001);
+        return byHour.map((h) => ({
+            ...h,
+            baselinePct: (h.baseline / maxKwh) * 100,
+            optimizedPct: (h.optimized / maxKwh) * 100
+        }));
+    }, [scheduleAppliances]);
+    const topRecommendedAction = useMemo(() => {
+        if (optimizerActionCards.length > 0) {
+            const best = optimizerActionCards[0];
+            return `Shift ${best.applianceLabel} around ${best.hourLabel} to save about ₱${best.pesoImpact.toFixed(2)}.`;
         }
 
-        const best = candidates[0];
-        return `Reduce ${formatApplianceName(best.appliance)} around ${String(best.hour).padStart(2, '0')}:00.`;
-    }, [optimizationSummary, tomorrowForecast]);
+        const topActions = optimizationSummary?.top_actions;
+        if (Array.isArray(topActions) && topActions.length > 0) return topActions[0];
+        return 'Follow the optimized schedule to avoid high-rate hours.';
+    }, [optimizerActionCards, optimizationSummary]);
     const topOptimizerActions = useMemo(() => {
+        if (optimizerActionCards.length > 0) {
+            return optimizerActionCards.map((card) =>
+                `${card.applianceLabel} at ${card.hourLabel}: save ₱${card.pesoImpact.toFixed(2)}`
+            );
+        }
         const topActions = optimizationSummary?.top_actions;
         if (Array.isArray(topActions) && topActions.length > 0) {
             return topActions.slice(0, 3);
         }
         return [topRecommendedAction];
-    }, [optimizationSummary, topRecommendedAction]);
+    }, [optimizerActionCards, optimizationSummary, topRecommendedAction]);
 
     const now = new Date();
     const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
@@ -349,7 +421,14 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
 
                                 <div className="mb-2 relative">
                                     <button
-                                        onClick={() => setShowSavingStrategy((prev) => !prev)}
+                                        onClick={() => {
+                                            if (showSavingStrategy) {
+                                                setShowSavingStrategy(false);
+                                                setShowMilpRationale(false);
+                                            } else {
+                                                setShowSavingStrategy(true);
+                                            }
+                                        }}
                                         aria-expanded={showSavingStrategy}
                                         aria-controls="milp-strategy-popover"
                                         className="w-full py-3 px-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-between group"
@@ -358,7 +437,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                             <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center">
                                                 <TrendingDown size={14} />
                                             </div>
-                                            {showSavingStrategy ? 'Hide Optimization Strategy' : 'View Optimization Strategy'}
+                                            {showSavingStrategy ? 'Hide Smart Schedule' : 'Preview Smart Schedule'}
                                         </div>
                                         <motion.div animate={{ rotate: showSavingStrategy ? 90 : 0 }}>
                                             <ChevronRight size={16} />
@@ -374,7 +453,10 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                                     initial={{ opacity: 0 }}
                                                     animate={{ opacity: 1 }}
                                                     exit={{ opacity: 0 }}
-                                                    onClick={() => setShowSavingStrategy(false)}
+                                                    onClick={() => {
+                                                        setShowSavingStrategy(false);
+                                                        setShowMilpRationale(false);
+                                                    }}
                                                 />
                                                 <motion.div
                                                     id="milp-strategy-popover"
@@ -393,7 +475,10 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
 
                                                         <button
                                                             type="button"
-                                                            onClick={() => setShowSavingStrategy(false)}
+                                                            onClick={() => {
+                                                                setShowSavingStrategy(false);
+                                                                setShowMilpRationale(false);
+                                                            }}
                                                             className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-white/80 border border-indigo-100 text-indigo-700 hover:bg-white transition-colors flex items-center justify-center z-20"
                                                             aria-label="Close strategy popover"
                                                         >
@@ -404,31 +489,121 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                                             <div className="flex items-center justify-between gap-3 mb-5">
                                                                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-600/10 text-indigo-700 text-[10px] font-black uppercase tracking-wider">
                                                                     <Cpu size={11} />
-                                                                    Optimization Engine
+                                                                    MILP Optimizer
                                                                 </div>
                                                                 <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500 pr-10">
-                                                                    MILP Strategy
+                                                                    Decision Preview
                                                                 </span>
                                                             </div>
 
-                                                            <h4 className="text-xl font-black text-indigo-950 tracking-tight mb-4">Your Saving Strategy</h4>
+                                                            <h4 className="text-xl font-black text-indigo-950 tracking-tight mb-4">Tomorrow&apos;s Smart Schedule</h4>
 
                                                             {hasOptimizationData ? (
                                                                 <div className="space-y-4">
-                                                                    <div className="grid grid-cols-2 gap-3">
-                                                                        <div className="rounded-2xl bg-white/90 border border-white shadow-sm p-3">
-                                                                            <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Total Savings</p>
-                                                                            <p className="text-2xl sm:text-3xl font-black text-indigo-950 tracking-tight tabular-nums">₱{estimatedSavingsPhp.toFixed(2)}</p>
+                                                                    <div className="rounded-2xl bg-indigo-950 text-white p-4 sm:p-5 shadow-2xl">
+                                                                        <div className="flex items-center justify-between gap-3 mb-2">
+                                                                            <p className="text-[9px] font-bold text-indigo-300 uppercase tracking-widest">Save Plan • {forecastDateLabel}</p>
+                                                                            <span className="text-[10px] font-bold bg-indigo-800/80 px-2 py-0.5 rounded-full">Generated {generatedAtLabel}</span>
                                                                         </div>
-                                                                        <div className="rounded-2xl bg-white/90 border border-white shadow-sm p-3">
-                                                                            <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Peak Reduction</p>
-                                                                            <p className="text-2xl sm:text-3xl font-black text-indigo-950 tracking-tight tabular-nums">{peakReductionKwh.toFixed(2)}<span className="text-sm font-bold ml-1">kWh</span></p>
+                                                                        <p className="text-2xl sm:text-3xl font-black tracking-tight tabular-nums mb-1">
+                                                                            Save ₱{estimatedSavingsPhp.toFixed(2)} tomorrow
+                                                                        </p>
+                                                                        <p className="text-xs text-indigo-200 leading-relaxed">
+                                                                            Cost shifts from ₱{baselineTotalCostPhp.toFixed(2)} to ₱{optimizedTotalCostPhp.toFixed(2)}
+                                                                            {' '}({estimatedSavingsPct.toFixed(2)}% improvement).
+                                                                        </p>
+                                                                        <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
+                                                                            <span className="px-2 py-1 rounded-full bg-indigo-800/70 text-indigo-100">
+                                                                                Peak {peakReductionKwh >= 0 ? `-${peakReductionKwh.toFixed(2)} kWh` : `+${Math.abs(peakReductionKwh).toFixed(2)} kWh`}
+                                                                            </span>
+                                                                            <span className="px-2 py-1 rounded-full bg-indigo-800/70 text-indigo-100">MILP + SARIMAX</span>
                                                                         </div>
                                                                     </div>
 
                                                                     <div className="rounded-2xl border border-indigo-100 bg-white/70 p-3">
-                                                                        <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-2">Priority Appliances</p>
-                                                                        <div className="flex flex-wrap gap-2">
+                                                                        <div className="flex items-center justify-between gap-2 mb-2">
+                                                                            <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Before vs Optimized (24h)</p>
+                                                                            <p className="text-[10px] font-semibold text-indigo-600">lower bars = lower kWh</p>
+                                                                        </div>
+                                                                        {scheduleHourProfile.length > 0 ? (
+                                                                            <>
+                                                                                <div className="h-20 rounded-xl border border-indigo-100 bg-white p-2 flex items-end gap-[2px] overflow-hidden">
+                                                                                    {scheduleHourProfile.map((slot) => (
+                                                                                        <div key={slot.hour} className="flex-1 min-w-0 flex items-end justify-center gap-[1px]">
+                                                                                            <div
+                                                                                                title={`Base ${formatHourLabel(slot.hour)}: ${slot.baseline.toFixed(3)} kWh`}
+                                                                                                className="w-1.5 rounded-t-sm bg-slate-300"
+                                                                                                style={{ height: `${Math.max(4, slot.baselinePct)}%` }}
+                                                                                            />
+                                                                                            <div
+                                                                                                title={`Optimized ${formatHourLabel(slot.hour)}: ${slot.optimized.toFixed(3)} kWh`}
+                                                                                                className="w-1.5 rounded-t-sm bg-indigo-500"
+                                                                                                style={{ height: `${Math.max(4, slot.optimizedPct)}%` }}
+                                                                                            />
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                                <div className="flex justify-between mt-2 text-[10px] text-indigo-400 font-semibold">
+                                                                                    <span>00:00</span>
+                                                                                    <span>12:00</span>
+                                                                                    <span>23:00</span>
+                                                                                </div>
+                                                                            </>
+                                                                        ) : (
+                                                                            <p className="text-xs text-indigo-700">Timeline preview will appear after schedule generation.</p>
+                                                                        )}
+                                                                    </div>
+
+                                                                    <div className="bg-indigo-950 rounded-2xl p-4 text-white shadow-2xl flex items-center gap-4">
+                                                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-indigo-800 flex items-center justify-center shrink-0 shadow-lg">
+                                                                            <CloudLightning size={20} className="text-white" />
+                                                                        </div>
+                                                                        <div className="min-w-0">
+                                                                            <p className="text-[9px] font-bold text-indigo-300 uppercase tracking-widest mb-1">Recommended Next Step</p>
+                                                                            <p className="text-xs sm:text-sm font-bold leading-tight">{topRecommendedAction}</p>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="rounded-2xl border border-indigo-100 bg-white/85 p-3">
+                                                                        <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-2">Top Actions (Highest Impact)</p>
+                                                                        <div className="space-y-2">
+                                                                            {optimizerActionCards.length > 0 ? (
+                                                                                optimizerActionCards.map((card, idx) => (
+                                                                                    <div key={`${card.appliance}-${card.hour}`} className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-2.5">
+                                                                                        <div className="flex items-center justify-between gap-3">
+                                                                                            <p className="text-xs font-bold text-indigo-900">{idx + 1}. {card.applianceLabel}</p>
+                                                                                            <span className="text-[10px] font-bold text-indigo-600">{card.hourLabel}</span>
+                                                                                        </div>
+                                                                                        <p className="mt-1 text-[11px] text-indigo-800 font-semibold">
+                                                                                            Save about ₱{card.pesoImpact.toFixed(2)} by shifting {card.reductionKwh.toFixed(2)} kWh
+                                                                                        </p>
+                                                                                    </div>
+                                                                                ))
+                                                                            ) : (
+                                                                                topOptimizerActions.map((action, idx) => (
+                                                                                    <div key={`${action}-${idx}`} className="flex items-start gap-2 text-xs text-indigo-900">
+                                                                                        <span className="w-5 h-5 mt-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-black flex items-center justify-center shrink-0">
+                                                                                            {idx + 1}
+                                                                                        </span>
+                                                                                        <p className="leading-relaxed font-semibold">{action}</p>
+                                                                                    </div>
+                                                                                ))
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="rounded-2xl border border-indigo-100 bg-white/85 p-3">
+                                                                        <div className="flex items-center justify-between gap-3">
+                                                                            <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Priority Appliances</p>
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => setShowMilpRationale((prev) => !prev)}
+                                                                                className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 underline underline-offset-2"
+                                                                            >
+                                                                                Why this plan?
+                                                                            </button>
+                                                                        </div>
+                                                                        <div className="flex flex-wrap gap-2 mt-2">
                                                                             {appliancePriorities.length > 0 ? (
                                                                                 appliancePriorities.map((app) => (
                                                                                     <span
@@ -442,31 +617,30 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                                                                 <span className="text-xs text-indigo-700">No schedulable appliance priorities yet.</span>
                                                                             )}
                                                                         </div>
+
+                                                                        <AnimatePresence initial={false}>
+                                                                            {showMilpRationale && (
+                                                                                <motion.div
+                                                                                    initial={{ height: 0, opacity: 0 }}
+                                                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                                                    exit={{ height: 0, opacity: 0 }}
+                                                                                    className="overflow-hidden"
+                                                                                >
+                                                                                    <div className="mt-3 p-3 rounded-xl bg-indigo-50 border border-indigo-100 text-[11px] text-indigo-900 leading-relaxed">
+                                                                                        This schedule balances three factors: hourly tariff rates, comfort limits per appliance, and max shift windows.
+                                                                                        It only moves flexible usage to lower-cost slots while keeping non-shiftable loads (like refrigerator) stable.
+                                                                                    </div>
+                                                                                </motion.div>
+                                                                            )}
+                                                                        </AnimatePresence>
                                                                     </div>
 
-                                                                    <div className="bg-indigo-950 rounded-2xl p-4 text-white shadow-2xl flex items-center gap-4">
-                                                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-indigo-800 flex items-center justify-center shrink-0 shadow-lg">
-                                                                            <CloudLightning size={20} className="text-white" />
-                                                                        </div>
-                                                                        <div className="min-w-0">
-                                                                            <p className="text-[9px] font-bold text-indigo-300 uppercase tracking-widest mb-1">Recommended Task</p>
-                                                                            <p className="text-xs sm:text-sm font-bold leading-tight">{topRecommendedAction}</p>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="rounded-2xl border border-indigo-100 bg-white/85 p-3">
-                                                                        <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-2">Top Optimizer Actions</p>
-                                                                        <div className="space-y-2">
-                                                                            {topOptimizerActions.map((action, idx) => (
-                                                                                <div key={`${action}-${idx}`} className="flex items-start gap-2 text-xs text-indigo-900">
-                                                                                    <span className="w-5 h-5 mt-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-black flex items-center justify-center shrink-0">
-                                                                                        {idx + 1}
-                                                                                    </span>
-                                                                                    <p className="leading-relaxed font-semibold">{action}</p>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    </div>
+                                                                    <button
+                                                                        onClick={onEnterDashboard}
+                                                                        className="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200"
+                                                                    >
+                                                                        Open Full Schedule in Dashboard
+                                                                    </button>
                                                                 </div>
                                                             ) : (
                                                                 <div className="py-8 px-4 rounded-2xl bg-white/50 border border-dashed border-indigo-200 text-center">
@@ -474,8 +648,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                                                         <TrendingDown size={20} />
                                                                     </div>
                                                                     <p className="text-xs sm:text-sm text-indigo-800 font-medium leading-relaxed">
-                                                                        Generate tomorrow forecast first to produce
-                                                                        <span className="font-black text-indigo-600"> targeted appliance recommendations</span>.
+                                                                        We&apos;re waiting for the next schedule run. This preview updates automatically once the day-ahead forecast is generated.
                                                                     </p>
                                                                 </div>
                                                             )}

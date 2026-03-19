@@ -1,0 +1,77 @@
+{
+  "generated_at": "2026-03-19T08:24:37.817736+08:00",
+  "forecast_date": "2026-03-20",
+  "config": {
+    "horizon": 24,
+    "tariff": 11.5,
+    "budget": 200.0,
+    "scheduler_enabled": true,
+    "scheduler_max_shift_hours": 3,
+    "scheduler_peak_penalty": 1.0
+  },
+  "ok": 3,
+  "failed": 0,
+  "results": [
+    {
+      "appliance": "aircon",
+      "status": "ok",
+      "last_actual_ts": "2026-03-19 08:20:00.134000+08:00",
+      "forecast_start": "2026-03-20 00:00:00+08:00",
+      "forecast_end": "2026-03-20 23:00:00+08:00",
+      "total_kwh": 1.099391,
+      "total_cost_php": 12.643,
+      "n_rows": 24
+    },
+    {
+      "appliance": "electric_fan",
+      "status": "ok",
+      "last_actual_ts": "2026-03-19 08:20:00.134000+08:00",
+      "forecast_start": "2026-03-20 00:00:00+08:00",
+      "forecast_end": "2026-03-20 23:00:00+08:00",
+      "total_kwh": 0.462923,
+      "total_cost_php": 5.3236,
+      "n_rows": 24
+    },
+    {
+      "appliance": "refrigerator",
+      "status": "ok",
+      "last_actual_ts": "2026-03-19 08:20:00.134000+08:00",
+      "forecast_start": "2026-03-20 00:00:00+08:00",
+      "forecast_end": "2026-03-20 23:00:00+08:00",
+      "total_kwh": 2.048231,
+      "total_cost_php": 23.5547,
+      "n_rows": 24
+    }
+  ],
+  "failures": [],
+  "optimization": {
+    "status": "ok",
+    "solver": "cbc",
+    "baseline_total_cost_php": 39.8562,
+    "optimized_total_cost_php": 39.4628,
+    "estimated_savings_php": 0.3934,
+    "estimated_savings_pct": 0.99,
+    "baseline_peak_kwh": 0.235538,
+    "optimized_peak_kwh": 0.239971,
+    "peak_reduction_kwh": -0.004433
+  },
+  "recommendation": {
+    "forecast_date": "2026-03-20",
+    "daily_budget_php": 200.0,
+    "predicted_cost_php": 41.5213,
+    "budget_remaining": 158.4787,
+    "budget_utilization": 0.2076,
+    "status": "within_budget",
+    "messages": [
+      "\u2705 Expected to stay within budget. Predicted cost \u20b141.52 vs. budget \u20b1200.00.",
+      "\ud83d\udcca Highest usage: Refrigerator (\u20b123.55, 57% of predicted daily spend).",
+      "\ud83e\udde0 Optimized schedule estimate: save \u20b10.39 (from \u20b141.52 to \u20b139.46).",
+      "\ud83d\udd52 Top scheduling action: Reduce aircon around 06:00 (high-cost slot)."
+    ],
+    "appliance_breakdown": {
+      "aircon": 12.643,
+      "electric_fan": 5.3236,
+      "refrigerator": 23.5547
+    }
+  }
+}
