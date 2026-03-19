@@ -78,11 +78,19 @@ SCHEDULER_TIME_STEP_HOURS: int = int(os.getenv("SCHEDULER_TIME_STEP_HOURS", "1")
 SCHEDULER_PEAK_PENALTY_PHP_PER_KWH: float = float(os.getenv("SCHEDULER_PEAK_PENALTY_PHP_PER_KWH", "1.0"))
 SCHEDULER_MAX_SHIFT_HOURS: int = int(os.getenv("SCHEDULER_MAX_SHIFT_HOURS", "3"))
 
-# Derive a simple TOU profile from the configured base tariff.
+# Binary ON/OFF mode (as described in MILP.md)
+# True  → binary b_vars with hard budget constraint (recommended)
+# False → legacy continuous load-shifting mode
+SCHEDULER_BINARY_MODE: bool = os.getenv("SCHEDULER_BINARY_MODE", "true").lower() == "true"
+
+# TOU tariff profile (household usage is concentrated at night)
+# night  18:00-05:59  → off-peak discount (when aircon/fan actually run)
+# mid    06:00-12:59  → normal rate
+# peak   13:00-17:59  → peak surcharge (appliances NOT scheduled here)
 SCHEDULER_TARIFF_MULTIPLIERS: dict[str, float] = {
-    "off_peak": float(os.getenv("SCHEDULER_OFFPEAK_MULTIPLIER", "0.85")),  # 00:00-05:59, 22:00-23:59
-    "mid":      float(os.getenv("SCHEDULER_MID_MULTIPLIER", "1.00")),      # 06:00-12:59, 18:00-21:59
-    "peak":     float(os.getenv("SCHEDULER_PEAK_MULTIPLIER", "1.25")),     # 13:00-17:59
+    "night": float(os.getenv("SCHEDULER_NIGHT_MULTIPLIER", "0.85")),   # 18:00-05:59
+    "mid":   float(os.getenv("SCHEDULER_MID_MULTIPLIER",   "1.00")),   # 06:00-12:59
+    "peak":  float(os.getenv("SCHEDULER_PEAK_MULTIPLIER",  "1.25")),   # 13:00-17:59
 }
 
 SCHEDULER_COMFORT_PENALTY: dict[str, float] = {
@@ -92,22 +100,25 @@ SCHEDULER_COMFORT_PENALTY: dict[str, float] = {
 }
 
 # Appliance scheduling policy:
-# - refrigerator is treated as non-shiftable baseline
-# - aircon and electric_fan can move within user-friendly windows
+# - refrigerator: non-schedulable, runs 24/7 continuously
+# - aircon / electric_fan: NIGHT-ONLY use (household pattern)
+#   Allowed window: 18:00-23:59 (same day) and 00:00-05:59 (next day)
+_NIGHT_HOURS: list[int] = list(range(18, 24)) + list(range(0, 6))  # 6 PM – 5 AM
+
 SCHEDULER_APPLIANCE_RULES: dict[str, dict[str, Any]] = {
     "aircon": {
         "schedulable": True,
-        "allowed_hours": list(range(8, 24)),  # typically used daytime/evening
+        "allowed_hours": _NIGHT_HOURS,   # night-only: 6 PM – 5 AM
         "max_shift_hours": SCHEDULER_MAX_SHIFT_HOURS,
     },
     "electric_fan": {
         "schedulable": True,
-        "allowed_hours": list(range(6, 24)),
+        "allowed_hours": _NIGHT_HOURS,   # night-only: 6 PM – 5 AM
         "max_shift_hours": SCHEDULER_MAX_SHIFT_HOURS,
     },
     "refrigerator": {
         "schedulable": False,
-        "allowed_hours": list(range(24)),
+        "allowed_hours": list(range(24)),  # continuous 24/7
         "max_shift_hours": 0,
     },
 }
@@ -166,6 +177,7 @@ class PipelineConfig:
     save_csv: bool = SAVE_CSV
     save_mongo: bool = SAVE_MONGO
     scheduler_enabled: bool = SCHEDULER_ENABLED
+    scheduler_binary_mode: bool = SCHEDULER_BINARY_MODE
     scheduler_time_step_hours: int = SCHEDULER_TIME_STEP_HOURS
     scheduler_peak_penalty: float = SCHEDULER_PEAK_PENALTY_PHP_PER_KWH
     scheduler_max_shift_hours: int = SCHEDULER_MAX_SHIFT_HOURS

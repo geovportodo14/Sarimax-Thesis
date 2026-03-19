@@ -8,9 +8,9 @@
   "messages": [
     "\u2705 Expected to stay within budget. Predicted cost \u20b149.40 vs. budget \u20b1200.00.",
     "\ud83d\udcca Highest usage: Refrigerator (\u20b125.27, 51% of predicted daily spend).",
-    "\ud83e\udde0 Optimized schedule estimate: save \u20b11.18 (from \u20b149.40 to \u20b146.29).",
-    "\ud83d\udcc9 Peak-hour load reduction estimate: 0.022 kWh.",
-    "\ud83d\udd52 Top scheduling action: Reduce aircon around 17:00 (high-cost slot)."
+    "\ud83e\udde0 Optimized schedule estimate: save \u20b13.27 (from \u20b149.40 to \u20b142.65).",
+    "\ud83d\udd52 Top scheduling action: Turn off aircon at 17:00 to stay within budget (saves \u20b10.71).",
+    "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Aircon: 12 AM \u2013 6 AM, 6 PM \u2013 midnight\n   \u2022 Electric Fan: 12 AM \u2013 6 AM, 6 PM \u2013 midnight\n   \u2022 Refrigerator: Continuous operation"
   ],
   "appliance_breakdown": {
     "aircon": 19.018,

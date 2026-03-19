@@ -363,11 +363,15 @@ def run_pipeline(cfg: PipelineConfig, force_date: Optional[str] = None) -> None:
                 max_shift_default=cfg.scheduler_max_shift_hours,
                 peak_penalty=cfg.scheduler_peak_penalty,
                 horizon=cfg.horizon,
+                budget_constraint_php=cfg.daily_budget,
+                binary_mode=cfg.scheduler_binary_mode,
             )
             schedule_dict = schedule.to_dict()
             manifest["optimization"] = {
                 "status": schedule.status,
                 "solver": schedule.solver,
+                "binary_mode": cfg.scheduler_binary_mode,
+                "budget_php": cfg.daily_budget,
                 "baseline_total_cost_php": schedule.baseline_total_cost_php,
                 "optimized_total_cost_php": schedule.optimized_total_cost_php,
                 "estimated_savings_php": schedule.estimated_savings_php,
@@ -375,7 +379,14 @@ def run_pipeline(cfg: PipelineConfig, force_date: Optional[str] = None) -> None:
                 "baseline_peak_kwh": schedule.baseline_peak_kwh,
                 "optimized_peak_kwh": schedule.optimized_peak_kwh,
                 "peak_reduction_kwh": schedule.peak_reduction_kwh,
+                "time_block_summary": schedule.time_block_summary,
             }
+
+            # Log the human-readable ON/OFF schedule (MILP.md output format)
+            if schedule.time_block_summary:
+                log.info("[scheduler] Recommended appliance schedule:")
+                for app, blocks in schedule.time_block_summary.items():
+                    log.info("  %-16s %s", app.replace("_", " ").title() + ":", blocks)
 
             if not cfg.dry_run and cfg.save_csv:
                 save_schedule_json(schedule_dict, cfg.outputs_dir, forecast_date)

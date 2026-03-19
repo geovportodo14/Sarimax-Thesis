@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, Zap, ShieldCheck, PlayCircle, Cpu, CloudLightning, LayoutDashboard, Snowflake, Wind, ThermometerSnowflake, AlertTriangle, CheckCircle2, ReceiptText, TrendingDown, ChevronRight, X } from 'lucide-react';
+import { ArrowRight, Zap, ShieldCheck, PlayCircle, Cpu, CloudLightning, LayoutDashboard, Snowflake, Wind, ThermometerSnowflake, AlertTriangle, CheckCircle2, ReceiptText, TrendingDown, ChevronRight, X, Calendar, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calculateMeralcoBill } from '../utils/meralcoCalculator';
 import BillBreakdownModal from '../components/BillBreakdownModal';
@@ -18,20 +18,16 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
     const [budgetTarget, setBudgetTarget] = useState(4500);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [tomorrowForecast, setTomorrowForecast] = useState(null);
-    const [showSavingStrategy, setShowSavingStrategy] = useState(false);
-    const [showMilpRationale, setShowMilpRationale] = useState(false);
+    const [showMilpModal, setShowMilpModal] = useState(false);
 
     useEffect(() => {
-        if (!showSavingStrategy) return undefined;
+        if (!showMilpModal) return undefined;
         const handleEscape = (event) => {
-            if (event.key === 'Escape') {
-                setShowSavingStrategy(false);
-                setShowMilpRationale(false);
-            }
+            if (event.key === 'Escape') setShowMilpModal(false);
         };
         window.addEventListener('keydown', handleEscape);
         return () => window.removeEventListener('keydown', handleEscape);
-    }, [showSavingStrategy]);
+    }, [showMilpModal]);
 
     useEffect(() => {
         const fetchTomorrowSummary = async () => {
@@ -87,6 +83,10 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
         ?? 0
     );
     const hasOptimizationData = scheduleAppliances.length > 0;
+    // time_block_summary from the new binary MILP scheduler
+    const timeBlockSummary = tomorrowForecast?.schedule?.time_block_summary
+        ?? tomorrowForecast?.optimization?.time_block_summary
+        ?? null;
     const forecastDateLabel = useMemo(() => {
         const raw = scheduleData?.forecast_date || tomorrowForecast?.forecast_date;
         if (!raw) return 'Tomorrow';
@@ -147,30 +147,6 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
 
         cards.sort((a, b) => (b.pesoImpact - a.pesoImpact) || (b.reductionKwh - a.reductionKwh));
         return cards.slice(0, 3);
-    }, [scheduleAppliances]);
-    const scheduleHourProfile = useMemo(() => {
-        if (!scheduleAppliances.length) return [];
-        const byHour = Array.from({ length: 24 }, (_, hour) => ({
-            hour,
-            baseline: 0,
-            optimized: 0
-        }));
-
-        scheduleAppliances.forEach((app) => {
-            (app.hourly || []).forEach((row) => {
-                const hour = Number(row.hour ?? -1);
-                if (hour < 0 || hour > 23) return;
-                byHour[hour].baseline += Number(row.baseline_kwh || 0);
-                byHour[hour].optimized += Number(row.optimized_kwh || 0);
-            });
-        });
-
-        const maxKwh = Math.max(...byHour.map((h) => Math.max(h.baseline, h.optimized)), 0.001);
-        return byHour.map((h) => ({
-            ...h,
-            baselinePct: (h.baseline / maxKwh) * 100,
-            optimizedPct: (h.optimized / maxKwh) * 100
-        }));
     }, [scheduleAppliances]);
     const topRecommendedAction = useMemo(() => {
         if (optimizerActionCards.length > 0) {
@@ -419,245 +395,21 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                     </motion.div>
                                 </AnimatePresence>
 
+                                {/* Smart Schedule Modal Trigger */}
                                 <div className="mb-2 relative">
                                     <button
-                                        onClick={() => {
-                                            if (showSavingStrategy) {
-                                                setShowSavingStrategy(false);
-                                                setShowMilpRationale(false);
-                                            } else {
-                                                setShowSavingStrategy(true);
-                                            }
-                                        }}
-                                        aria-expanded={showSavingStrategy}
-                                        aria-controls="milp-strategy-popover"
-                                        className="w-full py-3 px-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-between group"
+                                        onClick={() => setShowMilpModal(true)}
+                                        aria-haspopup="dialog"
+                                        className="w-full py-3 px-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-between group hover:bg-indigo-100/70 transition-colors"
                                     >
                                         <div className="flex items-center gap-2">
                                             <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center">
                                                 <TrendingDown size={14} />
                                             </div>
-                                            {showSavingStrategy ? 'Hide Smart Schedule' : 'Preview Smart Schedule'}
+                                            Preview Smart Schedule
                                         </div>
-                                        <motion.div animate={{ rotate: showSavingStrategy ? 90 : 0 }}>
-                                            <ChevronRight size={16} />
-                                        </motion.div>
+                                        <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
                                     </button>
-                                    <AnimatePresence>
-                                        {showSavingStrategy && (
-                                            <>
-                                                <motion.button
-                                                    type="button"
-                                                    aria-label="Close optimization strategy popover"
-                                                    className="fixed inset-0 z-30 bg-black/5 backdrop-blur-[1px]"
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    exit={{ opacity: 0 }}
-                                                    onClick={() => {
-                                                        setShowSavingStrategy(false);
-                                                        setShowMilpRationale(false);
-                                                    }}
-                                                />
-                                                <motion.div
-                                                    id="milp-strategy-popover"
-                                                    role="dialog"
-                                                    aria-modal="false"
-                                                    initial={{ y: 12, opacity: 0, scale: 0.98 }}
-                                                    animate={{ y: 0, opacity: 1, scale: 1 }}
-                                                    exit={{ y: 8, opacity: 0, scale: 0.98 }}
-                                                    transition={{ duration: 0.2 }}
-                                                    className="absolute left-0 right-0 top-full mt-3 z-40"
-                                                >
-                                                    <div className="rounded-[2rem] border border-indigo-100 bg-gradient-to-br from-indigo-50/95 to-blue-50/95 p-5 sm:p-7 relative overflow-hidden shadow-2xl max-h-[70vh] overflow-y-auto">
-                                                        <div className="absolute top-0 right-0 p-6 text-indigo-500/10 pointer-events-none">
-                                                            <TrendingDown size={120} strokeWidth={1} />
-                                                        </div>
-
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                setShowSavingStrategy(false);
-                                                                setShowMilpRationale(false);
-                                                            }}
-                                                            className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-white/80 border border-indigo-100 text-indigo-700 hover:bg-white transition-colors flex items-center justify-center z-20"
-                                                            aria-label="Close strategy popover"
-                                                        >
-                                                            <X size={14} />
-                                                        </button>
-
-                                                        <div className="relative z-10">
-                                                            <div className="flex items-center justify-between gap-3 mb-5">
-                                                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-600/10 text-indigo-700 text-[10px] font-black uppercase tracking-wider">
-                                                                    <Cpu size={11} />
-                                                                    MILP Optimizer
-                                                                </div>
-                                                                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-500 pr-10">
-                                                                    Decision Preview
-                                                                </span>
-                                                            </div>
-
-                                                            <h4 className="text-xl font-black text-indigo-950 tracking-tight mb-4">Tomorrow&apos;s Smart Schedule</h4>
-
-                                                            {hasOptimizationData ? (
-                                                                <div className="space-y-4">
-                                                                    <div className="rounded-2xl bg-indigo-950 text-white p-4 sm:p-5 shadow-2xl">
-                                                                        <div className="flex items-center justify-between gap-3 mb-2">
-                                                                            <p className="text-[9px] font-bold text-indigo-300 uppercase tracking-widest">Save Plan • {forecastDateLabel}</p>
-                                                                            <span className="text-[10px] font-bold bg-indigo-800/80 px-2 py-0.5 rounded-full">Generated {generatedAtLabel}</span>
-                                                                        </div>
-                                                                        <p className="text-2xl sm:text-3xl font-black tracking-tight tabular-nums mb-1">
-                                                                            Save ₱{estimatedSavingsPhp.toFixed(2)} tomorrow
-                                                                        </p>
-                                                                        <p className="text-xs text-indigo-200 leading-relaxed">
-                                                                            Cost shifts from ₱{baselineTotalCostPhp.toFixed(2)} to ₱{optimizedTotalCostPhp.toFixed(2)}
-                                                                            {' '}({estimatedSavingsPct.toFixed(2)}% improvement).
-                                                                        </p>
-                                                                        <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
-                                                                            <span className="px-2 py-1 rounded-full bg-indigo-800/70 text-indigo-100">
-                                                                                Peak {peakReductionKwh >= 0 ? `-${peakReductionKwh.toFixed(2)} kWh` : `+${Math.abs(peakReductionKwh).toFixed(2)} kWh`}
-                                                                            </span>
-                                                                            <span className="px-2 py-1 rounded-full bg-indigo-800/70 text-indigo-100">MILP + SARIMAX</span>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="rounded-2xl border border-indigo-100 bg-white/70 p-3">
-                                                                        <div className="flex items-center justify-between gap-2 mb-2">
-                                                                            <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Before vs Optimized (24h)</p>
-                                                                            <p className="text-[10px] font-semibold text-indigo-600">lower bars = lower kWh</p>
-                                                                        </div>
-                                                                        {scheduleHourProfile.length > 0 ? (
-                                                                            <>
-                                                                                <div className="h-20 rounded-xl border border-indigo-100 bg-white p-2 flex items-end gap-[2px] overflow-hidden">
-                                                                                    {scheduleHourProfile.map((slot) => (
-                                                                                        <div key={slot.hour} className="flex-1 min-w-0 flex items-end justify-center gap-[1px]">
-                                                                                            <div
-                                                                                                title={`Base ${formatHourLabel(slot.hour)}: ${slot.baseline.toFixed(3)} kWh`}
-                                                                                                className="w-1.5 rounded-t-sm bg-slate-300"
-                                                                                                style={{ height: `${Math.max(4, slot.baselinePct)}%` }}
-                                                                                            />
-                                                                                            <div
-                                                                                                title={`Optimized ${formatHourLabel(slot.hour)}: ${slot.optimized.toFixed(3)} kWh`}
-                                                                                                className="w-1.5 rounded-t-sm bg-indigo-500"
-                                                                                                style={{ height: `${Math.max(4, slot.optimizedPct)}%` }}
-                                                                                            />
-                                                                                        </div>
-                                                                                    ))}
-                                                                                </div>
-                                                                                <div className="flex justify-between mt-2 text-[10px] text-indigo-400 font-semibold">
-                                                                                    <span>00:00</span>
-                                                                                    <span>12:00</span>
-                                                                                    <span>23:00</span>
-                                                                                </div>
-                                                                            </>
-                                                                        ) : (
-                                                                            <p className="text-xs text-indigo-700">Timeline preview will appear after schedule generation.</p>
-                                                                        )}
-                                                                    </div>
-
-                                                                    <div className="bg-indigo-950 rounded-2xl p-4 text-white shadow-2xl flex items-center gap-4">
-                                                                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-indigo-800 flex items-center justify-center shrink-0 shadow-lg">
-                                                                            <CloudLightning size={20} className="text-white" />
-                                                                        </div>
-                                                                        <div className="min-w-0">
-                                                                            <p className="text-[9px] font-bold text-indigo-300 uppercase tracking-widest mb-1">Recommended Next Step</p>
-                                                                            <p className="text-xs sm:text-sm font-bold leading-tight">{topRecommendedAction}</p>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="rounded-2xl border border-indigo-100 bg-white/85 p-3">
-                                                                        <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-2">Top Actions (Highest Impact)</p>
-                                                                        <div className="space-y-2">
-                                                                            {optimizerActionCards.length > 0 ? (
-                                                                                optimizerActionCards.map((card, idx) => (
-                                                                                    <div key={`${card.appliance}-${card.hour}`} className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-2.5">
-                                                                                        <div className="flex items-center justify-between gap-3">
-                                                                                            <p className="text-xs font-bold text-indigo-900">{idx + 1}. {card.applianceLabel}</p>
-                                                                                            <span className="text-[10px] font-bold text-indigo-600">{card.hourLabel}</span>
-                                                                                        </div>
-                                                                                        <p className="mt-1 text-[11px] text-indigo-800 font-semibold">
-                                                                                            Save about ₱{card.pesoImpact.toFixed(2)} by shifting {card.reductionKwh.toFixed(2)} kWh
-                                                                                        </p>
-                                                                                    </div>
-                                                                                ))
-                                                                            ) : (
-                                                                                topOptimizerActions.map((action, idx) => (
-                                                                                    <div key={`${action}-${idx}`} className="flex items-start gap-2 text-xs text-indigo-900">
-                                                                                        <span className="w-5 h-5 mt-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-black flex items-center justify-center shrink-0">
-                                                                                            {idx + 1}
-                                                                                        </span>
-                                                                                        <p className="leading-relaxed font-semibold">{action}</p>
-                                                                                    </div>
-                                                                                ))
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className="rounded-2xl border border-indigo-100 bg-white/85 p-3">
-                                                                        <div className="flex items-center justify-between gap-3">
-                                                                            <p className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Priority Appliances</p>
-                                                                            <button
-                                                                                type="button"
-                                                                                onClick={() => setShowMilpRationale((prev) => !prev)}
-                                                                                className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 underline underline-offset-2"
-                                                                            >
-                                                                                Why this plan?
-                                                                            </button>
-                                                                        </div>
-                                                                        <div className="flex flex-wrap gap-2 mt-2">
-                                                                            {appliancePriorities.length > 0 ? (
-                                                                                appliancePriorities.map((app) => (
-                                                                                    <span
-                                                                                        key={app.appliance}
-                                                                                        className="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-bold uppercase tracking-wide"
-                                                                                    >
-                                                                                        {app.label}
-                                                                                    </span>
-                                                                                ))
-                                                                            ) : (
-                                                                                <span className="text-xs text-indigo-700">No schedulable appliance priorities yet.</span>
-                                                                            )}
-                                                                        </div>
-
-                                                                        <AnimatePresence initial={false}>
-                                                                            {showMilpRationale && (
-                                                                                <motion.div
-                                                                                    initial={{ height: 0, opacity: 0 }}
-                                                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                                                    exit={{ height: 0, opacity: 0 }}
-                                                                                    className="overflow-hidden"
-                                                                                >
-                                                                                    <div className="mt-3 p-3 rounded-xl bg-indigo-50 border border-indigo-100 text-[11px] text-indigo-900 leading-relaxed">
-                                                                                        This schedule balances three factors: hourly tariff rates, comfort limits per appliance, and max shift windows.
-                                                                                        It only moves flexible usage to lower-cost slots while keeping non-shiftable loads (like refrigerator) stable.
-                                                                                    </div>
-                                                                                </motion.div>
-                                                                            )}
-                                                                        </AnimatePresence>
-                                                                    </div>
-
-                                                                    <button
-                                                                        onClick={onEnterDashboard}
-                                                                        className="w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200"
-                                                                    >
-                                                                        Open Full Schedule in Dashboard
-                                                                    </button>
-                                                                </div>
-                                                            ) : (
-                                                                <div className="py-8 px-4 rounded-2xl bg-white/50 border border-dashed border-indigo-200 text-center">
-                                                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-300">
-                                                                        <TrendingDown size={20} />
-                                                                    </div>
-                                                                    <p className="text-xs sm:text-sm text-indigo-800 font-medium leading-relaxed">
-                                                                        We&apos;re waiting for the next schedule run. This preview updates automatically once the day-ahead forecast is generated.
-                                                                    </p>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </motion.div>
-                                            </>
-                                        )}
-                                    </AnimatePresence>
                                 </div>
 
                                 <div className="flex flex-col gap-3 pt-2">
@@ -683,6 +435,192 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                 onClose={() => setIsModalOpen(false)}
                 billData={billData}
             />
+
+            {/* ── MILP SMART SCHEDULE MODAL ── */}
+            <AnimatePresence>
+                {showMilpModal && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            key="milp-backdrop"
+                            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowMilpModal(false)}
+                        />
+
+                        {/* Modal panel */}
+                        <motion.div
+                            key="milp-modal"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="milp-modal-title"
+                            className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            transition={{ duration: 0.25, ease: 'easeOut' }}
+                        >
+                            <div className="pointer-events-auto w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 shadow-2xl">
+                                {/* Modal Header */}
+                                <div className="sticky top-0 z-10 flex items-center justify-between px-6 pt-6 pb-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-b border-indigo-100 rounded-t-3xl">
+                                    <div>
+                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-600/10 text-indigo-700 text-[10px] font-black uppercase tracking-wider mb-2">
+                                            <Cpu size={11} />
+                                            MILP Binary Optimizer
+                                        </div>
+                                        <h2 id="milp-modal-title" className="text-2xl font-black text-indigo-950 tracking-tight">
+                                            Tomorrow&apos;s Smart Schedule
+                                        </h2>
+                                        <p className="text-xs text-indigo-500 mt-0.5 font-medium">
+                                            {forecastDateLabel} · Generated {generatedAtLabel}
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowMilpModal(false)}
+                                        className="w-10 h-10 rounded-xl bg-white/80 border border-indigo-100 text-indigo-700 hover:bg-white transition-colors flex items-center justify-center shadow-sm"
+                                        aria-label="Close schedule modal"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
+
+                                <div className="p-6 space-y-5">
+                                    {hasOptimizationData ? (
+                                        <>
+                                            {/* Savings summary */}
+                                            <div className="rounded-2xl bg-indigo-950 text-white p-5 shadow-2xl">
+                                                <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest mb-1">Optimization Result</p>
+                                                <p className="text-3xl font-black tracking-tight tabular-nums mb-1">
+                                                    Save ₱{estimatedSavingsPhp.toFixed(2)}
+                                                </p>
+                                                <p className="text-sm text-indigo-200 leading-relaxed">
+                                                    Cost: ₱{baselineTotalCostPhp.toFixed(2)} → ₱{optimizedTotalCostPhp.toFixed(2)} ({estimatedSavingsPct.toFixed(1)}% improvement)
+                                                </p>
+                                                <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
+                                                    <span className="px-2 py-1 rounded-full bg-indigo-800/70 text-indigo-100">
+                                                        Peak -{peakReductionKwh.toFixed(2)} kWh
+                                                    </span>
+                                                    <span className="px-2 py-1 rounded-full bg-emerald-700/80 text-emerald-100">Binary ON/OFF</span>
+                                                    <span className="px-2 py-1 rounded-full bg-indigo-800/70 text-indigo-100">Night-TOU</span>
+                                                </div>
+                                            </div>
+
+                                            {/* ── ON/OFF Time Block Schedule (from binary MILP) ── */}
+                                            {timeBlockSummary && Object.keys(timeBlockSummary).length > 0 ? (
+                                                <div className="rounded-2xl border border-indigo-100 bg-white/80 p-5">
+                                                    <div className="flex items-center gap-2 mb-4">
+                                                        <Calendar size={15} className="text-indigo-600" />
+                                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Recommended Appliance Schedule</p>
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        {Object.entries(timeBlockSummary).map(([appKey, blocks]) => {
+                                                            const isContinuous = blocks === 'Continuous operation';
+                                                            const isOff = blocks === 'OFF (entire day)';
+                                                            return (
+                                                                <div key={appKey} className="flex items-start gap-3 p-3 rounded-xl bg-indigo-50/60 border border-indigo-100">
+                                                                    <div className={`mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isContinuous ? 'bg-blue-100 text-blue-700' :
+                                                                        isOff ? 'bg-red-100 text-red-600' :
+                                                                            'bg-emerald-100 text-emerald-700'
+                                                                        }`}>
+                                                                        <Clock size={14} />
+                                                                    </div>
+                                                                    <div className="min-w-0">
+                                                                        <p className="text-xs font-bold text-indigo-900">
+                                                                            {appKey === 'aircon' ? 'Air Conditioner' :
+                                                                                appKey === 'electric_fan' ? 'Electric Fan' :
+                                                                                    appKey === 'refrigerator' ? 'Refrigerator' : appKey}
+                                                                        </p>
+                                                                        <p className={`text-[11px] mt-0.5 font-semibold ${isContinuous ? 'text-blue-700' :
+                                                                            isOff ? 'text-red-600' :
+                                                                                'text-emerald-700'
+                                                                            }`}>
+                                                                            {blocks}
+                                                                        </p>
+                                                                    </div>
+                                                                    <span className={`ml-auto shrink-0 text-[9px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full ${isContinuous ? 'bg-blue-100 text-blue-700' :
+                                                                        isOff ? 'bg-red-100 text-red-600' :
+                                                                            'bg-emerald-100 text-emerald-700'
+                                                                        }`}>
+                                                                        {isContinuous ? '24/7' : isOff ? 'OFF' : 'ON'}
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                    <p className="mt-3 text-[10px] text-indigo-400 font-medium">
+                                                        ⚡ Night-only TOU window (6 PM – 5 AM) · Budget-constrained
+                                                    </p>
+                                                </div>
+                                            ) : null}
+
+
+                                            {/* Top recommended action */}
+                                            <div className="bg-indigo-950 rounded-2xl p-4 text-white shadow-xl flex items-center gap-4">
+                                                <div className="w-11 h-11 rounded-xl bg-indigo-800 flex items-center justify-center shrink-0">
+                                                    <CloudLightning size={20} className="text-white" />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-[9px] font-bold text-indigo-300 uppercase tracking-widest mb-1">Top Recommended Action</p>
+                                                    <p className="text-sm font-bold leading-tight">{topRecommendedAction}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Top actions list */}
+                                            {topOptimizerActions.length > 0 && (
+                                                <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
+                                                    <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-3">Top Savings Actions</p>
+                                                    <div className="space-y-2.5">
+                                                        {topOptimizerActions.map((action, idx) => (
+                                                            <div key={`${action}-${idx}`} className="flex items-start gap-2.5 text-xs text-indigo-900">
+                                                                <span className="w-5 h-5 mt-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-black flex items-center justify-center shrink-0">
+                                                                    {idx + 1}
+                                                                </span>
+                                                                <p className="leading-relaxed font-semibold">{action}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Why this plan */}
+                                            <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
+                                                <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">Why This Plan?</p>
+                                                <p className="text-xs text-indigo-900 leading-relaxed">
+                                                    The MILP optimizer uses binary ON/OFF decisions per hour.
+                                                    It maximises how many hours your appliances run while keeping total cost within your daily budget.
+                                                    Aircon and fan run during night hours (6 PM–5 AM) at off-peak TOU rates.
+                                                    The refrigerator stays on 24/7 as it cannot be turned off.
+                                                </p>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="py-12 px-4 rounded-2xl bg-white/50 border border-dashed border-indigo-200 text-center">
+                                            <div className="w-14 h-14 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-300">
+                                                <TrendingDown size={24} />
+                                            </div>
+                                            <p className="text-sm text-indigo-800 font-semibold leading-relaxed">
+                                                Schedule preview updates automatically once the day-ahead SARIMAX forecast is generated.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {/* CTA */}
+                                    <button
+                                        onClick={() => { setShowMilpModal(false); onEnterDashboard(); }}
+                                        className="w-full py-4 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 flex items-center justify-center gap-2"
+                                    >
+                                        Open Full Schedule in Dashboard
+                                        <ArrowRight size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
 
             {/* ── HOW IT WORKS (Thesis Flow) ── */}
             <section id="how-it-works-section" className="relative py-32 bg-white overflow-hidden">

@@ -150,6 +150,15 @@ def generate_recommendations(
         if top_actions:
             messages.append(f"🕒 Top scheduling action: {top_actions[0]}")
 
+        # MILP.md binary ON/OFF schedule — show as time-block summary
+        tbs: dict = schedule_result.get("time_block_summary", {}) or {}
+        if tbs:
+            lines = ["🗓️ Recommended appliance schedule:"]
+            for app, blocks in tbs.items():
+                label = app.replace("_", " ").title()
+                lines.append(f"   • {label}: {blocks}")
+            messages.append("\n".join(lines))
+
     log.info(
         "[Recommender] date=%s | cost=₱%.2f | budget=₱%.2f | status=%s",
         forecast_date, total_cost, daily_budget, status,
