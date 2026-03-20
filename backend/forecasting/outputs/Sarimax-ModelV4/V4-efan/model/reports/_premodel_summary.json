@@ -1,0 +1,22 @@
+{
+  "config": {
+    "seasonal_period": 24,
+    "weekly_period": 168,
+    "adf_alpha": 0.05,
+    "max_acf_lag": 200,
+    "gap_threshold_hours": 2,
+    "min_adf_samples": 50
+  },
+  "input_dir": "data",
+  "n_files": 1,
+  "files": [
+    {
+      "input": "data\\electric_fan_model_ready.csv",
+      "output": "model\\reports\\electric_fan_model_ready_premodel_report.json",
+      "appliance_key": "electric_fan_model_ready"
+    }
+  ],
+  "failures": [],
+  "ok": 1,
+  "failed": 0
+}

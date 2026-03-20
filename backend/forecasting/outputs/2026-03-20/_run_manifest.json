@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-19T09:07:26.746049+08:00",
+  "generated_at": "2026-03-20T15:53:12.245203+08:00",
   "forecast_date": "2026-03-20",
   "config": {
     "horizon": 24,
@@ -15,31 +15,31 @@
     {
       "appliance": "aircon",
       "status": "ok",
-      "last_actual_ts": "2026-03-19 09:00:00.982000+08:00",
+      "last_actual_ts": "2026-03-19 23:50:00.480000+08:00",
       "forecast_start": "2026-03-20 00:00:00+08:00",
       "forecast_end": "2026-03-20 23:00:00+08:00",
-      "total_kwh": 0.55722,
-      "total_cost_php": 6.408,
+      "total_kwh": 3.142098,
+      "total_cost_php": 36.1341,
       "n_rows": 24
     },
     {
       "appliance": "electric_fan",
       "status": "ok",
-      "last_actual_ts": "2026-03-19 09:00:00.982000+08:00",
+      "last_actual_ts": "2026-03-19 23:50:00.480000+08:00",
       "forecast_start": "2026-03-20 00:00:00+08:00",
       "forecast_end": "2026-03-20 23:00:00+08:00",
-      "total_kwh": 0.421644,
-      "total_cost_php": 4.8489,
+      "total_kwh": 0.226018,
+      "total_cost_php": 2.5992,
       "n_rows": 24
     },
     {
       "appliance": "refrigerator",
       "status": "ok",
-      "last_actual_ts": "2026-03-19 09:00:00.982000+08:00",
+      "last_actual_ts": "2026-03-19 23:50:00.480000+08:00",
       "forecast_start": "2026-03-20 00:00:00+08:00",
       "forecast_end": "2026-03-20 23:00:00+08:00",
-      "total_kwh": 2.032952,
-      "total_cost_php": 23.3789,
+      "total_kwh": 2.358989,
+      "total_cost_php": 27.1284,
       "n_rows": 24
     }
   ],
@@ -49,37 +49,37 @@
     "solver": "cbc-binary",
     "binary_mode": true,
     "budget_php": 200.0,
-    "baseline_total_cost_php": 32.6751,
-    "optimized_total_cost_php": 30.7072,
-    "estimated_savings_php": 1.9679,
-    "estimated_savings_pct": 6.02,
-    "baseline_peak_kwh": 0.194589,
-    "optimized_peak_kwh": 0.194589,
+    "baseline_total_cost_php": 62.8682,
+    "optimized_total_cost_php": 48.4776,
+    "estimated_savings_php": 14.3905,
+    "estimated_savings_pct": 22.89,
+    "baseline_peak_kwh": 0.527962,
+    "optimized_peak_kwh": 0.527962,
     "peak_reduction_kwh": 0.0,
     "time_block_summary": {
-      "aircon": "12 AM \u2013 6 AM, 8 PM \u2013 midnight",
-      "electric_fan": "12 AM \u2013 6 AM, 6 PM \u2013 midnight",
+      "aircon": "12 AM \u2013 6 AM, 6 PM \u2013 midnight",
+      "electric_fan": "12 AM \u2013 6 AM, 8 PM \u2013 midnight",
       "refrigerator": "Continuous operation"
     }
   },
   "recommendation": {
     "forecast_date": "2026-03-20",
     "daily_budget_php": 200.0,
-    "predicted_cost_php": 34.6358,
-    "budget_remaining": 165.3642,
-    "budget_utilization": 0.1732,
+    "predicted_cost_php": 65.8617,
+    "budget_remaining": 134.1383,
+    "budget_utilization": 0.3293,
     "status": "within_budget",
     "messages": [
-      "\u2705 Expected to stay within budget. Predicted cost \u20b134.64 vs. budget \u20b1200.00.",
-      "\ud83d\udcca Highest usage: Refrigerator (\u20b123.38, 67% of predicted daily spend).",
-      "\ud83e\udde0 Optimized schedule estimate: save \u20b11.97 (from \u20b134.64 to \u20b130.71).",
-      "\ud83d\udd52 Top scheduling action: Turn off electric fan at 06:00 to stay within budget (saves \u20b10.32).",
-      "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Aircon: 12 AM \u2013 6 AM, 8 PM \u2013 midnight\n   \u2022 Electric Fan: 12 AM \u2013 6 AM, 6 PM \u2013 midnight\n   \u2022 Refrigerator: Continuous operation"
+      "\u2705 Expected to stay within budget. Predicted cost \u20b165.86 vs. budget \u20b1200.00.",
+      "\ud83d\udcca Highest usage: Aircon (\u20b136.13, 55% of predicted daily spend).",
+      "\ud83e\udde0 Optimized schedule estimate: save \u20b114.39 (from \u20b165.86 to \u20b148.48).",
+      "\ud83d\udd52 Top scheduling action: Turn off aircon at 17:00 to stay within budget (saves \u20b12.05).",
+      "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Aircon: 12 AM \u2013 6 AM, 6 PM \u2013 midnight\n   \u2022 Electric Fan: 12 AM \u2013 6 AM, 8 PM \u2013 midnight\n   \u2022 Refrigerator: Continuous operation"
     ],
     "appliance_breakdown": {
-      "aircon": 6.408,
-      "electric_fan": 4.8489,
-      "refrigerator": 23.3789
+      "aircon": 36.1341,
+      "electric_fan": 2.5992,
+      "refrigerator": 27.1284
     }
   }
 }

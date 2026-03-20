@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-03-19T23:10:51.213107",
+  "eval_config": {
+    "horizon": 24,
+    "refit_every": 1,
+    "min_train_rows": 300,
+    "ljungbox_lags": 24,
+    "max_acf_lag": 48,
+    "max_pacf_lag": 48,
+    "progress_every": 10
+  },
+  "input_dir": "data",
+  "models_root": "model/sarimax",
+  "ok": 1,
+  "failed": 0,
+  "results": [
+    {
+      "appliance": "refrigerator_model_ready",
+      "status": "ok",
+      "n_test_total": 546,
+      "n_scored": 528,
+      "metrics": {
+        "n_test_total": 546,
+        "n_scored": 528,
+        "horizon": 24,
+        "refit_every": 1,
+        "MAE": 0.028995977289941705,
+        "RMSE": 0.04812414777905002,
+        "NRMSE": 0.5134279657979068,
+        "sMAPE": 33.657099641424125,
+        "MAPE_nonzero": 30.342649606179013,
+        "R2": 0.0012552540768572262,
+        "n_forecast_days": 22,
+        "note_mape_nonzero": "MAPE computed only on hours where actual_energy != 0",
+        "note_clip": "Predictions were clipped at 0 to enforce non-negative energy."
+      },
+      "artifacts": {
+        "eval_predictions_csv": "model/sarimax/refrigerator_model_ready/evaluation/eval_predictions.csv",
+        "eval_predictions_extra_csv": "model/sarimax/refrigerator_model_ready/evaluation/eval_predictions_kwh.csv",
+        "eval_metrics_json": "model/sarimax/refrigerator_model_ready/evaluation/eval_metrics.json",
+        "eval_residual_diagnostics_json": "model/sarimax/refrigerator_model_ready/evaluation/eval_residual_diagnostics.json",
+        "eval_residual_heatmap_csv": "model/sarimax/refrigerator_model_ready/evaluation/eval_residual_heatmap.csv"
+      }
+    }
+  ],
+  "failures": []
+}

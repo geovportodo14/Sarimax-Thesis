@@ -1,0 +1,67 @@
+{
+  "timestamp": "2026-03-19T15:30:46.135396",
+  "config": {
+    "synthetic_end": "2026-01-03 18:00:00",
+    "real_start": "2026-01-03 19:00:00",
+    "real_train_ratio": 0.7,
+    "require_full_day_boundary": true,
+    "train_end_hour": 23,
+    "default_seasonal_period": 24,
+    "max_p": 3,
+    "max_q": 3,
+    "max_P": 2,
+    "max_Q": 2,
+    "max_total_order": 10,
+    "enforce_stationarity": true,
+    "enforce_invertibility": true,
+    "maxiter": 150,
+    "disp": false,
+    "dropna": true,
+    "min_rows_required": 300,
+    "cv_enabled": true,
+    "cv_horizon": 24,
+    "cv_n_folds": 3,
+    "cv_min_train_rows": 300,
+    "cv_metric": "RMSE",
+    "cv_progress_every": 10,
+    "checkpoint_every_n_models": 1,
+    "checkpoint_every_seconds": 600
+  },
+  "input_dir": "data",
+  "premodel_dir": "model/reports",
+  "output_root": "model/sarimax",
+  "n_files": 1,
+  "ok": 1,
+  "failed": 0,
+  "results": [
+    {
+      "appliance": "refrigerator_model_ready",
+      "status": "ok",
+      "best_aic": -39889.17345475328,
+      "best_bic": -39744.90274949583,
+      "best_cv_metric": "RMSE",
+      "best_cv_mean": 0.02841314424403087,
+      "best_order": {
+        "p": 2,
+        "d": 0,
+        "q": 1
+      },
+      "best_seasonal_order": {
+        "P": 2,
+        "D": 0,
+        "Q": 2,
+        "s": 24
+      },
+      "out_dir": "model/sarimax/refrigerator_model_ready",
+      "split_counts": {
+        "synthetic": 8779,
+        "real_total": 1799,
+        "real_train": 1253,
+        "real_test": 546,
+        "train_total": 10032,
+        "test_total": 546
+      }
+    }
+  ],
+  "failures": []
+}

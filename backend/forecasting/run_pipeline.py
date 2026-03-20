@@ -193,8 +193,9 @@ def run_appliance(
 
     Returns a result dict suitable for the run manifest.
     """
-    model_dir_name = APPLIANCE_MODEL_DIR.get(appliance, appliance)
-    model_dir      = cfg.models_root / model_dir_name
+    model_dir_val = APPLIANCE_MODEL_DIR.get(appliance, appliance)
+    # If the value is already an absolute Path, use it directly
+    model_dir = Path(model_dir_val) if Path(model_dir_val).is_absolute() else cfg.models_root / model_dir_val
 
     if not model_dir.exists():
         raise FileNotFoundError(f"Model directory not found: {model_dir}")

@@ -28,9 +28,11 @@ try:
 except ImportError:
     pass
 
-# Where the trained model artefacts live (one sub-folder per appliance).
-# V3 model root (hyphenated path is kept for runtime consistency).
-MODELS_ROOT = BACKEND_ROOT / "Sarimax-ModelV3"
+# V3 model root — used for aircon only
+_MODELS_V3_ROOT = BACKEND_ROOT / "Sarimax-ModelV3"
+
+# V4 model root — used for electric_fan and refrigerator
+_MODELS_V4_ROOT = BACKEND_ROOT / "forecasting" / "outputs" / "Sarimax-ModelV4"
 
 # Historical hourly CSVs produced by the daily ingestion job
 HISTORY_DIR = BACKEND_ROOT / "forecasting" / "history"
@@ -45,13 +47,15 @@ LOGS_DIR = BACKEND_ROOT / "forecasting" / "logs"
 # ---------------------------------------------------------------------------
 APPLIANCES = ["aircon", "electric_fan", "refrigerator"]
 
-# Maps the appliance key to the full relative path from MODELS_ROOT
-# to the folder containing best_model.pkl
-APPLIANCE_MODEL_DIR: dict[str, str] = {
-    "aircon":       "Final_Aircon/model/sarimax/aircon_model_ready",
-    "electric_fan": "Final_electricfan/sarimax/electric_fan_model_ready",
-    "refrigerator": "Final_Ref/model/sarimax/refrigerator_model_ready",
+# Each value is an ABSOLUTE Path to the folder containing best_model.pkl
+APPLIANCE_MODEL_DIR: dict[str, Path] = {
+    "aircon":       _MODELS_V3_ROOT / "Final_Aircon/model/sarimax/aircon_model_ready",
+    "electric_fan": _MODELS_V4_ROOT / "V4-efan/model/sarimax/electric_fan_model_ready",
+    "refrigerator": _MODELS_V4_ROOT / "V4-ref/sarimax/refrigerator_model_ready",
 }
+
+# Keep MODELS_ROOT pointing to V3 for backward-compatibility (aircon path)
+MODELS_ROOT = _MODELS_V3_ROOT
 
 # ---------------------------------------------------------------------------
 # Forecast settings

@@ -1,0 +1,15 @@
+{
+  "n_test_total": 546,
+  "n_scored": 528,
+  "horizon": 24,
+  "refit_every": 1,
+  "MAE": 0.028995977289941705,
+  "RMSE": 0.04812414777905002,
+  "NRMSE": 0.5134279657979068,
+  "sMAPE": 33.657099641424125,
+  "MAPE_nonzero": 30.342649606179013,
+  "R2": 0.0012552540768572262,
+  "n_forecast_days": 22,
+  "note_mape_nonzero": "MAPE computed only on hours where actual_energy != 0",
+  "note_clip": "Predictions were clipped at 0 to enforce non-negative energy."
+}

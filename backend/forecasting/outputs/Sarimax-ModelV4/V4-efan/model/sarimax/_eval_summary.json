@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-03-20T09:53:51.876372",
+  "eval_config": {
+    "horizon": 24,
+    "refit_every": 1,
+    "min_train_rows": 300,
+    "ljungbox_lags": 24,
+    "max_acf_lag": 48,
+    "max_pacf_lag": 48,
+    "progress_every": 10
+  },
+  "input_dir": "data",
+  "models_root": "model\\sarimax",
+  "ok": 1,
+  "failed": 0,
+  "results": [
+    {
+      "appliance": "electric_fan_model_ready",
+      "status": "ok",
+      "n_test_total": 546,
+      "n_scored": 528,
+      "metrics": {
+        "n_test_total": 546,
+        "n_scored": 528,
+        "horizon": 24,
+        "refit_every": 1,
+        "MAE": 0.010966383424543726,
+        "RMSE": 0.02141796482753294,
+        "NRMSE": 1.365783264364419,
+        "sMAPE": 108.70136177765049,
+        "MAPE_nonzero": 42.31448486742991,
+        "R2": 0.24581784629638292,
+        "n_forecast_days": 22,
+        "note_mape_nonzero": "MAPE computed only on hours where actual_energy != 0",
+        "note_clip": "Predictions were clipped at 0 to enforce non-negative energy."
+      },
+      "artifacts": {
+        "eval_predictions_csv": "model\\sarimax\\electric_fan_model_ready\\evaluation\\eval_predictions.csv",
+        "eval_predictions_extra_csv": "model\\sarimax\\electric_fan_model_ready\\evaluation\\eval_predictions_kwh.csv",
+        "eval_metrics_json": "model\\sarimax\\electric_fan_model_ready\\evaluation\\eval_metrics.json",
+        "eval_residual_diagnostics_json": "model\\sarimax\\electric_fan_model_ready\\evaluation\\eval_residual_diagnostics.json",
+        "eval_residual_heatmap_csv": "model\\sarimax\\electric_fan_model_ready\\evaluation\\eval_residual_heatmap.csv"
+      }
+    }
+  ],
+  "failures": []
+}

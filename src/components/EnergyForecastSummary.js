@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardBody, Button } from './ui/index';
 import ColorLegend from './ColorLegend';
 import { UITrendIcon } from './ui/icons';
@@ -169,38 +169,40 @@ function EnergyForecastSummary({
         {/* ==========================================
             THE UPGRADED CALL TO ACTION 
             ========================================== */}
-        {!hasSetBudget && (
-          <div className="mb-6 relative overflow-hidden rounded-2xl border border-primary-200 bg-gradient-to-br from-primary-50 to-white p-5 shadow-sm group transition-all hover:shadow-md">
-            {/* Soft decorative background glow */}
-            <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary-100 rounded-full opacity-40 blur-2xl group-hover:bg-primary-200 transition-colors duration-500"></div>
+        <div className="mb-6 relative overflow-hidden rounded-2xl border border-primary-200 bg-gradient-to-br from-primary-50 to-white p-5 shadow-sm group transition-all hover:shadow-md">
+          {/* Soft decorative background glow */}
+          <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary-100 rounded-full opacity-40 blur-2xl group-hover:bg-primary-200 transition-colors duration-500"></div>
 
-            <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-white rounded-xl shadow-sm text-primary-600 border border-primary-100 flex-shrink-0">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-heading-sm font-bold text-gray-900">Take control of your bill</h3>
-                  <p className="text-body-sm text-surface-500 mt-1 max-w-md leading-relaxed">
-                    Set a monthly energy budget to unlock personalized risk alerts and keep your consumption on track.
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={onSetBudget}
-                className="w-full sm:w-auto flex-shrink-0 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-body-sm font-semibold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 group/btn"
-              >
-                Set My Budget
-                <svg className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-start gap-4 min-w-0 flex-1">
+              <div className="p-3 bg-white rounded-xl shadow-sm text-primary-600 border border-primary-100 flex-shrink-0">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-              </button>
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-heading-sm font-bold text-gray-900">
+                  {hasSetBudget ? 'Update your budget anytime' : 'Take control of your bill'}
+                </h3>
+                <p className="text-body-sm text-surface-500 mt-1 max-w-md leading-relaxed">
+                  {hasSetBudget
+                    ? 'Adjust your budget quickly whenever your household usage changes.'
+                    : 'Set a monthly energy budget to unlock personalized risk alerts and keep your consumption on track.'}
+                </p>
+              </div>
             </div>
+
+            <button
+              onClick={onSetBudget}
+              className="w-full lg:w-auto flex-shrink-0 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-body-sm font-semibold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 group/btn"
+            >
+              {hasSetBudget ? 'Adjust Budget' : 'Set My Budget'}
+              <svg className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </button>
           </div>
-        )}
+        </div>
 
         {/* Quick Insights */}
         <div className="mb-6">
