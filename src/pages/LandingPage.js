@@ -1,51 +1,119 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, Zap, ShieldCheck, PlayCircle, Cpu, CloudLightning, LayoutDashboard, Snowflake, Wind, ThermometerSnowflake, AlertTriangle, CheckCircle2, ReceiptText, TrendingDown, ChevronRight, X, Calendar, Clock } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowRight, Zap, ShieldCheck, Cpu, CloudLightning, LayoutDashboard, Snowflake, Wind, ThermometerSnowflake, AlertTriangle, CheckCircle2, ReceiptText, TrendingDown, ChevronRight, X, Calendar, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calculateMeralcoBill } from '../utils/meralcoCalculator';
 import BillBreakdownModal from '../components/BillBreakdownModal';
 import { getApiUrl } from '../utils/api';
 
+const TIME_ZONE = 'Asia/Manila';
+const DEFAULT_FORECAST_KWH_PER_DAY = 90;
+const DEFAULT_PROJECTED_KWH = 280;
+
 const formatApplianceName = (appliance) => {
-    if (appliance === 'aircon') return 'Air Conditioner';
-    if (appliance === 'electric_fan') return 'Electric Fan';
-    if (appliance === 'refrigerator') return 'Refrigerator';
-    return appliance;
+    const aliases = {
+        aircon: 'Air Conditioner',
+        electric_fan: 'Electric Fan',
+        refrigerator: 'Refrigerator'
+    };
+    if (aliases[appliance]) return aliases[appliance];
+    return String(appliance || '')
+        .replace(/_/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
 const formatHourLabel = (hour) => `${String(hour).padStart(2, '0')}:00`;
+const getManilaDateString = (daysFromToday = 0) => {
+    const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(new Date());
+    const todayManilaMidnight = new Date(`${todayStr}T00:00:00+08:00`);
+    const target = new Date(todayManilaMidnight.getTime() + (daysFromToday * 24 * 60 * 60 * 1000));
+    return new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(target);
+};
 
 export default function LandingPage({ onEnterDashboard, monthlySummary, loadingSummary }) {
     const [budgetTarget, setBudgetTarget] = useState(4500);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [tomorrowForecast, setTomorrowForecast] = useState(null);
     const [showMilpModal, setShowMilpModal] = useState(false);
+    const milpTriggerButtonRef = useRef(null);
+    const milpCloseButtonRef = useRef(null);
+    const milpPanelRef = useRef(null);
 
     useEffect(() => {
         if (!showMilpModal) return undefined;
-        const handleEscape = (event) => {
-            if (event.key === 'Escape') setShowMilpModal(false);
+
+        const previouslyFocusedElement = document.activeElement;
+        const triggerButton = milpTriggerButtonRef.current;
+        const originalBodyOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        const rafId = window.requestAnimationFrame(() => {
+            milpCloseButtonRef.current?.focus();
+        });
+
+        const handleDialogKeydown = (event) => {
+            if (event.key === 'Escape') {
+                setShowMilpModal(false);
+                return;
+            }
+
+            if (event.key !== 'Tab') return;
+
+            const panel = milpPanelRef.current;
+            if (!panel) return;
+            const focusableElements = panel.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            if (!focusableElements.length) return;
+
+            const first = focusableElements[0];
+            const last = focusableElements[focusableElements.length - 1];
+
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
         };
-        window.addEventListener('keydown', handleEscape);
-        return () => window.removeEventListener('keydown', handleEscape);
+
+        window.addEventListener('keydown', handleDialogKeydown);
+        return () => {
+            window.removeEventListener('keydown', handleDialogKeydown);
+            window.cancelAnimationFrame(rafId);
+            document.body.style.overflow = originalBodyOverflow;
+            if (previouslyFocusedElement && typeof previouslyFocusedElement.focus === 'function') {
+                previouslyFocusedElement.focus();
+            } else {
+                triggerButton?.focus();
+            }
+        };
     }, [showMilpModal]);
 
     useEffect(() => {
+        const controller = new AbortController();
+
         const fetchTomorrowSummary = async () => {
             try {
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                const dateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(tomorrow);
-                const response = await fetch(getApiUrl(`/api/forecast/daily?date=${dateStr}`));
+                const dateStr = getManilaDateString(1);
+                const response = await fetch(
+                    getApiUrl(`/api/forecast/daily?date=${dateStr}`),
+                    { signal: controller.signal }
+                );
                 const payload = await response.json();
                 if (response.ok && (payload.status === 'success' || payload.status === 'no_data')) {
                     setTomorrowForecast(payload);
                 }
             } catch (error) {
+                if (error.name === 'AbortError') return;
                 console.error('Landing forecast fetch failed:', error);
             }
         };
 
         fetchTomorrowSummary();
+        return () => controller.abort();
     }, []);
 
     const tomorrowTotalKwh = useMemo(() => {
@@ -92,7 +160,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
         if (!raw) return 'Tomorrow';
         const dt = new Date(`${raw}T00:00:00+08:00`);
         if (Number.isNaN(dt.getTime())) return raw;
-        return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'Asia/Manila' }).format(dt);
+        return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: TIME_ZONE }).format(dt);
     }, [scheduleData, tomorrowForecast]);
     const generatedAtLabel = useMemo(() => {
         const raw = scheduleData?.generated_at;
@@ -103,7 +171,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
             hour: 'numeric',
             minute: '2-digit',
             hour12: true,
-            timeZone: 'Asia/Manila'
+            timeZone: TIME_ZONE
         }).format(dt);
     }, [scheduleData]);
     const optimizerActionCards = useMemo(() => {
@@ -159,22 +227,26 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
         return [topRecommendedAction];
     }, [optimizerActionCards, optimizationSummary, topRecommendedAction]);
 
-    const now = new Date();
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    const remainingDays = Math.max(daysInMonth - now.getDate(), 1);
+    const manilaDateString = getManilaDateString(0);
+    const manilaDate = new Date(`${manilaDateString}T00:00:00+08:00`);
+    const manilaYear = manilaDate.getUTCFullYear();
+    const manilaMonth = manilaDate.getUTCMonth();
+    const manilaDay = manilaDate.getUTCDate();
+    const daysInMonth = new Date(Date.UTC(manilaYear, manilaMonth + 1, 0)).getUTCDate();
+    const remainingDays = Math.max(daysInMonth - manilaDay, 1);
     const currentMonthLabel = new Intl.DateTimeFormat('en-US', {
         month: 'short',
         year: 'numeric',
-        timeZone: 'Asia/Manila'
-    }).format(now);
+        timeZone: TIME_ZONE
+    }).format(manilaDate);
     const simulatorFreshnessLabel = generatedAtLabel === 'Pending run'
         ? 'Forecast run pending'
         : `Model updated ${generatedAtLabel}`;
 
     // Compute projected kWh from actual MTD + forecasted daily estimate for remaining days.
     const spentSoFarKwh = (monthlySummary && !loadingSummary) ? monthlySummary.total_kwh : 0;
-    const forecastRemainderKwh = tomorrowTotalKwh > 0 ? (tomorrowTotalKwh * remainingDays) : 90;
-    const projectedKwh = spentSoFarKwh > 0 ? (spentSoFarKwh + forecastRemainderKwh) : 280;
+    const forecastRemainderKwh = tomorrowTotalKwh > 0 ? (tomorrowTotalKwh * remainingDays) : DEFAULT_FORECAST_KWH_PER_DAY;
+    const projectedKwh = spentSoFarKwh > 0 ? (spentSoFarKwh + forecastRemainderKwh) : DEFAULT_PROJECTED_KWH;
 
     // Run projected kWh through precise Meralco simulator
     const billData = calculateMeralcoBill(projectedKwh);
@@ -188,7 +260,6 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
     const progressPercent = Math.min((projectedUsage / budgetTarget) * 100, 100);
     const spentPercent = Math.min((spentSoFarPhp / budgetTarget) * 100, 100);
 
-    // 🌟 NEW: Smooth scroll function
     const scrollToHowItWorks = () => {
         const element = document.getElementById('how-it-works-section');
         if (element) {
@@ -223,15 +294,9 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                 >
                     <button
                         onClick={scrollToHowItWorks}
-                        className="hidden md:block text-xs font-bold uppercase tracking-widest text-surface-400 hover:text-primary-600 transition-colors"
+                        className="text-xs font-bold uppercase tracking-widest text-surface-400 hover:text-primary-600 transition-colors"
                     >
                         How it Works
-                    </button>
-                    <button
-                        onClick={onEnterDashboard}
-                        className="text-xs font-bold uppercase tracking-widest text-surface-500 hover:text-primary-600 transition-colors"
-                    >
-                        Dashboard
                     </button>
                 </motion.div>
             </nav>
@@ -259,8 +324,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                             No more surprises when the bill arrives. We track your appliances and warn you before you overspend so you can stay within your budget.
                         </p>
 
-
-                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-10">
+                        <div className="mb-8 sm:mb-10">
                             {/* Primary Button: Enters the App */}
                             <button
                                 onClick={onEnterDashboard}
@@ -268,15 +332,6 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                             >
                                 Launch Dashboard
                                 <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-                            </button>
-
-                            {/* 🌟 FIXED: Secondary Button now scrolls down instead of going to dashboard */}
-                            <button
-                                onClick={scrollToHowItWorks}
-                                className="flex items-center justify-center gap-2 px-6 py-3.5 bg-white hover:bg-surface-50 text-surface-700 font-semibold rounded-xl border border-surface-200 transition-all shadow-sm"
-                            >
-                                <PlayCircle size={18} className="text-surface-400" />
-                                How it Works
                             </button>
                         </div>
 
@@ -315,12 +370,13 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                             <div className="space-y-8">
                                 <div className="p-4 rounded-2xl bg-surface-50/50 border border-surface-100">
                                     <div className="flex justify-between items-end mb-4">
-                                        <label className="text-xs font-bold uppercase tracking-wider text-surface-400">Monthly Budget Target</label>
+                                        <label htmlFor="budget-target-slider" className="text-xs font-bold uppercase tracking-wider text-surface-400">Monthly Budget Target</label>
                                         <span className={`text-xl font-black ${isOverBudget ? 'text-red-600' : 'text-primary-600'}`}>
                                             ₱{budgetTarget.toLocaleString()}
                                         </span>
                                     </div>
                                     <input
+                                        id="budget-target-slider"
                                         type="range" min="2000" max="10000" step="100"
                                         value={budgetTarget}
                                         onChange={(e) => setBudgetTarget(Number(e.target.value))}
@@ -415,8 +471,10 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                 {/* Smart Schedule Modal Trigger */}
                                 <div className="mb-2 relative">
                                     <button
+                                        ref={milpTriggerButtonRef}
                                         onClick={() => setShowMilpModal(true)}
                                         aria-haspopup="dialog"
+                                        aria-controls="milp-modal-panel"
                                         className="w-full py-3 px-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-between group hover:bg-indigo-100/70 transition-colors"
                                     >
                                         <div className="flex items-center gap-2">
@@ -430,10 +488,12 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                 </div>
 
                                 <div className="flex flex-col gap-3 pt-2">
-                                    <button onClick={onEnterDashboard} className={`w-full py-4 flex items-center justify-center gap-2 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-95 ${isOverBudget ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-surface-900 hover:bg-black shadow-surface-200'}`}>
-                                        {isOverBudget ? 'Lower my bill now' : 'Open Dashboard'}
-                                        <ChevronRight size={20} />
-                                    </button>
+                                    {isOverBudget && (
+                                        <button onClick={onEnterDashboard} className="w-full py-4 flex items-center justify-center gap-2 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-95 bg-red-600 hover:bg-red-700 shadow-red-200">
+                                            Lower my bill now
+                                            <ChevronRight size={20} />
+                                        </button>
+                                    )}
 
                                     <button onClick={() => setIsModalOpen(true)} className="w-full py-2.5 flex items-center justify-center gap-2 text-surface-500 font-bold text-xs uppercase tracking-widest hover:text-primary-600 hover:bg-white rounded-xl transition-all border border-transparent hover:border-surface-100">
                                         <ReceiptText size={16} />
@@ -479,7 +539,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
                             transition={{ duration: 0.25, ease: 'easeOut' }}
                         >
-                            <div className="pointer-events-auto w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 shadow-2xl">
+                            <div id="milp-modal-panel" ref={milpPanelRef} className="pointer-events-auto w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 shadow-2xl">
                                 {/* Modal Header */}
                                 <div className="sticky top-0 z-10 flex items-center justify-between px-6 pt-6 pb-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-b border-indigo-100 rounded-t-3xl">
                                     <div>
@@ -495,6 +555,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                         </p>
                                     </div>
                                     <button
+                                        ref={milpCloseButtonRef}
                                         type="button"
                                         onClick={() => setShowMilpModal(false)}
                                         className="w-10 h-10 rounded-xl bg-white/80 border border-indigo-100 text-indigo-700 hover:bg-white transition-colors flex items-center justify-center shadow-sm"
@@ -546,9 +607,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                                                     </div>
                                                                     <div className="min-w-0">
                                                                         <p className="text-xs font-bold text-indigo-900">
-                                                                            {appKey === 'aircon' ? 'Air Conditioner' :
-                                                                                appKey === 'electric_fan' ? 'Electric Fan' :
-                                                                                    appKey === 'refrigerator' ? 'Refrigerator' : appKey}
+                                                                            {formatApplianceName(appKey)}
                                                                         </p>
                                                                         <p className={`text-[11px] mt-0.5 font-semibold ${isContinuous ? 'text-blue-700' :
                                                                             isOff ? 'text-red-600' :
