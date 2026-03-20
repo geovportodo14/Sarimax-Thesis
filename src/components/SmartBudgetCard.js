@@ -41,13 +41,14 @@ function computeWeightedMaePct() {
 
 const WEIGHTED_MAE_PCT = computeWeightedMaePct(); // ≈ 0.131 (13.1 %)
 
-export default function SmartBudgetCard({ forecastKwh = 0, tariff = 13.47 }) {
+export default function SmartBudgetCard({ forecastKwh = 0, tariff = 13.47, onApplyBudget }) {
     const [showInfo, setShowInfo] = useState(false);
 
     const isReady = forecastKwh > 0 && tariff > 0;
     const estimatedCost = forecastKwh * tariff;
     const lowerBudget = estimatedCost * (1 - WEIGHTED_MAE_PCT);
     const upperBudget = estimatedCost * (1 + WEIGHTED_MAE_PCT);
+    const recommendedBudget = Math.round(estimatedCost);
 
     const fmt = (n) => `₱${Math.round(n).toLocaleString()}`;
     const fmtD = (n) => n.toFixed(2);
@@ -189,6 +190,17 @@ export default function SmartBudgetCard({ forecastKwh = 0, tariff = 13.47 }) {
                     <p className="relative mt-4 text-[11px] text-surface-400 leading-relaxed text-center">
                         Range accounts for model forecasting uncertainty (MAE-derived, 24 h rolling-origin eval).
                     </p>
+
+                    {typeof onApplyBudget === 'function' && (
+                        <div className="relative mt-4">
+                            <button
+                                onClick={() => onApplyBudget(recommendedBudget)}
+                                className="w-full px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-body-sm font-semibold transition-colors shadow-sm"
+                            >
+                                Apply Suggested Budget ({fmt(recommendedBudget)})
+                            </button>
+                        </div>
+                    )}
                 </>
             )}
         </div>

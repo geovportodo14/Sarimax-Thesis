@@ -2,19 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardBody, SectionHeader, Select, Input } from './ui';
 
 function ForecastControls({
-  historyPeriod,
   forecastPeriod,
   tariff,
   budget,
-  granularity,
-  forecastHorizon,
+  recommendedBudget,
+  recommendedBudgetDraft,
   disabledForecast = false,
-  onHistoryChange,
   onForecastChange,
   onTariffChange,
   onBudgetChange,
-  onGranularityChange,
-  onHorizonChange,
   containerId,
 }) {
   // Local state for budget & tariff — only committed on "Save"
@@ -25,6 +21,16 @@ function ForecastControls({
   // Keep local state in sync when parent re-initializes (e.g., on page load)
   useEffect(() => { setLocalTariff(tariff); }, [tariff]);
   useEffect(() => { setLocalBudget(budget); }, [budget]);
+  useEffect(() => {
+    if (
+      recommendedBudgetDraft &&
+      Number.isFinite(recommendedBudgetDraft.value) &&
+      recommendedBudgetDraft.value > 0
+    ) {
+      setLocalBudget(recommendedBudgetDraft.value);
+      setHasUnsavedChanges(true);
+    }
+  }, [recommendedBudgetDraft]);
 
   const handleSave = () => {
     onTariffChange(localTariff === '' ? 0 : parseFloat(localTariff));
@@ -32,30 +38,11 @@ function ForecastControls({
     setHasUnsavedChanges(false);
   };
 
-  const historyOptions = [
-    { value: 1, label: 'Past 1 Hour' },
-    { value: 4, label: 'Past 4 Hours' },
-    { value: 8, label: 'Past 8 Hours' },
-    { value: 24, label: 'Past 24 Hours' },
-  ];
-
   const forecastOptions = [
-    { value: 1, label: 'Next 1 Hour' },
-    { value: 4, label: 'Next 4 Hours' },
-    { value: 8, label: 'Next 8 Hours' },
-    { value: 24, label: 'Next 24 Hours' },
-  ];
-
-  const horizonOptions = [
-    { value: 6, label: '6 Hours' },
-    { value: 12, label: '12 Hours' },
-    { value: 24, label: '24 Hours' },
-  ];
-
-  const granularityOptions = [
-    { value: 10, label: '10 Minutes' },
-    { value: 30, label: '30 Minutes' },
-    { value: 60, label: '1 Hour' },
+    { value: 1, label: 'Forecast Window: Next 1 Hour' },
+    { value: 4, label: 'Forecast Window: Next 4 Hours' },
+    { value: 8, label: 'Forecast Window: Next 8 Hours' },
+    { value: 24, label: 'Forecast Window: Next 24 Hours' },
   ];
 
   const disabledClass = disabledForecast ? 'opacity-50 pointer-events-none' : '';
@@ -70,7 +57,7 @@ function ForecastControls({
             </svg>
           }
           title="Forecast Settings"
-          subtitle={disabledForecast ? 'Viewing historical data — settings locked' : 'Customize your analysis'}
+          subtitle={disabledForecast ? 'Viewing historical data — settings locked' : 'Model predicts 24h ahead; choose a planning window.'}
         />
 
         {disabledForecast && (
@@ -83,7 +70,7 @@ function ForecastControls({
         )}
 
         <div className={`space-y-4 ${disabledClass}`}>
-          {/* History Period */}
+          {/* Forecast Window */}
           <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-4 p-4 bg-surface-50 rounded-xl border border-surface-100 hover:bg-surface-100/50 transition-colors">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-700 flex items-center justify-center flex-shrink-0">
@@ -91,27 +78,7 @@ function ForecastControls({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <span className="text-body-md font-medium text-surface-700 truncate">History</span>
-            </div>
-            <Select
-              value={historyPeriod}
-              onChange={(e) => onHistoryChange(parseInt(e.target.value))}
-              options={historyOptions}
-              size="sm"
-              selectClassName="w-full xs:w-auto min-w-[130px]"
-              disabled={disabledForecast}
-            />
-          </div>
-
-          {/* Forecast Period */}
-          <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-4 p-4 bg-surface-50 rounded-xl border border-surface-100 hover:bg-surface-100/50 transition-colors">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center flex-shrink-0">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-              </div>
-              <span className="text-body-md font-medium text-surface-700 truncate">Forecast</span>
+              <span className="text-body-md font-medium text-surface-700 truncate">Forecast Window</span>
             </div>
             <Select
               value={forecastPeriod}
@@ -122,26 +89,9 @@ function ForecastControls({
               disabled={disabledForecast}
             />
           </div>
-
-          {/* Forecast Horizon / Chart Range */}
-          <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100 hover:bg-teal-100/50 transition-colors">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center flex-shrink-0">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <span className="text-body-md font-medium text-surface-700 truncate">Chart Range</span>
-            </div>
-            <Select
-              value={forecastHorizon}
-              onChange={(e) => onHorizonChange(parseInt(e.target.value))}
-              options={horizonOptions}
-              size="sm"
-              selectClassName="w-full xs:w-auto min-w-[130px]"
-              disabled={disabledForecast}
-            />
-          </div>
+          <p className="text-xs text-surface-500 leading-relaxed">
+            The model forecasts the next 24 hours. This setting selects which upcoming window is emphasized in your totals and alerts.
+          </p>
         </div>
 
         {/* ── Tariff & Budget with Save Button ── */}
@@ -198,6 +148,19 @@ function ForecastControls({
                 inputClassName="w-full xs:w-24 text-right"
               />
             </div>
+
+            {Number.isFinite(recommendedBudget) && recommendedBudget > 0 && (
+              <button
+                onClick={() => {
+                  setLocalBudget(recommendedBudget);
+                  setHasUnsavedChanges(true);
+                }}
+                disabled={disabledForecast}
+                className="w-full px-4 py-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 text-body-sm font-semibold hover:bg-emerald-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Use Recommended Budget (₱{Math.round(recommendedBudget).toLocaleString()})
+              </button>
+            )}
 
             {/* Save Button */}
             <button

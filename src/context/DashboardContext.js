@@ -16,7 +16,6 @@ export const DashboardProvider = ({ children }) => {
     // STATE
     // ===========================================================================
     const [selectedPeriod, setSelectedPeriod] = useState(1);
-    const [selectedLookback, setSelectedLookback] = useState(1);
     const [tariff, setTariff] = useState(() => {
         const saved = localStorage.getItem('dashboardTariff');
         return saved ? parseFloat(saved) : 13.47;
@@ -62,9 +61,6 @@ export const DashboardProvider = ({ children }) => {
         tariffAdjustment: 13.47, // Default to base tariff
         loadAdjustment: 0,       // Percent change (-50 to +50)
     });
-
-    // Forecast Horizon state (Thesis 3.6.4.C)
-    const [forecastHorizon, setForecastHorizon] = useState(24); // 6, 12, or 24 hours
 
     // Shared UI overlay state — lifted to avoid duplicate instances across
     // desktop sidebar + mobile header and to allow resize-safety cleanup.
@@ -227,7 +223,6 @@ export const DashboardProvider = ({ children }) => {
     const value = {
         // State
         selectedPeriod,
-        selectedLookback,
         tariff,
         budget,
         hasSetBudget,
@@ -253,7 +248,6 @@ export const DashboardProvider = ({ children }) => {
 
         // Setters
         setSelectedPeriod,
-        setSelectedLookback,
         setTariff,
         handleTariffChange,
         setBudget,
@@ -266,15 +260,12 @@ export const DashboardProvider = ({ children }) => {
         setShowSetupWizard,
         setIsScenarioMode,
         setScenarioParams,
-        setForecastHorizon,
         setGranularity,
 
         // Scenario values
         isScenarioMode,
         scenarioParams,
 
-        // Forecast Horizon
-        forecastHorizon,
         granularity,
 
         // Handlers

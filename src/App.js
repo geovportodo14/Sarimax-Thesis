@@ -40,7 +40,6 @@ function LoadingState() {
 function DashboardContent() {
   const {
     selectedPeriod,
-    selectedLookback,
     tariff,
     budget,
     hasSetBudget,
@@ -52,7 +51,6 @@ function DashboardContent() {
     notifications,
 
     setSelectedPeriod,
-    setSelectedLookback,
     setTariff,
     handleBudgetChange,
     handleTariffChange,
@@ -66,8 +64,6 @@ function DashboardContent() {
 
     isScenarioMode,
     scenarioParams,
-    forecastHorizon,
-    setForecastHorizon,
 
     setActiveSection,
     isSidebarCollapsed,
@@ -96,6 +92,7 @@ function DashboardContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const hasInitialData = useRef(false);
+  const [recommendedBudgetDraft, setRecommendedBudgetDraft] = useState(null);
 
   // --- MANILA TIMEZONE HELPERS ---
   const isToday = useMemo(() => {
@@ -173,10 +170,9 @@ function DashboardContent() {
   const processedChartData = useMemo(() => {
     if (!chartData || !chartData.data) return { labels: [], actuals: [], forecasts: [] };
 
-    // Slice data by forecastHorizon to make Chart Range functional
+    // Keep full timeline visible; forecast window is controlled by selectedPeriod.
     const currentGranularity = chartData.granularity || granularity || 60;
-    const maxBuckets = Math.floor((forecastHorizon * 60) / currentGranularity);
-    const slicedData = chartData.data.slice(0, maxBuckets);
+    const visibleData = chartData.data;
 
     // current_bucket_index tells us where "now" is in the data array.
     // For historical dates the field is absent (-1 sentinel = include all).
@@ -184,9 +180,9 @@ function DashboardContent() {
     // avoid double-counting hours that already have actuals.
     const currentBucketIndex = chartData.current_bucket_index ?? -1;
 
-    const labels = slicedData.map(d => d.timestamp);
-    const actuals = slicedData.map(d => d.actual_kwh);
-    const forecasts = slicedData.map(d => d.forecast_kwh);
+    const labels = visibleData.map(d => d.timestamp);
+    const actuals = visibleData.map(d => d.actual_kwh);
+    const forecasts = visibleData.map(d => d.forecast_kwh);
 
     const maxForecastBuckets = Math.floor((selectedPeriod * 60) / currentGranularity);
 
@@ -196,12 +192,12 @@ function DashboardContent() {
       return sum + (val || 0);
     }, 0);
 
-    const airconActuals = slicedData.map(d => d.breakdown?.aircon?.actual ?? null);
-    const airconForecasts = slicedData.map(d => d.breakdown?.aircon?.forecast ?? null);
-    const fridgeActuals = slicedData.map(d => d.breakdown?.refrigerator?.actual ?? null);
-    const fridgeForecasts = slicedData.map(d => d.breakdown?.refrigerator?.forecast ?? null);
-    const fanActuals = slicedData.map(d => d.breakdown?.electricfan?.actual ?? null);
-    const fanForecasts = slicedData.map(d => d.breakdown?.electricfan?.forecast ?? null);
+    const airconActuals = visibleData.map(d => d.breakdown?.aircon?.actual ?? null);
+    const airconForecasts = visibleData.map(d => d.breakdown?.aircon?.forecast ?? null);
+    const fridgeActuals = visibleData.map(d => d.breakdown?.refrigerator?.actual ?? null);
+    const fridgeForecasts = visibleData.map(d => d.breakdown?.refrigerator?.forecast ?? null);
+    const fanActuals = visibleData.map(d => d.breakdown?.electricfan?.actual ?? null);
+    const fanForecasts = visibleData.map(d => d.breakdown?.electricfan?.forecast ?? null);
 
     // Projected totals: only future buckets bounded by selectedPeriod
     const projAircon = airconForecasts.reduce((sum, v, i) => {
@@ -223,7 +219,7 @@ function DashboardContent() {
       fridgeActuals, fridgeForecasts, projFridge,
       fanActuals, fanForecasts, projFan
     };
-  }, [chartData, forecastHorizon, granularity]);
+  }, [chartData, selectedPeriod, granularity]);
 
   const calculations = useMemo(() => {
     let effectiveTariff = tariff;
@@ -387,6 +383,15 @@ function DashboardContent() {
     }, 250);
   };
 
+  const handleApplyRecommendedBudget = (recommendedBudget) => {
+    if (!Number.isFinite(recommendedBudget) || recommendedBudget <= 0) return;
+    setRecommendedBudgetDraft({ value: recommendedBudget, ts: Date.now() });
+    const controls = document.getElementById('tour-controls');
+    if (controls) {
+      controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   if (loading) {
     return <LoadingState />;
   }
@@ -498,6 +503,7 @@ function DashboardContent() {
               <SmartBudgetCard
                 forecastKwh={calculations.totalKwh}
                 tariff={tariff}
+                onApplyBudget={handleApplyRecommendedBudget}
               />
             </AnimationWrapper>
 
@@ -684,19 +690,15 @@ function DashboardContent() {
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <ForecastControls
-                  historyPeriod={selectedLookback}
                   forecastPeriod={selectedPeriod}
                   disabledForecast={!isToday}
                   tariff={tariff}
                   budget={budget}
-                  granularity={granularity}
-                  forecastHorizon={forecastHorizon}
-                  onHistoryChange={setSelectedLookback}
+                  recommendedBudget={Math.round(calculations.totalKwh * tariff)}
+                  recommendedBudgetDraft={recommendedBudgetDraft}
                   onForecastChange={(val) => { if (isToday) setSelectedPeriod(val); }}
                   onTariffChange={handleTariffChange}
                   onBudgetChange={handleBudgetChange}
-                  onGranularityChange={setGranularity}
-                  onHorizonChange={setForecastHorizon}
                   containerId="tour-controls"
                 />
                 <div id="tour-ranking" className="h-full">

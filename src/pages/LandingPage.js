@@ -106,18 +106,6 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
             timeZone: 'Asia/Manila'
         }).format(dt);
     }, [scheduleData]);
-    const appliancePriorities = useMemo(() => {
-        if (!scheduleAppliances.length) return [];
-        return scheduleAppliances
-            .filter((app) => app.schedulable)
-            .map((app) => ({
-                appliance: app.appliance,
-                label: formatApplianceName(app.appliance),
-                shifted: Number(app.shifted_kwh || 0)
-            }))
-            .sort((a, b) => b.shifted - a.shifted)
-            .slice(0, 3);
-    }, [scheduleAppliances]);
     const optimizerActionCards = useMemo(() => {
         if (!scheduleAppliances.length) return [];
         const cards = [];
@@ -174,6 +162,14 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
     const now = new Date();
     const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     const remainingDays = Math.max(daysInMonth - now.getDate(), 1);
+    const currentMonthLabel = new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        year: 'numeric',
+        timeZone: 'Asia/Manila'
+    }).format(now);
+    const simulatorFreshnessLabel = generatedAtLabel === 'Pending run'
+        ? 'Forecast run pending'
+        : `Model updated ${generatedAtLabel}`;
 
     // Compute projected kWh from actual MTD + forecasted daily estimate for remaining days.
     const spentSoFarKwh = (monthlySummary && !loadingSummary) ? monthlySummary.total_kwh : 0;
@@ -233,9 +229,9 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                     </button>
                     <button
                         onClick={onEnterDashboard}
-                        className="px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest bg-surface-900 text-white hover:bg-black transition-all shadow-lg shadow-surface-200"
+                        className="text-xs font-bold uppercase tracking-widest text-surface-500 hover:text-primary-600 transition-colors"
                     >
-                        Go to Dashboard
+                        Dashboard
                     </button>
                 </motion.div>
             </nav>
@@ -305,13 +301,21 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                         >
                             <div className="mb-8 text-center relative">
                                 <h3 className="text-2xl font-bold text-surface-900 mb-2">Budget Simulator</h3>
-                                <p className="text-sm text-surface-500">Interactive live billing forecast</p>
+                                <p className="text-sm text-surface-500">Month-end estimate from MTD usage + next-day model</p>
+                                <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-wider">
+                                    <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                        {simulatorFreshnessLabel}
+                                    </span>
+                                    <span className="px-2.5 py-1 rounded-full bg-surface-100 text-surface-600 border border-surface-200">
+                                        {currentMonthLabel}
+                                    </span>
+                                </div>
                             </div>
 
                             <div className="space-y-8">
                                 <div className="p-4 rounded-2xl bg-surface-50/50 border border-surface-100">
                                     <div className="flex justify-between items-end mb-4">
-                                        <label className="text-xs font-bold uppercase tracking-wider text-surface-400">Monthly Budget</label>
+                                        <label className="text-xs font-bold uppercase tracking-wider text-surface-400">Monthly Budget Target</label>
                                         <span className={`text-xl font-black ${isOverBudget ? 'text-red-600' : 'text-primary-600'}`}>
                                             ₱{budgetTarget.toLocaleString()}
                                         </span>
@@ -331,7 +335,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                     <div className="flex justify-between items-center text-sm">
                                         <div className="flex items-center gap-2 text-surface-500">
                                             <div className="w-2 h-2 rounded-full bg-surface-300"></div>
-                                            <span>Current Spend</span>
+                                            <span>Spent so far (MTD)</span>
                                         </div>
                                         <span className="font-bold text-surface-900">
                                             {loadingSummary ? '---' : `₱${Math.round(spentSoFarPhp).toLocaleString()}`}
@@ -341,7 +345,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                     <div className="flex justify-between items-center text-sm border-t border-surface-100 pt-4">
                                         <div className="flex items-center gap-2 text-surface-700 font-semibold">
                                             <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></div>
-                                            <span>Projected End of Month</span>
+                                            <span>Estimated month-end bill</span>
                                         </div>
                                         <span className={`text-xl font-black ${isOverBudget ? 'text-red-600' : 'text-surface-900'}`}>
                                             ₱{Math.round(projectedUsage).toLocaleString()}
@@ -395,6 +399,19 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                     </motion.div>
                                 </AnimatePresence>
 
+                                <div className="rounded-2xl border border-surface-200 bg-white/80 p-4">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-2">Simulation Basis</p>
+                                    <div className="space-y-1.5 text-xs text-surface-600">
+                                        <p>Remaining days this month: <span className="font-semibold text-surface-800">{remainingDays}</span></p>
+                                        <p>
+                                            Forecast basis: <span className="font-semibold text-surface-800">
+                                                {tomorrowTotalKwh > 0 ? `${tomorrowTotalKwh.toFixed(2)} kWh/day` : 'Fallback baseline (forecast pending)'}
+                                            </span>
+                                        </p>
+                                        <p>Model run status: <span className="font-semibold text-surface-800">{generatedAtLabel}</span></p>
+                                    </div>
+                                </div>
+
                                 {/* Smart Schedule Modal Trigger */}
                                 <div className="mb-2 relative">
                                     <button
@@ -413,14 +430,14 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                 </div>
 
                                 <div className="flex flex-col gap-3 pt-2">
-                                    <button onClick={() => setIsModalOpen(true)} className="w-full py-2.5 flex items-center justify-center gap-2 text-surface-500 font-bold text-xs uppercase tracking-widest hover:text-primary-600 hover:bg-white rounded-xl transition-all border border-transparent hover:border-surface-100">
-                                        <ReceiptText size={16} />
-                                        Full Bill Breakdown
-                                    </button>
-
                                     <button onClick={onEnterDashboard} className={`w-full py-4 flex items-center justify-center gap-2 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-95 ${isOverBudget ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-surface-900 hover:bg-black shadow-surface-200'}`}>
                                         {isOverBudget ? 'Lower my bill now' : 'Open Dashboard'}
                                         <ChevronRight size={20} />
+                                    </button>
+
+                                    <button onClick={() => setIsModalOpen(true)} className="w-full py-2.5 flex items-center justify-center gap-2 text-surface-500 font-bold text-xs uppercase tracking-widest hover:text-primary-600 hover:bg-white rounded-xl transition-all border border-transparent hover:border-surface-100">
+                                        <ReceiptText size={16} />
+                                        Full Bill Breakdown
                                     </button>
                                 </div>
                             </div>
@@ -711,8 +728,8 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                 >
                                     <Zap size={64} strokeWidth={1} />
                                 </motion.div>
-                                <h3 className="text-6xl font-black text-white mb-4">MAR 2026</h3>
-                                <p className="text-primary-200 font-bold uppercase tracking-widest mb-10 opacity-80">Official Tariff Simulation</p>
+                                <h3 className="text-6xl font-black text-white mb-4">{currentMonthLabel.toUpperCase()}</h3>
+                                <p className="text-primary-200 font-bold uppercase tracking-widest mb-10 opacity-80">Live Tariff Simulation</p>
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}

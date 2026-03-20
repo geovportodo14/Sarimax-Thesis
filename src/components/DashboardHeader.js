@@ -10,6 +10,8 @@ import { RefreshCw, Bell } from 'lucide-react';
 function DashboardHeader({
   onHelpClick,
   notifications = [],
+  onToggleNotificationRead,
+  onClearNotifications,
   settings,
   onSaveSettings
 }) {
@@ -174,6 +176,8 @@ function DashboardHeader({
           isOpen={showNotifications}
           onClose={() => setShowNotifications(false)}
           notifications={notifications}
+          onToggleRead={onToggleNotificationRead}
+          onClearAll={onClearNotifications}
         />
         <SettingsPopover
           isOpen={showSettings}

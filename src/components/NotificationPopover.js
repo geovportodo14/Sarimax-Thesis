@@ -2,7 +2,13 @@ import React from 'react';
 import { Card } from './ui/index';
 import { Bell, AlertTriangle, TrendingDown, CheckCircle2, X } from 'lucide-react';
 
-const NotificationPopover = ({ isOpen, onClose, notifications = [] }) => {
+const NotificationPopover = ({
+    isOpen,
+    onClose,
+    notifications = [],
+    onToggleRead,
+    onClearAll
+}) => {
     if (!isOpen) return null;
 
     return (
@@ -50,6 +56,9 @@ const NotificationPopover = ({ isOpen, onClose, notifications = [] }) => {
                                 {notifications.map((notif) => (
                                     <div
                                         key={notif.id}
+                                        onClick={() => {
+                                            if (typeof onToggleRead === 'function') onToggleRead(notif.id);
+                                        }}
                                         className={`p-4 hover:bg-surface-50 transition-colors cursor-pointer group ${notif.priority === 'high' ? 'bg-red-50/30' : ''
                                             }`}
                                     >
@@ -76,7 +85,13 @@ const NotificationPopover = ({ isOpen, onClose, notifications = [] }) => {
                                                     {notif.message}
                                                 </p>
                                                 {notif.action && (
-                                                    <button className="text-primary-600 text-[11px] font-bold hover:text-primary-700 transition-colors">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (typeof onToggleRead === 'function') onToggleRead(notif.id);
+                                                        }}
+                                                        className="text-primary-600 text-[11px] font-bold hover:text-primary-700 transition-colors"
+                                                    >
                                                         {notif.action}
                                                     </button>
                                                 )}
@@ -90,7 +105,12 @@ const NotificationPopover = ({ isOpen, onClose, notifications = [] }) => {
 
                     {notifications.length > 0 && (
                         <div className="p-3 border-t border-surface-50 text-center bg-surface-50 relative z-[101]">
-                            <button className="text-body-xs font-semibold text-surface-500 hover:text-primary-600 transition-colors">
+                            <button
+                                onClick={() => {
+                                    if (typeof onClearAll === 'function') onClearAll();
+                                }}
+                                className="text-body-xs font-semibold text-surface-500 hover:text-primary-600 transition-colors"
+                            >
                                 Mark all as read
                             </button>
                         </div>
