@@ -1,0 +1,140 @@
+{
+  "appliance": "electric_fan_model_ready",
+  "timestamp": "2026-03-31T13:03:34.846833",
+  "fit_config": {
+    "synthetic_end": "2026-01-03 18:00:00",
+    "real_start": "2026-01-03 19:00:00",
+    "real_train_ratio": 0.7,
+    "require_full_day_boundary": true,
+    "train_end_hour": 23,
+    "default_seasonal_period": 24,
+    "max_p": 3,
+    "max_q": 3,
+    "max_P": 2,
+    "max_Q": 2,
+    "max_total_order": 10,
+    "enforce_stationarity": true,
+    "enforce_invertibility": true,
+    "maxiter": 150,
+    "disp": false,
+    "dropna": true,
+    "min_rows_required": 300,
+    "cv_enabled": true,
+    "cv_horizon": 24,
+    "cv_n_folds": 3,
+    "cv_min_train_rows": 300,
+    "cv_metric": "RMSE",
+    "cv_progress_every": 10,
+    "checkpoint_every_n_models": 1,
+    "checkpoint_every_seconds": 600
+  },
+  "derived_from_premodel": {
+    "seasonal_period": 24,
+    "differencing_candidates": [
+      {
+        "d": 0,
+        "D": 0
+      },
+      {
+        "d": 1,
+        "D": 0
+      },
+      {
+        "d": 0,
+        "D": 1
+      },
+      {
+        "d": 1,
+        "D": 1
+      }
+    ],
+    "premodel_report": "model\\sarimax\\electric_fan_model_ready\\premodel\\electric_fan_model_ready_premodel_report.json"
+  },
+  "model_selection": {
+    "selection_strategy": "time_series_cv_then_aic_bic_tiebreak",
+    "cv_enabled": true,
+    "cv_metric": "RMSE",
+    "cv_horizon": 24,
+    "cv_n_folds_requested": 3,
+    "cv_n_folds_eligible": 3,
+    "search_space_total_models": 576
+  },
+  "best": {
+    "order": {
+      "p": 0,
+      "d": 0,
+      "q": 0
+    },
+    "seasonal_order": {
+      "P": 0,
+      "D": 1,
+      "Q": 2,
+      "s": 24
+    },
+    "aic": -7336.556138772105,
+    "bic": -7259.8467971286145,
+    "converged": true,
+    "cv_metric": "RMSE",
+    "cv_mean": 0.0121401255030072,
+    "cv_std": 0.0056658833758367,
+    "cv_rmse_mean": 0.0121401255030072,
+    "cv_mae_mean": 0.0090871823142887,
+    "cv_smape_mean": 122.48620037248448,
+    "cv_n_folds_ok": 3
+  },
+  "exog_columns": [
+    "temperature",
+    "humidity",
+    "rainfall",
+    "sin_hour",
+    "cos_hour",
+    "sin_day_of_week",
+    "cos_day_of_week",
+    "is_weekend",
+    "lag_24",
+    "lag_168",
+    "rolling_mean_24",
+    "rolling_mean_168"
+  ],
+  "n_total_rows_after_dropna": 1791,
+  "split_counts": {
+    "synthetic": 0,
+    "real_total": 1791,
+    "real_train": 1253,
+    "real_test": 538,
+    "train_total": 1253,
+    "test_total": 538
+  },
+  "split_ranges": {
+    "synthetic": [
+      null,
+      null
+    ],
+    "real": [
+      "2026-01-10 19:00:00",
+      "2026-03-26 09:00:00"
+    ],
+    "real_train": [
+      "2026-01-10 19:00:00",
+      "2026-03-03 23:00:00"
+    ],
+    "real_test": [
+      "2026-03-04 00:00:00",
+      "2026-03-26 09:00:00"
+    ],
+    "train": [
+      "2026-01-10 19:00:00",
+      "2026-03-03 23:00:00"
+    ],
+    "test": [
+      "2026-03-04 00:00:00",
+      "2026-03-26 09:00:00"
+    ]
+  },
+  "artifacts": {
+    "model_path": "model\\sarimax\\electric_fan_model_ready\\model\\best_model.pkl",
+    "coefficients_csv": "model\\sarimax\\electric_fan_model_ready\\model\\coefficients.csv",
+    "search_results_csv": "model\\sarimax\\electric_fan_model_ready\\model\\search_results.csv",
+    "split_manifest_json": "model\\sarimax\\electric_fan_model_ready\\model\\split_manifest.json"
+  }
+}

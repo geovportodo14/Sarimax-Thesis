@@ -71,6 +71,36 @@ async function loadScheduleForDate(forecastDate) {
     }
 }
 
+exports.getScheduleDates = async (_req, res) => {
+    try {
+        let entries;
+        try {
+            entries = await fs.readdir(OUTPUTS_ROOT, { withFileTypes: true });
+        } catch {
+            return res.status(200).json({ dates: [] });
+        }
+
+        const dates = [];
+        for (const entry of entries) {
+            if (!entry.isDirectory()) continue;
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(entry.name)) continue;
+            const schedulePath = path.join(OUTPUTS_ROOT, entry.name, '_schedule.json');
+            try {
+                await fs.access(schedulePath);
+                dates.push(entry.name);
+            } catch {
+                // no schedule for this date
+            }
+        }
+
+        dates.sort();
+        res.status(200).json({ dates });
+    } catch (error) {
+        console.error('getScheduleDates error:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Helper to fetch and format the next 24-hr forecast stored by the Python pipeline
 exports.getDailyForecasts = async (req, res) => {
     try {

@@ -29,5 +29,6 @@ router.get('/historical', historicalController.getHistoricalData);
 router.get('/live', liveForecastController.getLiveForecast);
 router.get('/summary/month', summaryController.getMonthlySummary);
 router.get('/forecast/daily', dailyForecastsController.getDailyForecasts);
+router.get('/schedule/dates', dailyForecastsController.getScheduleDates);
 
 module.exports = router;

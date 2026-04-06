@@ -1,0 +1,22 @@
+{
+  "groups": {
+    "nonzero_actual": {
+      "n": 133,
+      "actual_energy_mean": 0.4130827067669173,
+      "pred_energy_mean": 0.2980919525371738,
+      "residual_mean": 0.11499075422974353,
+      "MAE": 0.15815711042671943,
+      "RMSE": 0.2746937908463304,
+      "sMAPE": 53.11158773033298
+    },
+    "zero_actual": {
+      "n": 395,
+      "actual_energy_mean": 0.0,
+      "pred_energy_mean": 0.060434095074373896,
+      "residual_mean": -0.060434095074373896,
+      "MAE": 0.060434095074373896,
+      "RMSE": 0.16407433976657798,
+      "sMAPE": 120.0
+    }
+  }
+}

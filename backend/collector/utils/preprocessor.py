@@ -18,9 +18,19 @@ class DataPreprocessor:
         if not raw_data:
             return None
 
+        # Power (usually code 'cur_power' or 'power')
+        # Tuya usually reports in deciwatts (e.g. 150 = 15.0W)
+        p_raw = raw_data.get("cur_power")
+        if p_raw is None:
+            p_raw = raw_data.get("power")
+        power_w = float(p_raw) / 10.0 if p_raw is not None else 0.0
+
         normalized = {
-            "is_active": raw_data.get("switch_1") or raw_data.get("switch") or False
+            "is_active": (raw_data.get("switch_1") == True or 
+                          raw_data.get("switch") == True or 
+                          power_w > 1.0)
         }
+        normalized["power_w"] = power_w
 
         # Voltage (usually code 'cur_voltage' or 'voltage')
         # Tuya usually reports in centivolts (e.g. 2301 = 230.1V)

@@ -1,0 +1,23 @@
+{
+  "peak_threshold_actual_energy": 0.5,
+  "groups": {
+    "non_peak": {
+      "n": 464,
+      "actual_energy_mean": 0.04362068965517242,
+      "pred_energy_mean": 0.08606521553059038,
+      "residual_mean": -0.042444525875417964,
+      "MAE": 0.07220166482663272,
+      "RMSE": 0.16798212262633563,
+      "sMAPE": 111.88489842682891
+    },
+    "peak": {
+      "n": 64,
+      "actual_energy_mean": 0.5421875,
+      "pred_energy_mean": 0.36849120680668535,
+      "residual_mean": 0.1736962931933147,
+      "MAE": 0.1781998556495904,
+      "RMSE": 0.3440599266452924,
+      "sMAPE": 39.83200465758861
+    }
+  }
+}

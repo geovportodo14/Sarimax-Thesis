@@ -1,0 +1,133 @@
+{
+  "input_file": "data\\refrigerator_model_ready.csv",
+  "appliance_key": "refrigerator_model_ready",
+  "config": {
+    "seasonal_period": 24,
+    "weekly_period": 168,
+    "adf_alpha": 0.05,
+    "max_acf_lag": 200,
+    "gap_threshold_hours": 2,
+    "min_adf_samples": 50
+  },
+  "integrity": {
+    "duplicate_timestamp_rows": 0,
+    "inferred_frequency_first_200": "h",
+    "start": "2026-01-03 19:00:00",
+    "end": "2026-03-26 09:00:00",
+    "n_rows_hourly_index": 1959,
+    "missing_hour_timestamps_count": 0,
+    "gap_blocks_count": 0,
+    "gap_blocks_ge_threshold_count": 0,
+    "gap_blocks_ge_threshold_examples": []
+  },
+  "adf": {
+    "level_energy": {
+      "ok": true,
+      "adf_stat": -16.040579329223846,
+      "p_value": 5.920112726515132e-29,
+      "used_lag": 3,
+      "n_obs": 1955,
+      "critical_values": {
+        "1%": -3.4336993130292686,
+        "5%": -2.8630195274705996,
+        "10%": -2.5675576403215574
+      },
+      "ic_best": -6565.101717365003
+    },
+    "diff1_energy": {
+      "ok": true,
+      "adf_stat": -16.143572550890088,
+      "p_value": 4.6484937219229686e-29,
+      "used_lag": 22,
+      "n_obs": 1935,
+      "critical_values": {
+        "1%": -3.4337339773386066,
+        "5%": -2.8630348314250633,
+        "10%": -2.5675657889816983
+      },
+      "ic_best": -6492.5149296775
+    },
+    "seasonal_diff_energy_s": {
+      "ok": true,
+      "adf_stat": -11.839680836252215,
+      "p_value": 7.6419955141166e-22,
+      "used_lag": 26,
+      "n_obs": 1908,
+      "critical_values": {
+        "1%": -3.433781928466138,
+        "5%": -2.8630560010881374,
+        "10%": -2.5675770609131146
+      },
+      "ic_best": -5722.019235648984
+    },
+    "diff1_then_seasonal_s": {
+      "ok": true,
+      "adf_stat": -13.055849128452273,
+      "p_value": 2.095731968480699e-24,
+      "used_lag": 26,
+      "n_obs": 1907,
+      "critical_values": {
+        "1%": -3.4337837305451755,
+        "5%": -2.863056796670872,
+        "10%": -2.5675774845276518
+      },
+      "ic_best": -5599.66235804831
+    },
+    "seasonal_s_then_diff1": {
+      "ok": true,
+      "adf_stat": -13.055849128452238,
+      "p_value": 2.0957319684810443e-24,
+      "used_lag": 26,
+      "n_obs": 1907,
+      "critical_values": {
+        "1%": -3.4337837305451755,
+        "5%": -2.863056796670872,
+        "10%": -2.5675774845276518
+      },
+      "ic_best": -5599.662358048308
+    }
+  },
+  "seasonality_signals": {
+    "acf_lag_24": 0.05007077987662194,
+    "acf_lag_168": 0.05197306554060265
+  },
+  "suggested_differencing": {
+    "rule_based_d": 0,
+    "rule_based_D": 0,
+    "p_values": {
+      "level": 5.920112726515132e-29,
+      "diff1": 4.6484937219229686e-29,
+      "seasonal": 7.6419955141166e-22
+    },
+    "notes": {
+      "level_stationary": true,
+      "diff1_stationary": true,
+      "seasonal_diff_stationary": true
+    }
+  },
+  "guided_differencing_candidates": {
+    "anchor_candidate": {
+      "d": 0,
+      "D": 0
+    },
+    "candidate_set": [
+      {
+        "d": 0,
+        "D": 0
+      },
+      {
+        "d": 1,
+        "D": 0
+      },
+      {
+        "d": 0,
+        "D": 1
+      },
+      {
+        "d": 1,
+        "D": 1
+      }
+    ],
+    "note": "Use the anchor candidate first, then test nearby candidates in the modeling stage using AIC/BIC or validation performance."
+  }
+}

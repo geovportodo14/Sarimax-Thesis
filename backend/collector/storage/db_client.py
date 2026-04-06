@@ -76,6 +76,10 @@ class MongoDBClient:
                     },
                     upsert=True
                 )
+            
+            # Recalculate daily summary for live dashboard updates
+            self.final_daily_validation(appliance_name, date_str)
+            
             return True
         except Exception as e:
             logger.exception(f"Failed to store reading for {appliance_name}")

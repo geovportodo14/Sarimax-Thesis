@@ -1,0 +1,43 @@
+{
+  "n_test_total": 538,
+  "n_scored": 528,
+  "horizon": 24,
+  "refit_each_origin": true,
+  "MAE": 0.011812410775228053,
+  "RMSE": 0.022013208447203305,
+  "NRMSE": 1.5193430143952085,
+  "sMAPE": 132.58738157289142,
+  "MAPE_nonzero": 45.05656916565509,
+  "R2": 0.16945612444922253,
+  "n_forecast_days": 22,
+  "n_raw_negative_predictions": 25,
+  "pct_raw_negative_predictions": 4.734848484848484,
+  "note_mape_nonzero": "MAPE computed only on hours where actual_energy != 0",
+  "note_scoring_prediction": "Primary evaluation metrics use clipped non-negative forecasts.",
+  "note_raw_output": "Raw forecasts before clipping are saved separately for diagnostics.",
+  "n_days_scored": 22,
+  "worst_day_by_rmse": {
+    "date": "2026-03-07",
+    "n_hours": 24,
+    "n_raw_negative_predictions": 0,
+    "pct_raw_negative_predictions": 0.0,
+    "MAE": 0.027336953653598266,
+    "RMSE": 0.07499309355579864,
+    "NRMSE": 1.6979568352256296,
+    "sMAPE": 77.34151834125387,
+    "MAPE_nonzero": 40.267270954128875,
+    "R2": 0.023216948891686906
+  },
+  "worst_day_by_mae": {
+    "date": "2026-03-07",
+    "n_hours": 24,
+    "n_raw_negative_predictions": 0,
+    "pct_raw_negative_predictions": 0.0,
+    "MAE": 0.027336953653598266,
+    "RMSE": 0.07499309355579864,
+    "NRMSE": 1.6979568352256296,
+    "sMAPE": 77.34151834125387,
+    "MAPE_nonzero": 40.267270954128875,
+    "R2": 0.023216948891686906
+  }
+}

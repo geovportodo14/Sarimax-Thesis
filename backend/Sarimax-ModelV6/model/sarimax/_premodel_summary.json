@@ -1,0 +1,33 @@
+{
+  "config": {
+    "seasonal_period": 24,
+    "weekly_period": 168,
+    "adf_alpha": 0.05,
+    "max_acf_lag": 200,
+    "gap_threshold_hours": 2,
+    "min_adf_samples": 50
+  },
+  "input_dir": "data",
+  "output_dir": "model\\sarimax",
+  "n_files": 3,
+  "files": [
+    {
+      "input": "data\\aircon_model_ready.csv",
+      "output": "model\\sarimax\\aircon_model_ready\\premodel\\aircon_model_ready_premodel_report.json",
+      "appliance_key": "aircon_model_ready"
+    },
+    {
+      "input": "data\\electric_fan_model_ready.csv",
+      "output": "model\\sarimax\\electric_fan_model_ready\\premodel\\electric_fan_model_ready_premodel_report.json",
+      "appliance_key": "electric_fan_model_ready"
+    },
+    {
+      "input": "data\\refrigerator_model_ready.csv",
+      "output": "model\\sarimax\\refrigerator_model_ready\\premodel\\refrigerator_model_ready_premodel_report.json",
+      "appliance_key": "refrigerator_model_ready"
+    }
+  ],
+  "failures": [],
+  "ok": 3,
+  "failed": 0
+}

@@ -498,6 +498,7 @@ function DashboardPage() {
                 onClose={() => setIsModalOpen(false)}
                 billData={calculateMeralcoBill(calculations.totalKwh)}
             />
+
         </div>
     );
 }

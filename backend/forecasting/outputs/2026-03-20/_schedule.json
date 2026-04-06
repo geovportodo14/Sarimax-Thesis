@@ -1,13 +1,13 @@
 {
   "forecast_date": "2026-03-20",
-  "generated_at": "2026-03-21T00:17:31.408293+08:00",
+  "generated_at": "2026-03-21T11:07:13.637630+08:00",
   "status": "ok",
   "solver": "cbc-binary",
   "objective": 22.0,
-  "baseline_total_cost_php": 61.0184,
-  "optimized_total_cost_php": 47.8594,
+  "baseline_total_cost_php": 60.9725,
+  "optimized_total_cost_php": 47.8136,
   "estimated_savings_php": 13.1589,
-  "estimated_savings_pct": 21.57,
+  "estimated_savings_pct": 21.58,
   "baseline_peak_kwh": 0.525152,
   "optimized_peak_kwh": 0.525152,
   "peak_reduction_kwh": 0.0,
@@ -41,8 +41,8 @@
     {
       "appliance": "aircon",
       "schedulable": true,
-      "baseline_total_kwh": 3.022597,
-      "optimized_total_kwh": 2.079325,
+      "baseline_total_kwh": 3.018233,
+      "optimized_total_kwh": 2.074961,
       "shifted_kwh": 0.471636,
       "hourly": [
         {
@@ -249,8 +249,8 @@
           "hour": 20,
           "timestamp": "2026-03-20T20:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.19655,
-          "optimized_kwh": 0.19655,
+          "baseline_kwh": 0.196155,
+          "optimized_kwh": 0.196155,
           "delta_kwh": 0.0,
           "action": "ON \u2014 keep running",
           "on_off": true
@@ -259,8 +259,8 @@
           "hour": 21,
           "timestamp": "2026-03-20T21:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.215069,
-          "optimized_kwh": 0.215069,
+          "baseline_kwh": 0.213865,
+          "optimized_kwh": 0.213865,
           "delta_kwh": 0.0,
           "action": "ON \u2014 keep running",
           "on_off": true
@@ -269,8 +269,8 @@
           "hour": 22,
           "timestamp": "2026-03-20T22:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.230236,
-          "optimized_kwh": 0.230236,
+          "baseline_kwh": 0.229013,
+          "optimized_kwh": 0.229013,
           "delta_kwh": 0.0,
           "action": "ON \u2014 keep running",
           "on_off": true
@@ -279,8 +279,8 @@
           "hour": 23,
           "timestamp": "2026-03-20T23:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.241417,
-          "optimized_kwh": 0.241417,
+          "baseline_kwh": 0.239875,
+          "optimized_kwh": 0.239875,
           "delta_kwh": 0.0,
           "action": "ON \u2014 keep running",
           "on_off": true
@@ -290,8 +290,8 @@
     {
       "appliance": "electric_fan",
       "schedulable": true,
-      "baseline_total_kwh": 0.222891,
-      "optimized_total_kwh": 0.150558,
+      "baseline_total_kwh": 0.222934,
+      "optimized_total_kwh": 0.150601,
       "shifted_kwh": 0.036166,
       "hourly": [
         {
@@ -498,8 +498,8 @@
           "hour": 20,
           "timestamp": "2026-03-20T20:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.002407,
-          "optimized_kwh": 0.002407,
+          "baseline_kwh": 0.002409,
+          "optimized_kwh": 0.002409,
           "delta_kwh": 0.0,
           "action": "ON \u2014 keep running",
           "on_off": true
@@ -508,8 +508,8 @@
           "hour": 21,
           "timestamp": "2026-03-20T21:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.005238,
-          "optimized_kwh": 0.005238,
+          "baseline_kwh": 0.00526,
+          "optimized_kwh": 0.00526,
           "delta_kwh": 0.0,
           "action": "ON \u2014 keep running",
           "on_off": true
@@ -518,8 +518,8 @@
           "hour": 22,
           "timestamp": "2026-03-20T22:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.008,
-          "optimized_kwh": 0.008,
+          "baseline_kwh": 0.008034,
+          "optimized_kwh": 0.008034,
           "delta_kwh": 0.0,
           "action": "ON \u2014 keep running",
           "on_off": true
@@ -528,8 +528,8 @@
           "hour": 23,
           "timestamp": "2026-03-20T23:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.010489,
-          "optimized_kwh": 0.010489,
+          "baseline_kwh": 0.010474,
+          "optimized_kwh": 0.010474,
           "delta_kwh": 0.0,
           "action": "ON \u2014 keep running",
           "on_off": true
@@ -539,8 +539,8 @@
     {
       "appliance": "refrigerator",
       "schedulable": false,
-      "baseline_total_kwh": 2.330425,
-      "optimized_total_kwh": 2.330425,
+      "baseline_total_kwh": 2.330057,
+      "optimized_total_kwh": 2.330057,
       "shifted_kwh": 0.0,
       "hourly": [
         {
@@ -747,8 +747,8 @@
           "hour": 20,
           "timestamp": "2026-03-20T20:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.149598,
-          "optimized_kwh": 0.149598,
+          "baseline_kwh": 0.149561,
+          "optimized_kwh": 0.149561,
           "delta_kwh": 0.0,
           "action": "Continuous operation",
           "on_off": true
@@ -757,8 +757,8 @@
           "hour": 21,
           "timestamp": "2026-03-20T21:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.101378,
-          "optimized_kwh": 0.101378,
+          "baseline_kwh": 0.101307,
+          "optimized_kwh": 0.101307,
           "delta_kwh": 0.0,
           "action": "Continuous operation",
           "on_off": true
@@ -767,8 +767,8 @@
           "hour": 22,
           "timestamp": "2026-03-20T22:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.094826,
-          "optimized_kwh": 0.094826,
+          "baseline_kwh": 0.094795,
+          "optimized_kwh": 0.094795,
           "delta_kwh": 0.0,
           "action": "Continuous operation",
           "on_off": true
@@ -777,8 +777,8 @@
           "hour": 23,
           "timestamp": "2026-03-20T23:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.097302,
-          "optimized_kwh": 0.097302,
+          "baseline_kwh": 0.097073,
+          "optimized_kwh": 0.097073,
           "delta_kwh": 0.0,
           "action": "Continuous operation",
           "on_off": true
@@ -791,7 +791,7 @@
     "mode": "binary",
     "solver_status": "Optimal",
     "estimated_savings_php": 13.1589,
-    "estimated_savings_pct": 21.57,
+    "estimated_savings_pct": 21.58,
     "peak_reduction_kwh": 0.0,
     "top_actions": [
       "Turn off aircon at 17:00 to stay within budget (saves \u20b11.90).",

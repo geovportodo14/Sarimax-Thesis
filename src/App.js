@@ -17,6 +17,7 @@ import { RefreshCw, Bell } from 'lucide-react';
 import NotificationPopover from './components/NotificationPopover';
 import SmartBudgetCard from './components/SmartBudgetCard';
 import SettingsPopover from './components/SettingsPopover';
+import MonthlyApplianceSummaryModal from './components/MonthlyApplianceSummaryModal';
 
 import { ApplianceIcons } from './components/ui/icons';
 import EnergyLineChart from './components/ui/EnergyLineChart';
@@ -38,6 +39,10 @@ function LoadingState() {
 }
 
 function DashboardContent() {
+  const formatMonthKey = (date) => (
+    new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(date).slice(0, 7)
+  );
+
   const {
     selectedPeriod,
     tariff,
@@ -93,6 +98,16 @@ function DashboardContent() {
   const [error, setError] = useState(null);
   const hasInitialData = useRef(false);
   const [recommendedBudgetDraft, setRecommendedBudgetDraft] = useState(null);
+  const [showMonthlySummaryModal, setShowMonthlySummaryModal] = useState(false);
+  const [monthlyApplianceSummary, setMonthlyApplianceSummary] = useState({
+    month: null,
+    total_kwh: 0,
+    appliance_totals_kwh: { aircon: 0, refrigerator: 0, electricfan: 0 }
+  });
+  const [loadingMonthlyApplianceSummary, setLoadingMonthlyApplianceSummary] = useState(false);
+  const [selectedSummaryMonth, setSelectedSummaryMonth] = useState(() => formatMonthKey(new Date()));
+  const [monthlySummaryError, setMonthlySummaryError] = useState('');
+  const [monthlyRefreshTick, setMonthlyRefreshTick] = useState(0);
 
   // --- MANILA TIMEZONE HELPERS ---
   const isToday = useMemo(() => {
@@ -153,6 +168,141 @@ function DashboardContent() {
 
     fetchDashboardData();
   }, [currentDate, selectedPeriod, isToday, granularity]);
+
+  const currentMonthKey = formatMonthKey(new Date());
+
+  const fetchMonthlyTotalsFromHistorical = useCallback(async (monthKey) => {
+    if (!monthKey) return null;
+    const [yearStr, monthStr] = monthKey.split('-');
+    const year = Number(yearStr);
+    const month = Number(monthStr);
+    if (!Number.isFinite(year) || !Number.isFinite(month)) return null;
+
+    const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(new Date());
+    const todayMonthKey = todayStr.slice(0, 7);
+    const todayDay = Number(todayStr.slice(8, 10));
+    const lastDay = new Date(year, month, 0).getDate();
+    const endDay = monthKey === todayMonthKey ? Math.min(todayDay, lastDay) : lastDay;
+
+    const totals = { aircon: 0, refrigerator: 0, electricfan: 0 };
+    let hadAnyDailyPayload = false;
+
+    for (let day = 1; day <= endDay; day += 1) {
+      const dateStr = `${monthKey}-${String(day).padStart(2, '0')}`;
+      try {
+        const dailyRes = await fetch(getApiUrl(`/api/historical?date=${dateStr}&granularity=60`));
+        if (!dailyRes.ok) continue;
+        const daily = await dailyRes.json();
+        const appTotals = daily?.appliance_totals_kwh || daily?.appliance_totals;
+
+        if (appTotals) {
+          hadAnyDailyPayload = true;
+          totals.aircon += Number(appTotals.aircon || 0);
+          totals.refrigerator += Number(appTotals.refrigerator || 0);
+          totals.electricfan += Number(appTotals.electricfan || 0);
+          continue;
+        }
+
+        // Legacy safety: derive appliance totals from time-series breakdown if aggregate fields are absent.
+        if (Array.isArray(daily?.data) && daily.data.length > 0) {
+          let dayAircon = 0;
+          let dayRefrigerator = 0;
+          let dayElectricfan = 0;
+          daily.data.forEach((point) => {
+            dayAircon += Number(point?.breakdown?.aircon?.actual || 0);
+            dayRefrigerator += Number(point?.breakdown?.refrigerator?.actual || 0);
+            dayElectricfan += Number(point?.breakdown?.electricfan?.actual || 0);
+          });
+          if ((dayAircon + dayRefrigerator + dayElectricfan) > 0) {
+            hadAnyDailyPayload = true;
+            totals.aircon += dayAircon;
+            totals.refrigerator += dayRefrigerator;
+            totals.electricfan += dayElectricfan;
+          }
+        }
+      } catch (err) {
+        console.warn(`Monthly fallback failed for ${dateStr}:`, err);
+      }
+    }
+
+    if (!hadAnyDailyPayload) return null;
+
+    return {
+      month: monthKey,
+      appliance_totals_kwh: {
+        aircon: Number(totals.aircon.toFixed(4)),
+        refrigerator: Number(totals.refrigerator.toFixed(4)),
+        electricfan: Number(totals.electricfan.toFixed(4))
+      }
+    };
+  }, []);
+
+  const applyMonthlySummaryResult = useCallback((monthKey, payload) => {
+    const normalizedTotals = {
+      aircon: Number(payload?.appliance_totals_kwh?.aircon || 0),
+      refrigerator: Number(payload?.appliance_totals_kwh?.refrigerator || 0),
+      electricfan: Number(payload?.appliance_totals_kwh?.electricfan || 0)
+    };
+    const computedTotal = normalizedTotals.aircon + normalizedTotals.refrigerator + normalizedTotals.electricfan;
+    setMonthlyApplianceSummary({
+      month: payload?.month || monthKey,
+      total_kwh: Number(computedTotal.toFixed(4)),
+      appliance_totals_kwh: normalizedTotals
+    });
+  }, []);
+
+  // Keep ongoing month dynamic (MTD): refresh periodically while viewing current month
+  useEffect(() => {
+    if (selectedSummaryMonth !== currentMonthKey) return undefined;
+    const intervalId = window.setInterval(() => {
+      setMonthlyRefreshTick((v) => v + 1);
+    }, 60 * 1000);
+    return () => window.clearInterval(intervalId);
+  }, [selectedSummaryMonth, currentMonthKey]);
+
+  useEffect(() => {
+    const fetchMonthlyApplianceSummary = async () => {
+      if (!selectedSummaryMonth) return;
+      setLoadingMonthlyApplianceSummary(true);
+      setMonthlySummaryError('');
+      try {
+        const endpoint = getApiUrl(`/api/summary/month?date=${selectedSummaryMonth}`);
+        const response = await fetch(endpoint);
+        const result = await response.json();
+        if (response.ok) {
+          if (result.appliance_totals_kwh) {
+            applyMonthlySummaryResult(selectedSummaryMonth, result);
+          } else {
+            const fallbackPayload = await fetchMonthlyTotalsFromHistorical(selectedSummaryMonth);
+            if (fallbackPayload) {
+              applyMonthlySummaryResult(selectedSummaryMonth, fallbackPayload);
+            } else {
+              setMonthlySummaryError('Monthly API payload is missing appliance breakdown and fallback daily data is unavailable.');
+            }
+          }
+        } else {
+          const fallbackPayload = await fetchMonthlyTotalsFromHistorical(selectedSummaryMonth);
+          if (fallbackPayload) {
+            applyMonthlySummaryResult(selectedSummaryMonth, fallbackPayload);
+          } else {
+            setMonthlySummaryError(result?.error || `Monthly summary request failed (${response.status}).`);
+          }
+        }
+      } catch (err) {
+        console.error("Monthly appliance summary fetch failed:", err);
+        const fallbackPayload = await fetchMonthlyTotalsFromHistorical(selectedSummaryMonth);
+        if (fallbackPayload) {
+          applyMonthlySummaryResult(selectedSummaryMonth, fallbackPayload);
+        } else {
+          setMonthlySummaryError(err?.message || 'Monthly summary request failed.');
+        }
+      } finally {
+        setLoadingMonthlyApplianceSummary(false);
+      }
+    };
+
+    fetchMonthlyApplianceSummary();
+  }, [selectedSummaryMonth, fetchMonthlyTotalsFromHistorical, applyMonthlySummaryResult, monthlyRefreshTick]);
 
 
   const toggleNotificationRead = (id) => {
@@ -299,6 +449,30 @@ function DashboardContent() {
       applianceData
     };
   }, [tariff, budget, isScenarioMode, scenarioParams, chartData, processedChartData, selectedPeriod]);
+
+  const monthlyApplianceCards = useMemo(() => {
+    const totals = monthlyApplianceSummary?.appliance_totals_kwh || { aircon: 0, refrigerator: 0, electricfan: 0 };
+    const rows = [
+      { key: 'aircon', label: 'Air Conditioner', kwh: Number(totals.aircon || 0) },
+      { key: 'refrigerator', label: 'Refrigerator', kwh: Number(totals.refrigerator || 0) },
+      { key: 'electricfan', label: 'Electric Fan', kwh: Number(totals.electricfan || 0) }
+    ];
+    const totalMonthKwh = rows.reduce((sum, row) => sum + row.kwh, 0);
+
+    return rows.map((row) => {
+      const share = totalMonthKwh > 0 ? (row.kwh / totalMonthKwh) * 100 : 0;
+      const estCost = row.kwh * tariff;
+      return {
+        ...row,
+        share,
+        estCost
+      };
+    });
+  }, [monthlyApplianceSummary, tariff]);
+  const monthlyTotalKwh = useMemo(
+    () => monthlyApplianceCards.reduce((sum, row) => sum + Number(row.kwh || 0), 0),
+    [monthlyApplianceCards]
+  );
 
   const lastEmailSent = useRef({ type: null, timestamp: 0 });
 
@@ -585,6 +759,42 @@ function DashboardContent() {
                 </Card>
               </div>
 
+              <div className="mb-6">
+                <Card className="border border-cyan-100 bg-gradient-to-br from-cyan-50 via-white to-sky-50">
+                  <CardBody className="p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div>
+                        <p className="text-[11px] font-bold uppercase tracking-widest text-cyan-700 mb-1">Monthly Appliance Summary</p>
+                        <p className="text-body-md font-semibold text-surface-900">
+                          {selectedSummaryMonth} total: {monthlyTotalKwh.toFixed(2)} kWh
+                        </p>
+                        <p className="text-caption text-surface-500 mt-1">
+                          {loadingMonthlyApplianceSummary
+                            ? 'Refreshing monthly totals...'
+                            : 'Open detailed monthly breakdown with month picker and per-appliance insights.'}
+                        </p>
+                        {selectedSummaryMonth === currentMonthKey && (
+                          <p className="text-caption text-emerald-700 mt-1">
+                            Month-to-date mode: updates automatically as new daily readings arrive.
+                          </p>
+                        )}
+                        {!!monthlySummaryError && (
+                          <p className="text-caption text-red-600 mt-1">
+                            {monthlySummaryError}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => setShowMonthlySummaryModal(true)}
+                        className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white text-body-sm font-semibold transition-colors shadow-sm"
+                      >
+                        View Monthly Breakdown
+                      </button>
+                    </div>
+                  </CardBody>
+                </Card>
+              </div>
+
               <div id="tour-comparison">
                 <ComparisonChart
                   previousKwh={prevDayData.aggregate_total_kwh || 0}
@@ -721,6 +931,19 @@ function DashboardContent() {
           </div>
         </main>
       </div>
+
+      <MonthlyApplianceSummaryModal
+        isOpen={showMonthlySummaryModal}
+        onClose={() => setShowMonthlySummaryModal(false)}
+        selectedMonth={selectedSummaryMonth}
+        onMonthChange={setSelectedSummaryMonth}
+        maxMonth={currentMonthKey}
+        loading={loadingMonthlyApplianceSummary}
+        error={monthlySummaryError}
+        applianceCards={monthlyApplianceCards}
+        totalKwh={monthlyTotalKwh}
+        tariff={tariff}
+      />
     </div>
   );
 }

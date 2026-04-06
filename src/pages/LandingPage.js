@@ -3,6 +3,7 @@ import { ArrowRight, Zap, ShieldCheck, Cpu, CloudLightning, LayoutDashboard, Sno
 import { motion, AnimatePresence } from 'framer-motion';
 import { calculateMeralcoBill } from '../utils/meralcoCalculator';
 import BillBreakdownModal from '../components/BillBreakdownModal';
+import OptimizationHistoryModal from '../components/OptimizationHistoryModal';
 import { getApiUrl } from '../utils/api';
 
 const TIME_ZONE = 'Asia/Manila';
@@ -36,6 +37,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [tomorrowForecast, setTomorrowForecast] = useState(null);
     const [showMilpModal, setShowMilpModal] = useState(false);
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
     const milpTriggerButtonRef = useRef(null);
     const milpCloseButtonRef = useRef(null);
     const milpPanelRef = useRef(null);
@@ -485,6 +487,18 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                         </div>
                                         <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
                                     </button>
+                                    <button
+                                        onClick={() => setShowHistoryModal(true)}
+                                        className="w-full mt-2 py-3 px-4 rounded-2xl bg-surface-50 border border-surface-200 text-surface-600 font-bold text-xs flex items-center justify-between group hover:bg-surface-100 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-lg bg-surface-200 flex items-center justify-center">
+                                                <Clock size={14} />
+                                            </div>
+                                            Optimization History
+                                        </div>
+                                        <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                                    </button>
                                 </div>
 
                                 <div className="flex flex-col gap-3 pt-2">
@@ -511,6 +525,12 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 billData={billData}
+            />
+
+            {/* Optimization History Modal */}
+            <OptimizationHistoryModal
+                isOpen={showHistoryModal}
+                onClose={() => setShowHistoryModal(false)}
             />
 
             {/* ── MILP SMART SCHEDULE MODAL ── */}
