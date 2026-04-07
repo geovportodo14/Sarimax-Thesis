@@ -53,13 +53,6 @@ export default function ScenarioControls({ baselineCost = 0, scenarioCost = 0 })
         }));
     };
 
-    const tariffDeltaPct = tariff > 0
-        ? ((scenarioParams.tariffAdjustment - tariff) / tariff) * 100
-        : 0;
-    const combinedMultiplier = tariff > 0
-        ? (scenarioParams.tariffAdjustment / tariff) * (1 + (scenarioParams.loadAdjustment / 100))
-        : 1;
-    const overallBillDeltaPct = (combinedMultiplier - 1) * 100;
     const costDelta = scenarioCost - baselineCost;
     const hasCostPreview = Number.isFinite(baselineCost) && baselineCost > 0;
     const fmtPeso = (value) => `₱${Math.abs(Math.round(value)).toLocaleString()}`;
@@ -123,23 +116,7 @@ export default function ScenarioControls({ baselineCost = 0, scenarioCost = 0 })
                     </div>
 
                     <AnimationWrapper variant="fade-in" layout>
-                        <div className="space-y-6 pt-4 border-t border-surface-100">
-                            {/* How to use */}
-                            <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-3">
-                                <p className="text-[11px] font-bold uppercase tracking-wide text-indigo-600 mb-2">How to use</p>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                    <div className="rounded-lg bg-white px-3 py-2 text-xs text-surface-700">
-                                        1. Pick a preset or move sliders
-                                    </div>
-                                    <div className="rounded-lg bg-white px-3 py-2 text-xs text-surface-700">
-                                        2. Check the estimated bill delta
-                                    </div>
-                                    <div className="rounded-lg bg-white px-3 py-2 text-xs text-surface-700">
-                                        3. Use results to plan budget decisions
-                                    </div>
-                                </div>
-                            </div>
-
+                        <div className="space-y-5 pt-4 border-t border-surface-100">
                             {/* Cost Preview */}
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                                 <div className="rounded-xl border border-surface-100 bg-white p-3">
@@ -162,20 +139,7 @@ export default function ScenarioControls({ baselineCost = 0, scenarioCost = 0 })
                                 </div>
                             </div>
 
-                            {hasCostPreview && (
-                                <div className={`rounded-xl px-3 py-2 text-xs font-medium ${costDelta > 0 ? 'bg-red-50 text-red-700 border border-red-100' :
-                                    costDelta < 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' :
-                                        'bg-surface-50 text-surface-600 border border-surface-100'
-                                    }`}>
-                                    {costDelta > 0
-                                        ? `This setup may increase your bill by about ${fmtPeso(costDelta)} for the selected forecast window.`
-                                        : costDelta < 0
-                                            ? `This setup may reduce your bill by about ${fmtPeso(Math.abs(costDelta))} for the selected forecast window.`
-                                            : 'This setup keeps your bill near your current baseline for the selected forecast window.'}
-                                </div>
-                            )}
-
-                            {/* Simulation Quick Presets */}
+                            {/* Quick Presets */}
                             <div>
                                 <div className="flex items-center justify-between mb-2">
                                     <p className="text-body-sm font-semibold text-surface-800">Quick Presets</p>
@@ -214,29 +178,7 @@ export default function ScenarioControls({ baselineCost = 0, scenarioCost = 0 })
                                 </div>
                             </div>
 
-                            {/* Impact Summary */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                <div className="rounded-xl border border-surface-100 bg-white p-3">
-                                    <p className="text-[10px] uppercase tracking-wide text-surface-400">Tariff Impact</p>
-                                    <p className={`text-sm font-bold tabular-nums ${tariffDeltaPct > 0 ? 'text-red-600' : tariffDeltaPct < 0 ? 'text-emerald-600' : 'text-surface-700'}`}>
-                                        {tariffDeltaPct > 0 ? '+' : ''}{tariffDeltaPct.toFixed(1)}%
-                                    </p>
-                                </div>
-                                <div className="rounded-xl border border-surface-100 bg-white p-3">
-                                    <p className="text-[10px] uppercase tracking-wide text-surface-400">Load Impact</p>
-                                    <p className={`text-sm font-bold tabular-nums ${scenarioParams.loadAdjustment > 0 ? 'text-red-600' : scenarioParams.loadAdjustment < 0 ? 'text-emerald-600' : 'text-surface-700'}`}>
-                                        {scenarioParams.loadAdjustment > 0 ? '+' : ''}{scenarioParams.loadAdjustment.toFixed(0)}%
-                                    </p>
-                                </div>
-                                <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-3">
-                                    <p className="text-[10px] uppercase tracking-wide text-indigo-500">Estimated Bill Delta</p>
-                                    <p className={`text-sm font-bold tabular-nums ${overallBillDeltaPct > 0 ? 'text-red-600' : overallBillDeltaPct < 0 ? 'text-emerald-600' : 'text-indigo-700'}`}>
-                                        {overallBillDeltaPct > 0 ? '+' : ''}{overallBillDeltaPct.toFixed(1)}%
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Tariff Adjustment */}
+                            {/* Tariff Rate Slider */}
                             <div className="bg-surface-50 p-4 rounded-xl border border-surface-100/50">
                                 <div className="flex justify-between mb-3">
                                     <label className="text-body-sm font-semibold text-surface-900">Virtual Tariff Rate</label>
@@ -262,10 +204,10 @@ export default function ScenarioControls({ baselineCost = 0, scenarioCost = 0 })
                                 </div>
                             </div>
 
-                            {/* Load Adjustment */}
+                            {/* Usage Adjustment Slider */}
                             <div className="bg-surface-50 p-4 rounded-xl border border-surface-100/50">
                                 <div className="flex justify-between mb-3">
-                                    <label className="text-body-sm font-semibold text-surface-900">Usage Adjustments</label>
+                                    <label className="text-body-sm font-semibold text-surface-900">Usage Adjustment</label>
                                     <span className={`text-body-sm font-bold tabular-nums px-2 py-0.5 rounded-md ${scenarioParams.loadAdjustment > 0 ? 'bg-red-50 text-red-600' :
                                         scenarioParams.loadAdjustment < 0 ? 'bg-emerald-50 text-emerald-600' :
                                             'bg-surface-100 text-surface-600'

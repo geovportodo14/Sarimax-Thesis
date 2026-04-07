@@ -438,13 +438,17 @@ def _solve_binary(
     optimized_total_cost = 0.0
     baseline_peak = 0.0
     optimized_peak = 0.0
+    # Peak tariff rate for identifying expensive hours
+    max_tariff = max(hourly_tariff) if hourly_tariff else 0
     for h in range(horizon):
         bt = sum(baseline[a][h] for a in baseline)
         ot = sum(optimized[a][h] for a in optimized)
         baseline_total_cost  += bt * hourly_tariff[h]
         optimized_total_cost += ot * hourly_tariff[h]
-        baseline_peak  = max(baseline_peak,  bt)
-        optimized_peak = max(optimized_peak, ot)
+        # Track peak demand during expensive (peak tariff) hours
+        if hourly_tariff[h] >= max_tariff:
+            baseline_peak  = max(baseline_peak,  bt)
+            optimized_peak = max(optimized_peak, ot)
 
     savings    = baseline_total_cost - optimized_total_cost
     savings_pct = (savings / baseline_total_cost * 100.0) if baseline_total_cost > 0 else 0.0
@@ -678,13 +682,15 @@ def _solve_continuous(
     optimized_total_cost = 0.0
     baseline_peak = 0.0
     optimized_peak = 0.0
+    max_tariff = max(hourly_tariff) if hourly_tariff else 0
     for h in range(horizon):
         base_total_h = sum(baseline[a][h] for a in baseline)
         opt_total_h  = sum(optimized[a][h] for a in optimized)
         baseline_total_cost  += base_total_h * hourly_tariff[h]
         optimized_total_cost += opt_total_h  * hourly_tariff[h]
-        baseline_peak  = max(baseline_peak,  base_total_h)
-        optimized_peak = max(optimized_peak, opt_total_h)
+        if hourly_tariff[h] >= max_tariff:
+            baseline_peak  = max(baseline_peak,  base_total_h)
+            optimized_peak = max(optimized_peak, opt_total_h)
 
     savings     = baseline_total_cost - optimized_total_cost
     savings_pct = (savings / baseline_total_cost * 100.0) if baseline_total_cost > 0 else 0.0

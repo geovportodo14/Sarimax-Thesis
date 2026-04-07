@@ -24,6 +24,8 @@ import EnergyLineChart from './components/ui/EnergyLineChart';
 import { getApiUrl } from './utils/api';
 
 import LandingPage from './pages/LandingPage';
+import ForecastGeneratorCard from './components/ForecastGeneratorCard';
+import OptimizationHistoryModal from './components/OptimizationHistoryModal';
 
 function LoadingState() {
   return (
@@ -99,6 +101,7 @@ function DashboardContent() {
   const hasInitialData = useRef(false);
   const [recommendedBudgetDraft, setRecommendedBudgetDraft] = useState(null);
   const [showMonthlySummaryModal, setShowMonthlySummaryModal] = useState(false);
+  const [showOptHistory, setShowOptHistory] = useState(false);
   const [monthlyApplianceSummary, setMonthlyApplianceSummary] = useState({
     month: null,
     total_kwh: 0,
@@ -384,8 +387,10 @@ function DashboardContent() {
     const projectedUpcomingKwh = processedChartData.totalForecastedKwh || 0;
 
     // Total Kwh = Actual today + Future forecasted window
-    const totalKwh = (actualSoFarKwh + projectedUpcomingKwh) * loadMultiplier;
+    const baselineKwh = actualSoFarKwh + projectedUpcomingKwh;
+    const totalKwh = baselineKwh * loadMultiplier;
     const currentCost = totalKwh * effectiveTariff;
+    const baselineCost = baselineKwh * tariff;
 
     const applianceTotals = chartData.appliance_totals_kwh || { aircon: 0, refrigerator: 0, electricfan: 0 };
 
@@ -442,6 +447,7 @@ function DashboardContent() {
     return {
       totalKwh,
       currentCost,
+      baselineCost,
       appliances,
       topAppliance,
       budgetStatus,
@@ -649,7 +655,7 @@ function DashboardContent() {
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 space-y-8">
             <AnimationWrapper variant="slideDown" className="mb-8" id="tour-scenario">
-              <ScenarioControls />
+              <ScenarioControls baselineCost={calculations.baselineCost} scenarioCost={calculations.currentCost} />
             </AnimationWrapper>
 
             <AnimationWrapper variant="fade-in" id="tour-summary">
@@ -809,6 +815,31 @@ function DashboardContent() {
                 onDateChange={setCurrentDate}
                 onPrevClick={handlePrevDate}
                 onNextClick={handleNextDate}
+              />
+
+              {/* Forecast Generator — run pipeline from the dashboard */}
+              <div className="mt-6 space-y-3" id="tour-forecast-generator">
+                <ForecastGeneratorCard currentDate={currentDate} />
+                <button
+                  onClick={() => setShowOptHistory(true)}
+                  className="w-full py-3 px-4 rounded-2xl bg-surface-50 border border-surface-200 text-surface-600 font-bold text-xs flex items-center justify-between group hover:bg-surface-100 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-surface-200 flex items-center justify-center">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    Optimization History
+                  </div>
+                  <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+              <OptimizationHistoryModal
+                isOpen={showOptHistory}
+                onClose={() => setShowOptHistory(false)}
               />
             </AnimationWrapper>
 

@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-04-03T16:42:33.259100+08:00",
+  "forecast_date": "2026-01-03",
+  "config": {
+    "horizon": 24,
+    "tariff": 11.5,
+    "budget": 200.0,
+    "scheduler_enabled": true,
+    "scheduler_max_shift_hours": 3,
+    "scheduler_peak_penalty": 1.0
+  },
+  "ok": 0,
+  "failed": 3,
+  "results": [],
+  "failures": [
+    {
+      "appliance": "aircon",
+      "error": "No module named 'pyarrow'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 338, in run_pipeline\n    result, fc = run_appliance(appliance, cfg, weather_df, generated_at, forecast_date)\n                 ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 255, in run_appliance\n    fc: ApplianceForecast = forecast_appliance(\n                            ~~~~~~~~~~~~~~~~~~^\n        appliance    = appliance,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n        generated_at = generated_at,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/pipeline/forecaster.py\", line 143, in forecast_appliance\n    model_result   = load_best_model(model_dir)\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/pipeline/forecaster.py\", line 76, in load_best_model\n    return SARIMAXResults.load(str(p))\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/opt/homebrew/lib/python3.14/site-packages/statsmodels/base/model.py\", line 2289, in load\n    return load_pickle(fname)\n  File \"/opt/homebrew/lib/python3.14/site-packages/statsmodels/iolib/smpickle.py\", line 42, in load_pickle\n    return pickle.load(fin)\n           ~~~~~~~~~~~^^^^^\nModuleNotFoundError: No module named 'pyarrow'\n"
+    },
+    {
+      "appliance": "electric_fan",
+      "error": "History file not found: /Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/history/electric_fan_hourly.csv",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 338, in run_pipeline\n    result, fc = run_appliance(appliance, cfg, weather_df, generated_at, forecast_date)\n                 ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 204, in run_appliance\n    history = load_history(cfg, appliance, target_date=force_date)\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 96, in load_history\n    return load_history_from_csv(cfg.history_dir, appliance)\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 103, in load_history_from_csv\n    raise FileNotFoundError(f\"History file not found: {path}\")\nFileNotFoundError: History file not found: /Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/history/electric_fan_hourly.csv\n"
+    },
+    {
+      "appliance": "refrigerator",
+      "error": "History file not found: /Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/history/refrigerator_hourly.csv",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 338, in run_pipeline\n    result, fc = run_appliance(appliance, cfg, weather_df, generated_at, forecast_date)\n                 ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 204, in run_appliance\n    history = load_history(cfg, appliance, target_date=force_date)\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 96, in load_history\n    return load_history_from_csv(cfg.history_dir, appliance)\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 103, in load_history_from_csv\n    raise FileNotFoundError(f\"History file not found: {path}\")\nFileNotFoundError: History file not found: /Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/history/refrigerator_hourly.csv\n"
+    }
+  ]
+}

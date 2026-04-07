@@ -1,0 +1,18 @@
+{
+  "forecast_date": "2026-04-03",
+  "daily_budget_php": 200.0,
+  "predicted_cost_php": 10.638,
+  "budget_remaining": 189.362,
+  "budget_utilization": 0.0532,
+  "status": "within_budget",
+  "messages": [
+    "\u2705 Expected to stay within budget. Predicted cost \u20b110.64 vs. budget \u20b1200.00.",
+    "\ud83d\udcca Highest usage: Electric Fan (\u20b17.47, 70% of predicted daily spend).",
+    "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Aircon: Continuous operation\n   \u2022 Electric Fan: Continuous operation\n   \u2022 Refrigerator: Continuous operation"
+  ],
+  "appliance_breakdown": {
+    "aircon": 0.0,
+    "electric_fan": 7.4677,
+    "refrigerator": 3.1703
+  }
+}

@@ -27,7 +27,13 @@ class ThresholdRequest(BaseModel):
     budget: float
     cost: float
 
-from .services.predict_service import PredictService
+try:
+    from .services.predict_service import PredictService
+except ImportError:
+    try:
+        from services.predict_service import PredictService
+    except ImportError:
+        from backend.api.services.predict_service import PredictService
 
 # --- NEW MODEL FOR SARIMAX ---
 class PredictionRequest(BaseModel):

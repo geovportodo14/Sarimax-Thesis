@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, Zap, ShieldCheck, Cpu, CloudLightning, LayoutDashboard, Snowflake, Wind, ThermometerSnowflake, AlertTriangle, CheckCircle2, ReceiptText, TrendingDown, ChevronRight, X, Calendar, Clock } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ArrowRight, Zap, ShieldCheck, Cpu, CloudLightning, LayoutDashboard, Snowflake, Wind, ThermometerSnowflake, AlertTriangle, CheckCircle2, ReceiptText, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calculateMeralcoBill } from '../utils/meralcoCalculator';
 import BillBreakdownModal from '../components/BillBreakdownModal';
-import OptimizationHistoryModal from '../components/OptimizationHistoryModal';
 import { getApiUrl } from '../utils/api';
 
 const TIME_ZONE = 'Asia/Manila';
@@ -24,7 +23,6 @@ const formatApplianceName = (appliance) => {
         .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-const formatHourLabel = (hour) => `${String(hour).padStart(2, '0')}:00`;
 const getManilaDateString = (daysFromToday = 0) => {
     const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: TIME_ZONE }).format(new Date());
     const todayManilaMidnight = new Date(`${todayStr}T00:00:00+08:00`);
@@ -36,63 +34,6 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
     const [budgetTarget, setBudgetTarget] = useState(4500);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [tomorrowForecast, setTomorrowForecast] = useState(null);
-    const [showMilpModal, setShowMilpModal] = useState(false);
-    const [showHistoryModal, setShowHistoryModal] = useState(false);
-    const milpTriggerButtonRef = useRef(null);
-    const milpCloseButtonRef = useRef(null);
-    const milpPanelRef = useRef(null);
-
-    useEffect(() => {
-        if (!showMilpModal) return undefined;
-
-        const previouslyFocusedElement = document.activeElement;
-        const triggerButton = milpTriggerButtonRef.current;
-        const originalBodyOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
-
-        const rafId = window.requestAnimationFrame(() => {
-            milpCloseButtonRef.current?.focus();
-        });
-
-        const handleDialogKeydown = (event) => {
-            if (event.key === 'Escape') {
-                setShowMilpModal(false);
-                return;
-            }
-
-            if (event.key !== 'Tab') return;
-
-            const panel = milpPanelRef.current;
-            if (!panel) return;
-            const focusableElements = panel.querySelectorAll(
-                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-            );
-            if (!focusableElements.length) return;
-
-            const first = focusableElements[0];
-            const last = focusableElements[focusableElements.length - 1];
-
-            if (event.shiftKey && document.activeElement === first) {
-                event.preventDefault();
-                last.focus();
-            } else if (!event.shiftKey && document.activeElement === last) {
-                event.preventDefault();
-                first.focus();
-            }
-        };
-
-        window.addEventListener('keydown', handleDialogKeydown);
-        return () => {
-            window.removeEventListener('keydown', handleDialogKeydown);
-            window.cancelAnimationFrame(rafId);
-            document.body.style.overflow = originalBodyOverflow;
-            if (previouslyFocusedElement && typeof previouslyFocusedElement.focus === 'function') {
-                previouslyFocusedElement.focus();
-            } else {
-                triggerButton?.focus();
-            }
-        };
-    }, [showMilpModal]);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -128,107 +69,6 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
         return 0;
     }, [tomorrowForecast]);
 
-    const scheduleData = tomorrowForecast?.schedule || null;
-    const scheduleAppliances = useMemo(
-        () => (Array.isArray(scheduleData?.appliances) ? scheduleData.appliances : []),
-        [scheduleData]
-    );
-    const optimizationSummary = tomorrowForecast?.optimization_summary || scheduleData?.optimization_summary || null;
-    const baselineTotalCostPhp = Number(scheduleData?.baseline_total_cost_php ?? 0);
-    const optimizedTotalCostPhp = Number(scheduleData?.optimized_total_cost_php ?? 0);
-    const estimatedSavingsPhp = Number(
-        scheduleData?.estimated_savings_php
-        ?? optimizationSummary?.estimated_savings_php
-        ?? Math.max(0, baselineTotalCostPhp - optimizedTotalCostPhp)
-        ?? 0
-    );
-    const estimatedSavingsPct = Number(
-        scheduleData?.estimated_savings_pct
-        ?? optimizationSummary?.estimated_savings_pct
-        ?? 0
-    );
-    const peakReductionKwh = Number(
-        scheduleData?.peak_reduction_kwh
-        ?? optimizationSummary?.peak_reduction_kwh
-        ?? 0
-    );
-    const hasOptimizationData = scheduleAppliances.length > 0;
-    // time_block_summary from the new binary MILP scheduler
-    const timeBlockSummary = tomorrowForecast?.schedule?.time_block_summary
-        ?? tomorrowForecast?.optimization?.time_block_summary
-        ?? null;
-    const forecastDateLabel = useMemo(() => {
-        const raw = scheduleData?.forecast_date || tomorrowForecast?.forecast_date;
-        if (!raw) return 'Tomorrow';
-        const dt = new Date(`${raw}T00:00:00+08:00`);
-        if (Number.isNaN(dt.getTime())) return raw;
-        return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: TIME_ZONE }).format(dt);
-    }, [scheduleData, tomorrowForecast]);
-    const generatedAtLabel = useMemo(() => {
-        const raw = scheduleData?.generated_at;
-        if (!raw) return 'Pending run';
-        const dt = new Date(raw);
-        if (Number.isNaN(dt.getTime())) return 'Pending run';
-        return new Intl.DateTimeFormat('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-            timeZone: TIME_ZONE
-        }).format(dt);
-    }, [scheduleData]);
-    const optimizerActionCards = useMemo(() => {
-        if (!scheduleAppliances.length) return [];
-        const cards = [];
-        scheduleAppliances.forEach((app) => {
-            (app.hourly || []).forEach((row) => {
-                const hour = Number(row.hour ?? -1);
-                if (hour < 0 || hour > 23) return;
-
-                const baseline = Number(row.baseline_kwh || 0);
-                const optimized = Number(row.optimized_kwh || 0);
-                const reductionKwh = Math.max(0, baseline - optimized);
-                if (reductionKwh < 0.02) return;
-
-                const tariff = Number(row.tariff_php_per_kwh || 0);
-                const pesoImpact = reductionKwh * tariff;
-                cards.push({
-                    appliance: app.appliance,
-                    applianceLabel: formatApplianceName(app.appliance),
-                    hour,
-                    hourLabel: formatHourLabel(hour),
-                    reductionKwh,
-                    pesoImpact,
-                    action: row.action || 'Shift usage away from expensive hours'
-                });
-            });
-        });
-
-        cards.sort((a, b) => (b.pesoImpact - a.pesoImpact) || (b.reductionKwh - a.reductionKwh));
-        return cards.slice(0, 3);
-    }, [scheduleAppliances]);
-    const topRecommendedAction = useMemo(() => {
-        if (optimizerActionCards.length > 0) {
-            const best = optimizerActionCards[0];
-            return `Shift ${best.applianceLabel} around ${best.hourLabel} to save about ₱${best.pesoImpact.toFixed(2)}.`;
-        }
-
-        const topActions = optimizationSummary?.top_actions;
-        if (Array.isArray(topActions) && topActions.length > 0) return topActions[0];
-        return 'Follow the optimized schedule to avoid high-rate hours.';
-    }, [optimizerActionCards, optimizationSummary]);
-    const topOptimizerActions = useMemo(() => {
-        if (optimizerActionCards.length > 0) {
-            return optimizerActionCards.map((card) =>
-                `${card.applianceLabel} at ${card.hourLabel}: save ₱${card.pesoImpact.toFixed(2)}`
-            );
-        }
-        const topActions = optimizationSummary?.top_actions;
-        if (Array.isArray(topActions) && topActions.length > 0) {
-            return topActions.slice(0, 3);
-        }
-        return [topRecommendedAction];
-    }, [optimizerActionCards, optimizationSummary, topRecommendedAction]);
-
     const manilaDateString = getManilaDateString(0);
     const manilaDate = new Date(`${manilaDateString}T00:00:00+08:00`);
     const manilaYear = manilaDate.getUTCFullYear();
@@ -241,9 +81,9 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
         year: 'numeric',
         timeZone: TIME_ZONE
     }).format(manilaDate);
-    const simulatorFreshnessLabel = generatedAtLabel === 'Pending run'
-        ? 'Forecast run pending'
-        : `Model updated ${generatedAtLabel}`;
+    const simulatorFreshnessLabel = tomorrowTotalKwh > 0
+        ? 'Forecast available'
+        : 'Forecast run pending';
 
     // Compute projected kWh from actual MTD + forecasted daily estimate for remaining days.
     const spentSoFarKwh = (monthlySummary && !loadingSummary) ? monthlySummary.total_kwh : 0;
@@ -466,39 +306,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                                 {tomorrowTotalKwh > 0 ? `${tomorrowTotalKwh.toFixed(2)} kWh/day` : 'Fallback baseline (forecast pending)'}
                                             </span>
                                         </p>
-                                        <p>Model run status: <span className="font-semibold text-surface-800">{generatedAtLabel}</span></p>
                                     </div>
-                                </div>
-
-                                {/* Smart Schedule Modal Trigger */}
-                                <div className="mb-2 relative">
-                                    <button
-                                        ref={milpTriggerButtonRef}
-                                        onClick={() => setShowMilpModal(true)}
-                                        aria-haspopup="dialog"
-                                        aria-controls="milp-modal-panel"
-                                        className="w-full py-3 px-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-between group hover:bg-indigo-100/70 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-lg bg-indigo-600/10 flex items-center justify-center">
-                                                <TrendingDown size={14} />
-                                            </div>
-                                            Preview Smart Schedule
-                                        </div>
-                                        <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
-                                    </button>
-                                    <button
-                                        onClick={() => setShowHistoryModal(true)}
-                                        className="w-full mt-2 py-3 px-4 rounded-2xl bg-surface-50 border border-surface-200 text-surface-600 font-bold text-xs flex items-center justify-between group hover:bg-surface-100 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-lg bg-surface-200 flex items-center justify-center">
-                                                <Clock size={14} />
-                                            </div>
-                                            Optimization History
-                                        </div>
-                                        <ChevronRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
-                                    </button>
                                 </div>
 
                                 <div className="flex flex-col gap-3 pt-2">
@@ -527,196 +335,6 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                 billData={billData}
             />
 
-            {/* Optimization History Modal */}
-            <OptimizationHistoryModal
-                isOpen={showHistoryModal}
-                onClose={() => setShowHistoryModal(false)}
-            />
-
-            {/* ── MILP SMART SCHEDULE MODAL ── */}
-            <AnimatePresence>
-                {showMilpModal && (
-                    <>
-                        {/* Backdrop */}
-                        <motion.div
-                            key="milp-backdrop"
-                            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setShowMilpModal(false)}
-                        />
-
-                        {/* Modal panel */}
-                        <motion.div
-                            key="milp-modal"
-                            role="dialog"
-                            aria-modal="true"
-                            aria-labelledby="milp-modal-title"
-                            className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            transition={{ duration: 0.25, ease: 'easeOut' }}
-                        >
-                            <div id="milp-modal-panel" ref={milpPanelRef} className="pointer-events-auto w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 shadow-2xl">
-                                {/* Modal Header */}
-                                <div className="sticky top-0 z-10 flex items-center justify-between px-6 pt-6 pb-4 bg-gradient-to-br from-indigo-50 to-blue-50 border-b border-indigo-100 rounded-t-3xl">
-                                    <div>
-                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-600/10 text-indigo-700 text-[10px] font-black uppercase tracking-wider mb-2">
-                                            <Cpu size={11} />
-                                            MILP Binary Optimizer
-                                        </div>
-                                        <h2 id="milp-modal-title" className="text-2xl font-black text-indigo-950 tracking-tight">
-                                            Tomorrow&apos;s Smart Schedule
-                                        </h2>
-                                        <p className="text-xs text-indigo-500 mt-0.5 font-medium">
-                                            {forecastDateLabel} · Generated {generatedAtLabel}
-                                        </p>
-                                    </div>
-                                    <button
-                                        ref={milpCloseButtonRef}
-                                        type="button"
-                                        onClick={() => setShowMilpModal(false)}
-                                        className="w-10 h-10 rounded-xl bg-white/80 border border-indigo-100 text-indigo-700 hover:bg-white transition-colors flex items-center justify-center shadow-sm"
-                                        aria-label="Close schedule modal"
-                                    >
-                                        <X size={18} />
-                                    </button>
-                                </div>
-
-                                <div className="p-6 space-y-5">
-                                    {hasOptimizationData ? (
-                                        <>
-                                            {/* Savings summary */}
-                                            <div className="rounded-2xl bg-indigo-950 text-white p-5 shadow-2xl">
-                                                <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest mb-1">Optimization Result</p>
-                                                <p className="text-3xl font-black tracking-tight tabular-nums mb-1">
-                                                    Save ₱{estimatedSavingsPhp.toFixed(2)}
-                                                </p>
-                                                <p className="text-sm text-indigo-200 leading-relaxed">
-                                                    Cost: ₱{baselineTotalCostPhp.toFixed(2)} → ₱{optimizedTotalCostPhp.toFixed(2)} ({estimatedSavingsPct.toFixed(1)}% improvement)
-                                                </p>
-                                                <div className="mt-3 flex flex-wrap gap-2 text-[10px]">
-                                                    <span className="px-2 py-1 rounded-full bg-indigo-800/70 text-indigo-100">
-                                                        Peak -{peakReductionKwh.toFixed(2)} kWh
-                                                    </span>
-                                                    <span className="px-2 py-1 rounded-full bg-emerald-700/80 text-emerald-100">Binary ON/OFF</span>
-                                                    <span className="px-2 py-1 rounded-full bg-indigo-800/70 text-indigo-100">Night-TOU</span>
-                                                </div>
-                                            </div>
-
-                                            {/* ── ON/OFF Time Block Schedule (from binary MILP) ── */}
-                                            {timeBlockSummary && Object.keys(timeBlockSummary).length > 0 ? (
-                                                <div className="rounded-2xl border border-indigo-100 bg-white/80 p-5">
-                                                    <div className="flex items-center gap-2 mb-4">
-                                                        <Calendar size={15} className="text-indigo-600" />
-                                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Recommended Appliance Schedule</p>
-                                                    </div>
-                                                    <div className="space-y-3">
-                                                        {Object.entries(timeBlockSummary).map(([appKey, blocks]) => {
-                                                            const isContinuous = blocks === 'Continuous operation';
-                                                            const isOff = blocks === 'OFF (entire day)';
-                                                            return (
-                                                                <div key={appKey} className="flex items-start gap-3 p-3 rounded-xl bg-indigo-50/60 border border-indigo-100">
-                                                                    <div className={`mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isContinuous ? 'bg-blue-100 text-blue-700' :
-                                                                        isOff ? 'bg-red-100 text-red-600' :
-                                                                            'bg-emerald-100 text-emerald-700'
-                                                                        }`}>
-                                                                        <Clock size={14} />
-                                                                    </div>
-                                                                    <div className="min-w-0">
-                                                                        <p className="text-xs font-bold text-indigo-900">
-                                                                            {formatApplianceName(appKey)}
-                                                                        </p>
-                                                                        <p className={`text-[11px] mt-0.5 font-semibold ${isContinuous ? 'text-blue-700' :
-                                                                            isOff ? 'text-red-600' :
-                                                                                'text-emerald-700'
-                                                                            }`}>
-                                                                            {blocks}
-                                                                        </p>
-                                                                    </div>
-                                                                    <span className={`ml-auto shrink-0 text-[9px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full ${isContinuous ? 'bg-blue-100 text-blue-700' :
-                                                                        isOff ? 'bg-red-100 text-red-600' :
-                                                                            'bg-emerald-100 text-emerald-700'
-                                                                        }`}>
-                                                                        {isContinuous ? '24/7' : isOff ? 'OFF' : 'ON'}
-                                                                    </span>
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                    <p className="mt-3 text-[10px] text-indigo-400 font-medium">
-                                                        ⚡ Night-only TOU window (6 PM – 5 AM) · Budget-constrained
-                                                    </p>
-                                                </div>
-                                            ) : null}
-
-
-                                            {/* Top recommended action */}
-                                            <div className="bg-indigo-950 rounded-2xl p-4 text-white shadow-xl flex items-center gap-4">
-                                                <div className="w-11 h-11 rounded-xl bg-indigo-800 flex items-center justify-center shrink-0">
-                                                    <CloudLightning size={20} className="text-white" />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-[9px] font-bold text-indigo-300 uppercase tracking-widest mb-1">Top Recommended Action</p>
-                                                    <p className="text-sm font-bold leading-tight">{topRecommendedAction}</p>
-                                                </div>
-                                            </div>
-
-                                            {/* Top actions list */}
-                                            {topOptimizerActions.length > 0 && (
-                                                <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
-                                                    <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-3">Top Savings Actions</p>
-                                                    <div className="space-y-2.5">
-                                                        {topOptimizerActions.map((action, idx) => (
-                                                            <div key={`${action}-${idx}`} className="flex items-start gap-2.5 text-xs text-indigo-900">
-                                                                <span className="w-5 h-5 mt-0.5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-black flex items-center justify-center shrink-0">
-                                                                    {idx + 1}
-                                                                </span>
-                                                                <p className="leading-relaxed font-semibold">{action}</p>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Why this plan */}
-                                            <div className="rounded-2xl border border-indigo-100 bg-white/80 p-4">
-                                                <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">Why This Plan?</p>
-                                                <p className="text-xs text-indigo-900 leading-relaxed">
-                                                    The MILP optimizer uses binary ON/OFF decisions per hour.
-                                                    It maximises how many hours your appliances run while keeping total cost within your daily budget.
-                                                    Aircon and fan run during night hours (6 PM–5 AM) at off-peak TOU rates.
-                                                    The refrigerator stays on 24/7 as it cannot be turned off.
-                                                </p>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <div className="py-12 px-4 rounded-2xl bg-white/50 border border-dashed border-indigo-200 text-center">
-                                            <div className="w-14 h-14 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-300">
-                                                <TrendingDown size={24} />
-                                            </div>
-                                            <p className="text-sm text-indigo-800 font-semibold leading-relaxed">
-                                                Schedule preview updates automatically once the day-ahead SARIMAX forecast is generated.
-                                            </p>
-                                        </div>
-                                    )}
-
-                                    {/* CTA */}
-                                    <button
-                                        onClick={() => { setShowMilpModal(false); onEnterDashboard(); }}
-                                        className="w-full py-4 rounded-2xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 flex items-center justify-center gap-2"
-                                    >
-                                        Open Full Schedule in Dashboard
-                                        <ArrowRight size={16} />
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
 
             {/* ── HOW IT WORKS (Thesis Flow) ── */}
             <section id="how-it-works-section" className="relative py-32 bg-white overflow-hidden">

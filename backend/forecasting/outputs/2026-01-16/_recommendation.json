@@ -1,0 +1,16 @@
+{
+  "forecast_date": "2026-01-16",
+  "daily_budget_php": 200.0,
+  "predicted_cost_php": 3.2676,
+  "budget_remaining": 196.7324,
+  "budget_utilization": 0.0163,
+  "status": "within_budget",
+  "messages": [
+    "\u2705 Expected to stay within budget. Predicted cost \u20b13.27 vs. budget \u20b1200.00.",
+    "\ud83d\udcca Highest usage: Electric Fan (\u20b13.27, 100% of predicted daily spend).",
+    "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Electric Fan: Continuous operation"
+  ],
+  "appliance_breakdown": {
+    "electric_fan": 3.2676
+  }
+}

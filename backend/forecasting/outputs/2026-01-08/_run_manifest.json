@@ -1,0 +1,70 @@
+{
+  "generated_at": "2026-04-03T16:43:07.960982+08:00",
+  "forecast_date": "2026-01-08",
+  "config": {
+    "horizon": 24,
+    "tariff": 11.5,
+    "budget": 200.0,
+    "scheduler_enabled": true,
+    "scheduler_max_shift_hours": 3,
+    "scheduler_peak_penalty": 1.0
+  },
+  "ok": 1,
+  "failed": 2,
+  "results": [
+    {
+      "appliance": "electric_fan",
+      "status": "ok",
+      "last_actual_ts": "2026-01-07 23:50:00+08:00",
+      "forecast_start": "2026-01-08 00:00:00+08:00",
+      "forecast_end": "2026-01-08 23:00:00+08:00",
+      "total_kwh": 0.247011,
+      "total_cost_php": 2.8406,
+      "n_rows": 24
+    }
+  ],
+  "failures": [
+    {
+      "appliance": "aircon",
+      "error": "No module named 'pyarrow'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 338, in run_pipeline\n    result, fc = run_appliance(appliance, cfg, weather_df, generated_at, forecast_date)\n                 ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 255, in run_appliance\n    fc: ApplianceForecast = forecast_appliance(\n                            ~~~~~~~~~~~~~~~~~~^\n        appliance    = appliance,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n        generated_at = generated_at,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/pipeline/forecaster.py\", line 143, in forecast_appliance\n    model_result   = load_best_model(model_dir)\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/pipeline/forecaster.py\", line 76, in load_best_model\n    return SARIMAXResults.load(str(p))\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/opt/homebrew/lib/python3.14/site-packages/statsmodels/base/model.py\", line 2289, in load\n    return load_pickle(fname)\n  File \"/opt/homebrew/lib/python3.14/site-packages/statsmodels/iolib/smpickle.py\", line 42, in load_pickle\n    return pickle.load(fin)\n           ~~~~~~~~~~~^^^^^\nModuleNotFoundError: No module named 'pyarrow'\n"
+    },
+    {
+      "appliance": "refrigerator",
+      "error": "No module named 'pyarrow'",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 338, in run_pipeline\n    result, fc = run_appliance(appliance, cfg, weather_df, generated_at, forecast_date)\n                 ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 255, in run_appliance\n    fc: ApplianceForecast = forecast_appliance(\n                            ~~~~~~~~~~~~~~~~~~^\n        appliance    = appliance,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n        generated_at = generated_at,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/pipeline/forecaster.py\", line 143, in forecast_appliance\n    model_result   = load_best_model(model_dir)\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/pipeline/forecaster.py\", line 76, in load_best_model\n    return SARIMAXResults.load(str(p))\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^\n  File \"/opt/homebrew/lib/python3.14/site-packages/statsmodels/base/model.py\", line 2289, in load\n    return load_pickle(fname)\n  File \"/opt/homebrew/lib/python3.14/site-packages/statsmodels/iolib/smpickle.py\", line 42, in load_pickle\n    return pickle.load(fin)\n           ~~~~~~~~~~~^^^^^\nModuleNotFoundError: No module named 'pyarrow'\n"
+    }
+  ],
+  "optimization": {
+    "status": "fallback",
+    "solver": "none",
+    "binary_mode": true,
+    "budget_php": 200.0,
+    "baseline_total_cost_php": 2.6795,
+    "optimized_total_cost_php": 2.6795,
+    "estimated_savings_php": 0.0,
+    "estimated_savings_pct": 0.0,
+    "baseline_peak_kwh": 0.028505,
+    "optimized_peak_kwh": 0.028505,
+    "peak_reduction_kwh": 0.0,
+    "time_block_summary": {
+      "electric_fan": "Continuous operation"
+    }
+  },
+  "recommendation": {
+    "forecast_date": "2026-01-08",
+    "daily_budget_php": 200.0,
+    "predicted_cost_php": 2.8406,
+    "budget_remaining": 197.1594,
+    "budget_utilization": 0.0142,
+    "status": "within_budget",
+    "messages": [
+      "\u2705 Expected to stay within budget. Predicted cost \u20b12.84 vs. budget \u20b1200.00.",
+      "\ud83d\udcca Highest usage: Electric Fan (\u20b12.84, 100% of predicted daily spend).",
+      "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Electric Fan: Continuous operation"
+    ],
+    "appliance_breakdown": {
+      "electric_fan": 2.8406
+    }
+  }
+}

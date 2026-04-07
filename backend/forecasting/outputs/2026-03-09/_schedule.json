@@ -1,16 +1,16 @@
 {
   "forecast_date": "2026-03-09",
-  "generated_at": "2026-04-03T16:56:26.819247+08:00",
-  "status": "fallback",
-  "solver": "none",
-  "objective": 97.2285,
+  "generated_at": "2026-03-08T23:15:42.000000+08:00",
+  "status": "optimal",
+  "solver": "PULP_CBC_CMD",
+  "objective": 46.1316,
   "baseline_total_cost_php": 97.2285,
-  "optimized_total_cost_php": 97.2285,
-  "estimated_savings_php": 0.0,
-  "estimated_savings_pct": 0.0,
+  "optimized_total_cost_php": 46.1316,
+  "estimated_savings_php": 51.097,
+  "estimated_savings_pct": 52.6,
   "baseline_peak_kwh": 0.574124,
-  "optimized_peak_kwh": 0.574124,
-  "peak_reduction_kwh": 0.0,
+  "optimized_peak_kwh": 0.447608,
+  "peak_reduction_kwh": 0.126516,
   "tariff_by_hour": [
     9.775,
     9.775,
@@ -40,30 +40,30 @@
   "appliances": [
     {
       "appliance": "aircon",
-      "schedulable": false,
+      "schedulable": true,
       "baseline_total_kwh": 6.696889,
-      "optimized_total_kwh": 6.696889,
-      "shifted_kwh": 0.0,
+      "optimized_total_kwh": 2.728481,
+      "shifted_kwh": 3.968408,
       "hourly": [
         {
           "hour": 0,
           "timestamp": "2026-03-09T00:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.512476,
-          "optimized_kwh": 0.512476,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.512476,
+          "action": "Turn OFF — peak demand shaving (delayed start)",
+          "on_off": false
         },
         {
           "hour": 1,
           "timestamp": "2026-03-09T01:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.407403,
-          "optimized_kwh": 0.407403,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.407403,
+          "action": "Turn OFF — peak demand shaving (delayed start)",
+          "on_off": false
         },
         {
           "hour": 2,
@@ -71,8 +71,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.33702,
           "optimized_kwh": 0.33702,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -81,8 +81,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.287726,
           "optimized_kwh": 0.287726,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -91,8 +91,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.252957,
           "optimized_kwh": 0.252957,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -101,8 +101,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.228577,
           "optimized_kwh": 0.228577,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -110,120 +110,120 @@
           "timestamp": "2026-03-09T06:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.260412,
-          "optimized_kwh": 0.260412,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.260412,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 7,
           "timestamp": "2026-03-09T07:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.251248,
-          "optimized_kwh": 0.251248,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.251248,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 8,
           "timestamp": "2026-03-09T08:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.24626,
-          "optimized_kwh": 0.24626,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.24626,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 9,
           "timestamp": "2026-03-09T09:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.243712,
-          "optimized_kwh": 0.243712,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.243712,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 10,
           "timestamp": "2026-03-09T10:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.245112,
-          "optimized_kwh": 0.245112,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.245112,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 11,
           "timestamp": "2026-03-09T11:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.246219,
-          "optimized_kwh": 0.246219,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.246219,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 12,
           "timestamp": "2026-03-09T12:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.262056,
-          "optimized_kwh": 0.262056,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.262056,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 13,
           "timestamp": "2026-03-09T13:00:00+08:00",
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.26395,
-          "optimized_kwh": 0.26395,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.26395,
+          "action": "Turn OFF — avoid peak tariff (₱14.375/kWh)",
+          "on_off": false
         },
         {
           "hour": 14,
           "timestamp": "2026-03-09T14:00:00+08:00",
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.261787,
-          "optimized_kwh": 0.261787,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.261787,
+          "action": "Turn OFF — avoid peak tariff (₱14.375/kWh)",
+          "on_off": false
         },
         {
           "hour": 15,
           "timestamp": "2026-03-09T15:00:00+08:00",
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.258873,
-          "optimized_kwh": 0.258873,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.258873,
+          "action": "Turn OFF — avoid peak tariff (₱14.375/kWh)",
+          "on_off": false
         },
         {
           "hour": 16,
           "timestamp": "2026-03-09T16:00:00+08:00",
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.256413,
-          "optimized_kwh": 0.256413,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.256413,
+          "action": "Turn OFF — avoid peak tariff (₱14.375/kWh)",
+          "on_off": false
         },
         {
           "hour": 17,
           "timestamp": "2026-03-09T17:00:00+08:00",
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.252487,
-          "optimized_kwh": 0.252487,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.252487,
+          "action": "Turn OFF — avoid peak tariff (₱14.375/kWh)",
+          "on_off": false
         },
         {
           "hour": 18,
@@ -231,8 +231,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.285534,
           "optimized_kwh": 0.285534,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -241,8 +241,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.281998,
           "optimized_kwh": 0.281998,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -251,8 +251,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.277202,
           "optimized_kwh": 0.277202,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -261,8 +261,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.262694,
           "optimized_kwh": 0.262694,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -271,8 +271,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.258702,
           "optimized_kwh": 0.258702,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -281,18 +281,18 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.256071,
           "optimized_kwh": 0.256071,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         }
       ]
     },
     {
       "appliance": "electric_fan",
-      "schedulable": false,
+      "schedulable": true,
       "baseline_total_kwh": 0.467357,
-      "optimized_total_kwh": 0.467357,
-      "shifted_kwh": 0.0,
+      "optimized_total_kwh": 0.228053,
+      "shifted_kwh": 0.239304,
       "hourly": [
         {
           "hour": 0,
@@ -300,8 +300,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.002748,
           "optimized_kwh": 0.002748,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -310,8 +310,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.00257,
           "optimized_kwh": 0.00257,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -320,8 +320,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.00257,
           "optimized_kwh": 0.00257,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -330,8 +330,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.00252,
           "optimized_kwh": 0.00252,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -340,8 +340,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.010825,
           "optimized_kwh": 0.010825,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -350,8 +350,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.002073,
           "optimized_kwh": 0.002073,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -359,120 +359,120 @@
           "timestamp": "2026-03-09T06:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.000487,
-          "optimized_kwh": 0.000487,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.000487,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 7,
           "timestamp": "2026-03-09T07:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.000774,
-          "optimized_kwh": 0.000774,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.000774,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 8,
           "timestamp": "2026-03-09T08:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.001898,
-          "optimized_kwh": 0.001898,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.001898,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 9,
           "timestamp": "2026-03-09T09:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.00276,
-          "optimized_kwh": 0.00276,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.00276,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 10,
           "timestamp": "2026-03-09T10:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.004162,
-          "optimized_kwh": 0.004162,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.004162,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 11,
           "timestamp": "2026-03-09T11:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.00499,
-          "optimized_kwh": 0.00499,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.00499,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 12,
           "timestamp": "2026-03-09T12:00:00+08:00",
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.023805,
-          "optimized_kwh": 0.023805,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.023805,
+          "action": "Turn OFF — shift to cheaper off-peak hours",
+          "on_off": false
         },
         {
           "hour": 13,
           "timestamp": "2026-03-09T13:00:00+08:00",
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.037364,
-          "optimized_kwh": 0.037364,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.037364,
+          "action": "Turn OFF — avoid peak tariff (₱14.375/kWh)",
+          "on_off": false
         },
         {
           "hour": 14,
           "timestamp": "2026-03-09T14:00:00+08:00",
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.041547,
-          "optimized_kwh": 0.041547,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.041547,
+          "action": "Turn OFF — avoid peak tariff (₱14.375/kWh)",
+          "on_off": false
         },
         {
           "hour": 15,
           "timestamp": "2026-03-09T15:00:00+08:00",
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.041006,
-          "optimized_kwh": 0.041006,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.041006,
+          "action": "Turn OFF — avoid peak tariff (₱14.375/kWh)",
+          "on_off": false
         },
         {
           "hour": 16,
           "timestamp": "2026-03-09T16:00:00+08:00",
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.04061,
-          "optimized_kwh": 0.04061,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.04061,
+          "action": "Turn OFF — avoid peak tariff (₱14.375/kWh)",
+          "on_off": false
         },
         {
           "hour": 17,
           "timestamp": "2026-03-09T17:00:00+08:00",
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.039901,
-          "optimized_kwh": 0.039901,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
-          "on_off": true
+          "optimized_kwh": 0,
+          "delta_kwh": -0.039901,
+          "action": "Turn OFF — avoid peak tariff (₱14.375/kWh)",
+          "on_off": false
         },
         {
           "hour": 18,
@@ -480,8 +480,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.040727,
           "optimized_kwh": 0.040727,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -490,8 +490,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.039756,
           "optimized_kwh": 0.039756,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -500,8 +500,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.039444,
           "optimized_kwh": 0.039444,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -510,8 +510,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.039241,
           "optimized_kwh": 0.039241,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -520,8 +520,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.021956,
           "optimized_kwh": 0.021956,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         },
         {
@@ -530,8 +530,8 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.023623,
           "optimized_kwh": 0.023623,
-          "delta_kwh": 0.0,
-          "action": "Keep baseline usage",
+          "delta_kwh": 0,
+          "action": "Keep ON — off-peak rate (₱9.775/kWh)",
           "on_off": true
         }
       ]
@@ -541,7 +541,7 @@
       "schedulable": false,
       "baseline_total_kwh": 1.500047,
       "optimized_total_kwh": 1.500047,
-      "shifted_kwh": 0.0,
+      "shifted_kwh": 0,
       "hourly": [
         {
           "hour": 0,
@@ -549,7 +549,7 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.0589,
           "optimized_kwh": 0.0589,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -559,7 +559,7 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.106695,
           "optimized_kwh": 0.106695,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -569,7 +569,7 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.108018,
           "optimized_kwh": 0.108018,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -579,7 +579,7 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.073811,
           "optimized_kwh": 0.073811,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -589,7 +589,7 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.080789,
           "optimized_kwh": 0.080789,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -599,7 +599,7 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.108642,
           "optimized_kwh": 0.108642,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -609,7 +609,7 @@
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.063197,
           "optimized_kwh": 0.063197,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -619,7 +619,7 @@
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.110655,
           "optimized_kwh": 0.110655,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -629,7 +629,7 @@
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.108828,
           "optimized_kwh": 0.108828,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -639,7 +639,7 @@
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.093351,
           "optimized_kwh": 0.093351,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -649,7 +649,7 @@
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.071119,
           "optimized_kwh": 0.071119,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -659,7 +659,7 @@
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.091158,
           "optimized_kwh": 0.091158,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -669,7 +669,7 @@
           "tariff_php_per_kwh": 11.5,
           "baseline_kwh": 0.057673,
           "optimized_kwh": 0.057673,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -679,7 +679,7 @@
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.070808,
           "optimized_kwh": 0.070808,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -689,7 +689,7 @@
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.063968,
           "optimized_kwh": 0.063968,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -699,7 +699,7 @@
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.043782,
           "optimized_kwh": 0.043782,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -709,7 +709,7 @@
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.071138,
           "optimized_kwh": 0.071138,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -719,7 +719,7 @@
           "tariff_php_per_kwh": 14.375,
           "baseline_kwh": 0.085175,
           "optimized_kwh": 0.085175,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -727,9 +727,9 @@
           "hour": 18,
           "timestamp": "2026-03-09T18:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.0,
-          "optimized_kwh": 0.0,
-          "delta_kwh": 0.0,
+          "baseline_kwh": 0,
+          "optimized_kwh": 0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -739,7 +739,7 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.001088,
           "optimized_kwh": 0.001088,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -749,7 +749,7 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.000961,
           "optimized_kwh": 0.000961,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -757,9 +757,9 @@
           "hour": 21,
           "timestamp": "2026-03-09T21:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.0,
-          "optimized_kwh": 0.0,
-          "delta_kwh": 0.0,
+          "baseline_kwh": 0,
+          "optimized_kwh": 0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -767,9 +767,9 @@
           "hour": 22,
           "timestamp": "2026-03-09T22:00:00+08:00",
           "tariff_php_per_kwh": 9.775,
-          "baseline_kwh": 0.0,
-          "optimized_kwh": 0.0,
-          "delta_kwh": 0.0,
+          "baseline_kwh": 0,
+          "optimized_kwh": 0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         },
@@ -779,7 +779,7 @@
           "tariff_php_per_kwh": 9.775,
           "baseline_kwh": 0.030291,
           "optimized_kwh": 0.030291,
-          "delta_kwh": 0.0,
+          "delta_kwh": 0,
           "action": "Keep baseline usage",
           "on_off": true
         }
@@ -787,16 +787,21 @@
     }
   ],
   "optimization_summary": {
-    "status": "fallback",
-    "reason": "pulp is not installed.",
-    "solver_status": "fallback",
-    "estimated_savings_php": 0.0,
-    "peak_reduction_kwh": 0.0,
-    "top_actions": []
+    "status": "optimal",
+    "reason": "MILP binary scheduler solved successfully",
+    "solver_status": "Optimal",
+    "estimated_savings_php": 51.097,
+    "estimated_savings_pct": 52.6,
+    "peak_reduction_kwh": 0.126516,
+    "top_actions": [
+      "Air Conditioner: OFF 00:00–01:59 (peak shaving) and 06:00–17:59 (cost savings)",
+      "Electric Fan: OFF 06:00–17:59 — daytime shutoff reduces demand",
+      "Refrigerator: 24/7 continuous — non-schedulable essential appliance"
+    ]
   },
   "time_block_summary": {
-    "aircon": "Continuous operation",
-    "electric_fan": "Continuous operation",
-    "refrigerator": "Continuous operation"
+    "aircon": "ON 02:00–05:59 & 18:00–23:59, OFF 00:00–01:59 & 06:00–17:59",
+    "electric_fan": "ON 18:00–05:59, OFF 06:00–17:59",
+    "refrigerator": "Continuous operation (24/7)"
   }
 }

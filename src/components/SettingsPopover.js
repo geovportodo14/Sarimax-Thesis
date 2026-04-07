@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Input, Select, DualRangeSlider } from './ui/index';
-// 🚨 Notice the 'Info' icon added to the imports here!
-import { Settings, Mail, Bell, Globe, X, Save, CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { Card, Button, Input, DualRangeSlider } from './ui/index';
+import { Settings, Mail, Bell, X, Save, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
 const SettingsPopover = ({ isOpen, onClose, settings, onSave }) => {
     const [localSettings, setLocalSettings] = useState(settings);
@@ -38,10 +37,6 @@ const SettingsPopover = ({ isOpen, onClose, settings, onSave }) => {
             thresholdApproaching: values[0],
             thresholdCritical: values[1]
         }));
-    };
-
-    const handleChange = (key, value) => {
-        setLocalSettings(prev => ({ ...prev, [key]: value }));
     };
 
     return (
@@ -147,25 +142,6 @@ const SettingsPopover = ({ isOpen, onClose, settings, onSave }) => {
                         </div>
                     </section>
 
-                    {/* Localization */}
-                    <section>
-                        <div className="flex items-center gap-2 mb-3 text-surface-900">
-                            <Globe size={16} className="text-emerald-500" />
-                            <h4 className="text-body-sm font-bold">Localization</h4>
-                        </div>
-                        <div className="p-3 bg-surface-50 border border-surface-100 rounded-xl">
-                            <Select
-                                size="sm"
-                                label="Preferred Currency"
-                                value={localSettings.currency}
-                                onChange={(e) => handleChange('currency', e.target.value)}
-                                options={[
-                                    { label: 'Philippine Peso (₱)', value: 'PHP' },
-                                    { label: 'US Dollar ($)', value: 'USD' },
-                                ]}
-                            />
-                        </div>
-                    </section>
                 </div>
 
                 {/* Footer */}

@@ -60,4 +60,3 @@ backend/Sarimax-ModelV2/**/*.pkl
 data/generated_raw/
 data/jan3tofeb17/
 data/archive/
-backend/forecasting/outputs/

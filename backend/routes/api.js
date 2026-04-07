@@ -4,6 +4,7 @@ const historicalController = require('../controllers/historicalController');
 const liveForecastController = require('../controllers/liveForecastController');
 const summaryController = require('../controllers/summaryController');
 const dailyForecastsController = require('../controllers/dailyForecastsController');
+const forecastGeneratorController = require('../controllers/forecastGeneratorController');
 const axios = require('axios');
 
 // Proxy for Alerts (FastAPI on Port 8000)
@@ -30,5 +31,6 @@ router.get('/live', liveForecastController.getLiveForecast);
 router.get('/summary/month', summaryController.getMonthlySummary);
 router.get('/forecast/daily', dailyForecastsController.getDailyForecasts);
 router.get('/schedule/dates', dailyForecastsController.getScheduleDates);
+router.post('/forecast/generate', forecastGeneratorController.generateForecast);
 
 module.exports = router;

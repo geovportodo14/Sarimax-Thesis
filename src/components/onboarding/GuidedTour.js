@@ -5,37 +5,42 @@ const GuidedTour = ({ run, onComplete }) => {
     const steps = [
         {
             target: '#tour-scenario',
-            content: 'Simulation & "What-If" Analysis: Start here to test how changes in electricity rates or your household load affect your future costs. Perfect for simulation and planning.',
+            content: 'What-If Simulator: Test how changes in tariff rates or usage habits affect your forecasted energy costs. Great for budget planning.',
             placement: 'bottom',
         },
         {
             target: '#tour-summary',
-            content: 'Forecast Summary: Get an immediate overview of your projected energy usage and costs for the selected period.',
+            content: 'Forecast Summary: See your projected energy usage and costs at a glance for the selected period.',
+            placement: 'bottom',
+        },
+        {
+            target: '#tour-forecast-generator',
+            content: 'Forecast & Optimize: Navigate to any date, then click "Forecast Next 24 Hours" to run the SARIMAX + MILP pipeline. View past optimization results in the history.',
             placement: 'bottom',
         },
         {
             target: '#tour-comparison',
-            content: 'Period Comparison: Compare your previous usage vs the upcoming forecast. Watch for red bars—they indicate a budget risk!',
+            content: 'Period Comparison: Compare previous day usage vs the upcoming forecast. Red bars indicate budget risk.',
             placement: 'top',
         },
         {
             target: '#tour-main-chart',
-            content: 'Actual vs Forecast: Visualize energy consumption patterns. The pulsing red indicator warns you when usage exceeds your threshold. Click "View Details" in the summary to jump here instantly.',
+            content: 'Actual vs Forecast Chart: Visualize hourly energy consumption patterns with actual readings and SARIMAX predictions.',
             placement: 'bottom',
         },
         {
             target: '#tour-appliance-breakdown',
-            content: 'Appliance Breakdown: Deep dive into individual consumer consumption with real-time actual vs forecast overlays.',
+            content: 'Appliance Breakdown: Dive into per-appliance consumption with actual vs forecast overlays.',
             placement: 'top',
         },
         {
             target: '#tour-controls',
-            content: 'Parameters & Limits: Adjust your budget limits, electricity tariff, and the forecast lookahead range.',
+            content: 'Controls: Adjust your budget, tariff rate, and forecast lookahead range.',
             placement: 'top',
         },
         {
             target: '#tour-ranking',
-            content: 'Consumption Ranking: Quickly identify which appliances are costing you the most this period.',
+            content: 'Consumption Ranking: See which appliances cost you the most this period.',
             placement: 'left',
         },
     ];

@@ -121,8 +121,23 @@ exports.getDailyForecasts = async (req, res) => {
             query.forecast_date = getManilaDateString(tomorrow);
         }
 
-        const rawLogs = await collection.find(query).toArray();
-        const schedule = await loadScheduleForDate(query.forecast_date);
+        let rawLogs = await collection.find(query).toArray();
+        let schedule = await loadScheduleForDate(query.forecast_date);
+
+        // Fallback: if no data for the requested date, use the latest available forecast
+        if ((!rawLogs || rawLogs.length === 0) && !schedule) {
+            const latestDoc = await collection.find({})
+                .sort({ forecast_date: -1 })
+                .limit(1)
+                .toArray();
+
+            if (latestDoc.length > 0) {
+                const latestDate = latestDoc[0].forecast_date;
+                query.forecast_date = latestDate;
+                rawLogs = await collection.find(query).toArray();
+                schedule = await loadScheduleForDate(latestDate);
+            }
+        }
 
         if (!rawLogs || rawLogs.length === 0) {
             return res.status(200).json({
