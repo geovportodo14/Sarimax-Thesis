@@ -309,6 +309,10 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                     </div>
                                 </div>
 
+                                <p className="text-[11px] text-surface-400 italic text-center leading-relaxed">
+                                    Meralco charges change per month (per season and depends on billing). Projected costs may differ from your actual bill.
+                                </p>
+
                                 <div className="flex flex-col gap-3 pt-2">
                                     {isOverBudget && (
                                         <button onClick={onEnterDashboard} className="w-full py-4 flex items-center justify-center gap-2 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-95 bg-red-600 hover:bg-red-700 shadow-red-200">

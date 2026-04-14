@@ -154,6 +154,54 @@ class FitConfig:
 
 CFG = FitConfig()
 
+# =============================================================================
+# Appliance-specific config overrides
+# =============================================================================
+# Tighter bounds for appliances whose short-dataset signals are prone to
+# overfitting.  Refrigerator and electric fan get reduced complexity limits
+# and adjusted CV strategy; aircon keeps the default (proven effective).
+
+APPLIANCE_CONFIG_OVERRIDES: Dict[str, Dict[str, Any]] = {
+    "refrigerator_model_ready": {
+        # Compressor cycling has short memory; limit AR/MA complexity
+        "max_p": 2,
+        "max_q": 2,
+        "max_P": 1,
+        "max_Q": 1,
+        "max_total_order": 6,
+        # sMAPE is more robust than RMSE for spiky compressor data
+        "cv_metric": "sMAPE",
+        # More folds for better selection stability with limited data
+        "cv_n_folds": 5,
+        "cv_min_train_rows": 200,
+    },
+    "electric_fan_model_ready": {
+        # Intermittent usage; moderate complexity is sufficient
+        "max_p": 2,
+        "max_q": 2,
+        "max_P": 1,
+        "max_Q": 1,
+        "max_total_order": 6,
+        # sMAPE handles zero-inflation better for intermittent loads
+        "cv_metric": "sMAPE",
+        "cv_n_folds": 5,
+        "cv_min_train_rows": 200,
+    },
+    # aircon_model_ready: no overrides — defaults are effective
+}
+
+
+def get_appliance_config(appliance_stem: str, base_cfg: FitConfig) -> FitConfig:
+    """Return FitConfig with appliance-specific overrides applied."""
+    overrides = APPLIANCE_CONFIG_OVERRIDES.get(appliance_stem, {})
+    if not overrides:
+        return base_cfg
+
+    from dataclasses import asdict as _asdict
+    merged = _asdict(base_cfg)
+    merged.update(overrides)
+    return FitConfig(**merged)
+
 
 # =============================================================================
 # Metrics
@@ -873,7 +921,12 @@ def run_for_appliance(csv_path: Path, cfg: FitConfig) -> Dict[str, Any]:
     Run the full Stage 3.5.2 fitting pipeline for one appliance.
     """
     appliance = csv_path.stem
+
+    # Apply appliance-specific config overrides (tighter bounds for ref/efan)
+    cfg = get_appliance_config(appliance, cfg)
     log(f"--- START appliance: {appliance} ---")
+    if appliance in APPLIANCE_CONFIG_OVERRIDES:
+        log(f"Applied config overrides for {appliance}: {APPLIANCE_CONFIG_OVERRIDES[appliance]}")
 
     out_dir = get_model_output_dir(appliance)
 

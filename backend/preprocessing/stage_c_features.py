@@ -151,7 +151,74 @@ def validate_and_clean_weather(weather_df: pd.DataFrame, cfg: Stage333Config) ->
 
     return wx_h, weather_flags
 
-# C. Time & historical features 
+# C. Time & historical features
+
+# ---------------------------------------------------------------------------
+# Appliance-type classifier (maps device_id to appliance category)
+# ---------------------------------------------------------------------------
+_APPLIANCE_KEYWORDS = {
+    "refrigerator": ["refrigerator", "ref", "fridge"],
+    "electric_fan": ["electric_fan", "efan", "fan"],
+    "aircon":       ["aircon", "ac", "air_con"],
+}
+
+
+def _classify_appliance(device_id: str) -> str:
+    """Map a device_id string to an appliance category."""
+    lower = str(device_id).lower()
+    for appliance, keywords in _APPLIANCE_KEYWORDS.items():
+        if any(kw in lower for kw in keywords):
+            return appliance
+    return "unknown"
+
+
+def _add_appliance_specific_features(
+    group: pd.DataFrame,
+    appliance: str,
+) -> pd.DataFrame:
+    """
+    Add features tuned for a specific appliance's energy signature.
+
+    Refrigerator: short-memory lags (1-3h), rolling volatility, temp×humidity
+                  interaction to capture compressor cycling patterns.
+    Electric fan: quadratic temperature, simplified heat index, sleeping-hours
+                  indicator for sustained overnight usage blocks.
+    Aircon:       no extra features — baseline feature set is already effective.
+    """
+    g = group.copy()
+
+    if appliance == "refrigerator":
+        # Short-memory lags: compressor state has very short autocorrelation
+        g["lag_1"] = g["e_hour_kwh"].shift(1)
+        g["lag_2"] = g["e_hour_kwh"].shift(2)
+        g["lag_3"] = g["e_hour_kwh"].shift(3)
+
+        # Rolling volatility: high std signals active compressor cycling
+        g["rolling_std_24"] = g["e_hour_kwh"].rolling(
+            window=24, min_periods=1
+        ).std()
+
+        # Temperature × humidity interaction: compressor load proxy
+        if "temperature" in g.columns and "humidity" in g.columns:
+            g["temp_humidity_interaction"] = g["temperature"] * g["humidity"]
+
+    elif appliance == "electric_fan":
+        # Quadratic temperature: fan usage spikes non-linearly above ~28°C
+        if "temperature" in g.columns:
+            g["temperature_sq"] = g["temperature"] ** 2
+
+        # Simplified heat index proxy: better predictor than temp alone
+        if "temperature" in g.columns and "humidity" in g.columns:
+            g["heat_index"] = g["temperature"] + 0.33 * g["humidity"] - 4.0
+
+        # Sleeping hours indicator: fans often run continuously overnight
+        g["is_sleeping"] = g["hour_ts"].dt.hour.isin(
+            list(range(22, 24)) + list(range(0, 7))
+        ).astype(int)
+
+    # aircon and unknown: no extra features needed
+    return g
+
 
 def add_time_lag_rolling_features(hourly_df: pd.DataFrame, cfg: Stage333Config) -> pd.DataFrame:
     h = hourly_df.copy()
@@ -172,6 +239,16 @@ def add_time_lag_rolling_features(hourly_df: pd.DataFrame, cfg: Stage333Config) 
     h["rolling_mean_168"] = h.groupby("device_id")["e_hour_kwh"].transform(
         lambda s: s.rolling(window=cfg.roll_168, min_periods=1).mean()
     )
+
+    # --- Appliance-specific features ---
+    enriched_groups = []
+    for device_id, group in h.groupby("device_id"):
+        appliance = _classify_appliance(device_id)
+        enriched = _add_appliance_specific_features(group, appliance)
+        enriched_groups.append(enriched)
+
+    h = pd.concat(enriched_groups, ignore_index=True)
+    h = h.sort_values(["device_id", "hour_ts"]).reset_index(drop=True)
 
     return h
 

@@ -384,6 +384,9 @@ function DashboardPage() {
                                                 </button>
                                             </div>
                                         </div>
+                                        <p className="text-[11px] text-surface-400 italic -mt-2 mb-3 px-1">
+                                            Meralco charges change per month (per season and depends on billing). Projected costs may differ from your actual bill.
+                                        </p>
 
                                         {scheduleInsights.hasSchedule && (
                                             <div className="mb-4 space-y-3">
@@ -490,6 +493,13 @@ function DashboardPage() {
 
                     <ConsumptionRanking appliances={calculations.appliances} />
                 </div>
+            </div>
+
+            {/* Meralco Rate Disclaimer */}
+            <div className="mt-4 px-4 pb-2">
+                <p className="text-xs text-surface-500 italic text-center">
+                    Meralco charges change per month (per season and depends on billing). Projected costs shown above may differ from your actual bill.
+                </p>
             </div>
 
             {/* Render the Receipt Modal */}

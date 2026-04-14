@@ -159,6 +159,13 @@ def generate_recommendations(
                 lines.append(f"   • {label}: {blocks}")
             messages.append("\n".join(lines))
 
+    # ── Meralco rate disclaimer ─────────────────────────────────────────────
+    messages.append(
+        "Note: Meralco charges change per month (per season and depends on billing). "
+        "The projected cost above is based on the latest available rate schedule "
+        "and may differ from your actual bill."
+    )
+
     log.info(
         "[Recommender] date=%s | cost=₱%.2f | budget=₱%.2f | status=%s",
         forecast_date, total_cost, daily_budget, status,

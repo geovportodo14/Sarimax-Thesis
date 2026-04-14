@@ -110,9 +110,14 @@ export default function BillBreakdownModal({ isOpen, onClose, billData }) {
                     <div className="border-t-2 border-surface-900 mt-6 pt-4 flex justify-between items-end">
                         <div>
                             <span className="block font-bold text-lg">TOTAL AMOUNT</span>
-                            <span className="text-xs text-surface-500 font-sans">*Rates based on March 2026</span>
                         </div>
                         <span className="font-bold text-2xl tracking-tighter">₱{totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-dashed border-surface-300">
+                        <p className="text-xs text-surface-500 font-sans leading-relaxed italic">
+                            {billData.rateDisclaimer || "Meralco charges change per month (per season and depends on billing). Rates used here are based on the latest available schedule and may differ from your actual bill."}
+                        </p>
                     </div>
 
                 </div>

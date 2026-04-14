@@ -74,6 +74,7 @@ export function calculateMeralcoBill(kwh) {
     return {
         totalAmount,
         kwh,
+        rateDisclaimer: "Meralco charges change per month (per season and depends on billing). Rates used here are based on the latest available schedule and may differ from your actual bill.",
         breakdown: {
             "Generation Charge": genCharge,
             "Transmission Charge": transCharge,

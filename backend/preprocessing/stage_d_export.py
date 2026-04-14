@@ -115,15 +115,30 @@ def build_modeling_ready_dataset(df_sync: pd.DataFrame, cfg: Stage334Config) -> 
     if df["day_of_week"].dropna().between(0, 6).all():
         df["day_of_week"] = _standardize_day_of_week_1_to_7(df, "timestamp")
 
-    final_cols = [
+    # Base columns present for all appliances
+    base_cols = [
         cfg.device_col,
         "timestamp",
         "kWh",
-        "temperature", "humidity", "rainfall", # Changed from 'pressure'
+        "temperature", "humidity", "rainfall",
         "hour_of_day", "day_of_week", "is_weekend", "is_holiday",
         "lag_24", "lag_168",
         "rolling_mean_24", "rolling_mean_168"
     ]
+
+    # Appliance-specific columns (from stage_c_features appliance-aware engineering)
+    appliance_extra_cols = [
+        "lag_1", "lag_2", "lag_3",               # refrigerator short-memory
+        "rolling_std_24",                         # refrigerator volatility
+        "temp_humidity_interaction",              # refrigerator compressor proxy
+        "temperature_sq",                         # electric fan nonlinear temp
+        "heat_index",                             # electric fan comfort proxy
+        "is_sleeping",                            # electric fan overnight indicator
+    ]
+
+    # Include any appliance-specific columns that actually exist in the data
+    extra_present = [c for c in appliance_extra_cols if c in df.columns]
+    final_cols = base_cols + extra_present
     out = df[final_cols].copy()
 
     if cfg.drop_rows_with_missing_target:

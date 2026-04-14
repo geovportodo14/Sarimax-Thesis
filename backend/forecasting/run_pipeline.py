@@ -294,6 +294,26 @@ def run_pipeline(cfg: PipelineConfig, force_date: Optional[str] = None) -> None:
     generated_at  = now_mnl.isoformat()
     forecast_date = force_date or (now_mnl + pd.Timedelta(days=1)).strftime("%Y-%m-%d")
 
+    # ── Step 0: Scrape latest Meralco tariff (optional) ──────────────────────
+    if cfg.meralco_scraper_enabled:
+        try:
+            from forecasting.meralco_scraper import scrape_latest_tariff
+            result = scrape_latest_tariff()
+            scraped_tariff = result["tariff_php"]
+            log.info(
+                "[meralco_scraper] %s rates for %s — effective tariff ₱%.4f/kWh",
+                "Cached" if result["cached"] else "Scraped",
+                result["month_key"],
+                scraped_tariff,
+            )
+            cfg.tariff = scraped_tariff
+        except Exception as exc:
+            log.warning(
+                "[meralco_scraper] Failed to fetch latest rates: %s. "
+                "Falling back to configured tariff ₱%.2f/kWh.",
+                exc, cfg.tariff,
+            )
+
     log.info("=" * 60)
     log.info("SARIMAX Daily Forecasting Pipeline")
     log.info("Generated at : %s", generated_at)

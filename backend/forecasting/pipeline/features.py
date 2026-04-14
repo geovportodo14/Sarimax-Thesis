@@ -181,6 +181,60 @@ def compute_power_feature(
 
 
 # ---------------------------------------------------------------------------
+# Appliance-specific features (mirrors preprocessing/stage_c_features.py)
+# ---------------------------------------------------------------------------
+
+def add_appliance_specific_features(
+    Xf: pd.DataFrame,
+    history: pd.DataFrame,
+    energy_col: str = "energy",
+) -> pd.DataFrame:
+    """
+    Add appliance-specific columns so column alignment can pick them up.
+    All columns are added unconditionally; the final alignment step keeps
+    only the ones the model was trained with.
+    """
+    idx = Xf.index
+
+    # --- Refrigerator features ---
+    # Short lags: look back 1-3 hours into history
+    energy = history[energy_col].dropna()
+    for lag_h in [1, 2, 3]:
+        col_name = f"lag_{lag_h}"
+        vals = []
+        for ts in idx:
+            lookup = ts - pd.Timedelta(hours=lag_h)
+            vals.append(
+                energy.loc[lookup] if lookup in energy.index else
+                (float(energy.iloc[-1]) if len(energy) > 0 else 0.0)
+            )
+        Xf[col_name] = vals
+
+    # Rolling std from last 24 hours of history (scalar broadcast)
+    if len(energy) >= 24:
+        Xf["rolling_std_24"] = float(energy.iloc[-24:].std())
+    else:
+        Xf["rolling_std_24"] = float(energy.std()) if len(energy) > 1 else 0.0
+
+    # Temperature × humidity interaction
+    if "temperature" in Xf.columns and "humidity" in Xf.columns:
+        Xf["temp_humidity_interaction"] = Xf["temperature"] * Xf["humidity"]
+
+    # --- Electric fan features ---
+    if "temperature" in Xf.columns:
+        Xf["temperature_sq"] = Xf["temperature"] ** 2
+
+    if "temperature" in Xf.columns and "humidity" in Xf.columns:
+        Xf["heat_index"] = Xf["temperature"] + 0.33 * Xf["humidity"] - 4.0
+
+    Xf["is_sleeping"] = idx.hour.isin(
+        list(range(22, 24)) + list(range(0, 7))
+    ).astype(float)
+
+    return Xf
+
+
+# ---------------------------------------------------------------------------
 # Main builder
 # ---------------------------------------------------------------------------
 
@@ -243,6 +297,13 @@ def build_future_exog(
             log.warning("Weather forecast unavailable; forward-filling from history.")
             for c in weather_cols:
                 Xf[c] = float(history[c].iloc[-1]) if c in history.columns else 0.0
+
+    # ── Appliance-specific features ──────────────────────────────────────────
+    appliance_cols = {"lag_1", "lag_2", "lag_3", "rolling_std_24",
+                      "temp_humidity_interaction", "temperature_sq",
+                      "heat_index", "is_sleeping"}
+    if appliance_cols & set(exog_columns):
+        Xf = add_appliance_specific_features(Xf, history, energy_col)
 
     # ── Align to training column order ────────────────────────────────────────
     missing = [c for c in exog_columns if c not in Xf.columns]

@@ -9,27 +9,34 @@ logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Model paths — appliance → directory containing best_params.json + coefficients.csv
+#
+# Routing strategy:
+#   aircon       → V3 (stage-based, proven architecture)
+#   electricfan  → V4 (current production model)
+#   refrigerator → V4 (current production model)
 # ---------------------------------------------------------------------------
-_SARIMAX_MODEL_ROOT = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    "Sarimax-ModelV3"
+_BACKEND_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+_SARIMAX_MODEL_V3_ROOT = os.path.join(_BACKEND_ROOT, "Sarimax-ModelV3")
+_SARIMAX_MODEL_V4_ROOT = os.path.join(
+    _BACKEND_ROOT, "forecasting", "outputs", "Sarimax-ModelV4"
 )
 
 # Maps the API appliance key → directory containing best_params.json + coefficients.csv
 _APPLIANCE_PATHS = {
     "aircon": os.path.join(
-        _SARIMAX_MODEL_ROOT,
+        _SARIMAX_MODEL_V3_ROOT,
         "Final_Aircon", "model", "sarimax",
         "aircon_model_ready"
     ),
     "electricfan": os.path.join(
-        _SARIMAX_MODEL_ROOT,
-        "Final_electricfan", "sarimax",
+        _SARIMAX_MODEL_V4_ROOT,
+        "V4-efan", "model", "sarimax",
         "electric_fan_model_ready"
     ),
     "refrigerator": os.path.join(
-        _SARIMAX_MODEL_ROOT,
-        "Final_Ref", "model", "sarimax",
+        _SARIMAX_MODEL_V4_ROOT,
+        "V4-ref", "sarimax",
         "refrigerator_model_ready"
     ),
 }
@@ -53,27 +60,36 @@ _APPLIANCE_PATHS = {
 #   weighted_mae = (0.531×2.631 + 0.177×0.883) / (3.514×3.514)
 #               → see SmartBudgetCard for JS implementation
 # ---------------------------------------------------------------------------
+# Metrics sourced from rolling-origin evaluation (horizon=24).
+# Updated 2026-04-09 to reflect actual production model versions.
+#
+# Aircon V3:       MAE=0.0755, MAPE=43.2%, R²=0.689
+# Electric fan V4: MAE=0.0110, MAPE=42.3%, R²=0.246
+# Refrigerator V4: MAE=0.0290, MAPE=30.3%, R²=0.001
 APPLIANCE_EVAL_METRICS = {
     "aircon": {
-        "mae_hourly": 0.018892,
-        "mae_daily": 0.018892 * 24,   # 0.453
+        "mae_hourly": 0.0755,
+        "mae_daily": 0.0755 * 24,      # 1.812
         "mean_daily_kwh": 2.6314,
-        "mae_pct": 0.172,              # 17.2 %
-        "r2": 0.8108,
+        "mae_pct": 0.432,               # 43.2 %
+        "r2": 0.6888,
+        "model_version": "V3",
     },
     "electricfan": {
-        "mae_hourly": 0.007501,
-        "mae_daily": 0.007501 * 24,   # 0.180
+        "mae_hourly": 0.01097,
+        "mae_daily": 0.01097 * 24,     # 0.263
         "mean_daily_kwh": 0.8826,
-        "mae_pct": 0.204,              # 20.4 %
-        "r2": 0.8080,
+        "mae_pct": 0.423,               # 42.3 %
+        "r2": 0.2458,
+        "model_version": "V4",
     },
     "refrigerator": {
-        "mae_hourly": 0.201915,
-        "mae_daily": 0.201915 * 24,   # 4.846
+        "mae_hourly": 0.02900,
+        "mae_daily": 0.02900 * 24,     # 0.696
         "mean_daily_kwh": 2.8667,
-        "mae_pct": 1.69,               # 169.0 %
-        "r2": -4.375,
+        "mae_pct": 0.303,               # 30.3 %
+        "r2": 0.0013,
+        "model_version": "V4",
     },
 }
 

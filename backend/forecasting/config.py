@@ -70,6 +70,15 @@ FORECAST_END_HOUR: int = 23         # next-day ends at 23:00
 TARIFF_PHP_PER_KWH: float = float(os.getenv("TARIFF_PHP_PER_KWH", "11.5"))
 
 # ---------------------------------------------------------------------------
+# Meralco rate scraper
+# ---------------------------------------------------------------------------
+MERALCO_SCRAPER_ENABLED: bool = os.getenv("MERALCO_SCRAPER_ENABLED", "true").lower() == "true"
+MERALCO_RSS_URL: str = os.getenv(
+    "MERALCO_RSS_URL",
+    "https://company.meralco.com.ph/taxonomy/term/86/feed",
+)
+
+# ---------------------------------------------------------------------------
 # Daily budget per user (PHP) – can be overridden per household at runtime
 # ---------------------------------------------------------------------------
 DEFAULT_DAILY_BUDGET_PHP: float = float(os.getenv("DEFAULT_DAILY_BUDGET_PHP", "200.0"))
@@ -190,3 +199,4 @@ class PipelineConfig:
     scheduler_appliance_rules: dict[str, dict[str, Any]] = field(
         default_factory=lambda: {k: dict(v) for k, v in SCHEDULER_APPLIANCE_RULES.items()}
     )
+    meralco_scraper_enabled: bool = MERALCO_SCRAPER_ENABLED
