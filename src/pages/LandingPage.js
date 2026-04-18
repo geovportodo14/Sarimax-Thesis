@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, Zap, ShieldCheck, Cpu, CloudLightning, LayoutDashboard, Snowflake, Wind, ThermometerSnowflake, AlertTriangle, CheckCircle2, ReceiptText, ChevronRight } from 'lucide-react';
+import { ArrowRight, Zap, ShieldCheck, Cpu, CloudLightning, LayoutDashboard, Snowflake, Wind, ThermometerSnowflake, AlertTriangle, CheckCircle2, ReceiptText, ChevronRight, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calculateMeralcoBill } from '../utils/meralcoCalculator';
 import BillBreakdownModal from '../components/BillBreakdownModal';
+import BillingCycleCard from '../components/BillingCycleCard';
+import { computeCycleStatus } from '../utils/billingCycle';
 import { getApiUrl } from '../utils/api';
 
 const TIME_ZONE = 'Asia/Manila';
@@ -75,12 +77,18 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
     const manilaMonth = manilaDate.getUTCMonth();
     const manilaDay = manilaDate.getUTCDate();
     const daysInMonth = new Date(Date.UTC(manilaYear, manilaMonth + 1, 0)).getUTCDate();
-    const remainingDays = Math.max(daysInMonth - manilaDay, 1);
     const currentMonthLabel = new Intl.DateTimeFormat('en-US', {
         month: 'short',
         year: 'numeric',
         timeZone: TIME_ZONE
     }).format(manilaDate);
+
+    // Use billing period days remaining instead of calendar month days
+    const cycleStatus = computeCycleStatus();
+    const remainingDays = Math.max(cycleStatus?.daysRemaining ?? (daysInMonth - manilaDay), 1);
+    const billingPeriodLabel = cycleStatus
+        ? `${cycleStatus.period.start} – ${cycleStatus.period.end}`
+        : currentMonthLabel;
     const simulatorFreshnessLabel = tomorrowTotalKwh > 0
         ? 'Forecast available'
         : 'Forecast run pending';
@@ -196,16 +204,29 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                             className="relative bg-white/80 border border-white/50 rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] p-6 sm:p-8"
                             style={{ backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
                         >
-                            <div className="mb-8 text-center relative">
-                                <h3 className="text-2xl font-bold text-surface-900 mb-2">Budget Simulator</h3>
-                                <p className="text-sm text-surface-500">Month-end estimate from MTD usage + next-day model</p>
-                                <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-wider">
-                                    <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                        {simulatorFreshnessLabel}
-                                    </span>
-                                    <span className="px-2.5 py-1 rounded-full bg-surface-100 text-surface-600 border border-surface-200">
-                                        {currentMonthLabel}
-                                    </span>
+                            <div className="mb-8 relative">
+                                <div className="text-center mb-4">
+                                    <h3 className="text-2xl font-bold text-surface-900 mb-2">Budget Simulator</h3>
+                                    <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-wider">
+                                        <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                            {simulatorFreshnessLabel}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Billing Period Disclaimer Block */}
+                                <div className="rounded-2xl bg-sky-50/70 border border-sky-100 p-4">
+                                    <div className="flex items-start gap-2.5">
+                                        <Info size={14} className="text-sky-500 mt-0.5 shrink-0" />
+                                        <div className="min-w-0">
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-sky-600 mb-1">Active Meralco Billing Period</p>
+                                            <p className="text-sm font-bold text-surface-800 mb-1.5">{billingPeriodLabel}</p>
+                                            <p className="text-[11px] text-surface-500 leading-relaxed">
+                                                This estimate is based on your <strong className="text-surface-700">Meralco billing cycle</strong>, not the calendar month.
+                                                Day <strong className="text-surface-700">{cycleStatus?.daysElapsed ?? '—'}</strong> of <strong className="text-surface-700">{cycleStatus?.totalDays ?? '—'}</strong> — <strong className="text-surface-700">{remainingDays} day{remainingDays !== 1 ? 's' : ''}</strong> remaining until meter reading.
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -233,7 +254,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                     <div className="flex justify-between items-center text-sm">
                                         <div className="flex items-center gap-2 text-surface-500">
                                             <div className="w-2 h-2 rounded-full bg-surface-300"></div>
-                                            <span>Spent so far (MTD)</span>
+                                            <span>Spent so far <span className="text-[10px] text-surface-400">(this calendar month)</span></span>
                                         </div>
                                         <span className="font-bold text-surface-900">
                                             {loadingSummary ? '---' : `₱${Math.round(spentSoFarPhp).toLocaleString()}`}
@@ -243,7 +264,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                     <div className="flex justify-between items-center text-sm border-t border-surface-100 pt-4">
                                         <div className="flex items-center gap-2 text-surface-700 font-semibold">
                                             <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></div>
-                                            <span>Estimated month-end bill</span>
+                                            <span>Estimated billing period total</span>
                                         </div>
                                         <span className={`text-xl font-black ${isOverBudget ? 'text-red-600' : 'text-surface-900'}`}>
                                             ₱{Math.round(projectedUsage).toLocaleString()}
@@ -290,8 +311,8 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                             </p>
                                             <p className="text-xs mt-1 leading-relaxed opacity-90">
                                                 {isOverBudget
-                                                    ? `Forecasted overage: ₱${difference.toLocaleString()}. SARIMAX suggests lowering A/C runtime.`
-                                                    : `You're tracking ₱${difference.toLocaleString()} under budget. Keep it up!`}
+                                                    ? `Forecasted overage: ₱${Math.round(difference).toLocaleString()}. SARIMAX suggests lowering A/C runtime.`
+                                                    : `You're tracking ₱${Math.round(difference).toLocaleString()} under budget. Keep it up!`}
                                             </p>
                                         </div>
                                     </motion.div>
@@ -300,7 +321,7 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                 <div className="rounded-2xl border border-surface-200 bg-white/80 p-4">
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-surface-500 mb-2">Simulation Basis</p>
                                     <div className="space-y-1.5 text-xs text-surface-600">
-                                        <p>Remaining days this month: <span className="font-semibold text-surface-800">{remainingDays}</span></p>
+                                        <p>Days left in billing period: <span className="font-semibold text-surface-800">{remainingDays}</span></p>
                                         <p>
                                             Forecast basis: <span className="font-semibold text-surface-800">
                                                 {tomorrowTotalKwh > 0 ? `${tomorrowTotalKwh.toFixed(2)} kWh/day` : 'Fallback baseline (forecast pending)'}
@@ -309,9 +330,13 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                                     </div>
                                 </div>
 
-                                <p className="text-[11px] text-surface-400 italic text-center leading-relaxed">
-                                    Meralco charges change per month (per season and depends on billing). Projected costs may differ from your actual bill.
-                                </p>
+                                <div className="rounded-xl bg-surface-50 border border-surface-100 p-3 space-y-1.5 text-[11px] text-surface-400 leading-relaxed">
+                                    <p className="font-bold text-surface-500 uppercase tracking-wider text-[10px]">Important Notes</p>
+                                    <p>• <strong className="text-surface-500">Billing period</strong> runs {billingPeriodLabel} — Meralco reads your meter at the end of this window, not at month-end.</p>
+                                    <p>• <strong className="text-surface-500">Spent so far</strong> reflects the current calendar month only. The billing period may span parts of two calendar months.</p>
+                                    <p>• <strong className="text-surface-500">Projected total</strong> adds today's MTD cost to the SARIMAX next-day forecast × days left in the billing period.</p>
+                                    <p>• Meralco rates vary per season. Your actual bill may differ from this estimate.</p>
+                                </div>
 
                                 <div className="flex flex-col gap-3 pt-2">
                                     {isOverBudget && (
@@ -339,6 +364,9 @@ export default function LandingPage({ onEnterDashboard, monthlySummary, loadingS
                 billData={billData}
             />
 
+
+            {/* ── BILLING CYCLE TRACKER ── */}
+            <BillingCycleCard />
 
             {/* ── HOW IT WORKS (Thesis Flow) ── */}
             <section id="how-it-works-section" className="relative py-32 bg-white overflow-hidden">
