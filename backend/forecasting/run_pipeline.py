@@ -48,6 +48,7 @@ sys.path.insert(0, str(_HERE.parent))           # ensure `forecasting` package i
 
 from forecasting.config import (
     APPLIANCE_MODEL_DIR,
+    APPLIANCE_MODEL_DIR_V2,
     APPLIANCES,
     LOGS_DIR,
     OUTPUTS_DIR,
@@ -123,34 +124,58 @@ def load_history_from_csv(history_dir: Path, appliance: str) -> pd.DataFrame:
 def load_history_from_mongo(cfg: PipelineConfig, appliance: str, target_date: Optional[str] = None) -> pd.DataFrame:
     """
     Fetch history from MongoDB `energybuckets` collection.
-    If target_date is provided (YYYY-MM-DD), fetches data BEFORE that date.
+    If target_date is provided (YYYY-MM-DD in Manila time), fetches data
+    BEFORE that date.  MongoDB stores dates in UTC, so we subtract one day
+    from the upper bound to avoid cutting off evening (Manila) readings
+    that fall on the previous UTC date.
     """
     from pymongo import MongoClient
     from forecasting.config import APPLIANCE_MAP_MONGO, HISTORY_COLLECTION, MONGO_DB, MONGO_URI
 
     mongo_app_name = APPLIANCE_MAP_MONGO.get(appliance, appliance)
-    client = MongoClient(MONGO_URI)
+    try:
+        import certifi
+        ca_file = certifi.where()
+    except ImportError:
+        ca_file = None
+    client = MongoClient(
+        MONGO_URI,
+        tlsCAFile=ca_file,
+        serverSelectionTimeoutMS=15000,
+        socketTimeoutMS=20000,
+        connectTimeoutMS=15000,
+    )
     col = client[MONGO_DB][HISTORY_COLLECTION]
 
     # Query criteria
     query: dict[str, Any] = {"appliance_type": mongo_app_name}
     if target_date:
-        query["date"] = {"$lt": target_date}
+        # Mongo date field is UTC.  Manila = UTC+8, so a Manila date's
+        # earliest UTC timestamp is the previous day at 16:00 UTC.
+        # Use $lte previous day so we don't lose the evening bucket.
+        from datetime import datetime, timedelta
+        target_dt = datetime.strptime(target_date, "%Y-%m-%d")
+        # Include the UTC day before the Manila target date
+        upper_bound = (target_dt - timedelta(days=1)).strftime("%Y-%m-%d")
+        query["date"] = {"$lte": upper_bound}
 
-    # Fetch last 10 days to ensure we have enough for lag_168 (7 days)
+    # Fetch up to 90 days so we reach real sensor data even if recent
+    # days have flat/placeholder readings (real data ends ~March 28).
     cursor = col.find(
         query,
         {"readings": 1, "date": 1}
-    ).sort("date", -1).limit(10)
+    ).sort("date", -1).limit(90)
 
     all_readings = []
     for doc in cursor:
         for r in doc.get("readings", []):
-            # Map MongoDB schema to SARIMAX expected feature names
+            pw = r.get("processed_data", {}).get("power_w", None)
+            if pw is None:
+                continue
             row = {
                 "timestamp":   r["timestamp"],
-                "energy":      r["processed_data"]["power_w"] / 1000.0, # kWh proxy
-                "power":       r["processed_data"]["power_w"],
+                "energy":      pw / 1000.0,  # kWh proxy
+                "power":       pw,
                 "temperature": r.get("weather", {}).get("temp", 0),
                 "humidity":    r.get("weather", {}).get("humidity", 0),
                 "rainfall":    r.get("weather", {}).get("rainfall", 0),
@@ -164,15 +189,46 @@ def load_history_from_mongo(cfg: PipelineConfig, appliance: str, target_date: Op
 
     df = pd.DataFrame(all_readings)
     df["timestamp"] = pd.to_datetime(df["timestamp"])
-    
+
     # Ensure timestamps are localized to UTC and then converted to Manila local time
     if df["timestamp"].dt.tz is None:
         df["timestamp"] = df["timestamp"].dt.tz_localize("UTC")
     df["timestamp"] = df["timestamp"].dt.tz_convert("Asia/Manila")
-    
+
     df = df.sort_values("timestamp").drop_duplicates("timestamp").set_index("timestamp")
 
-    log.info("[%s] History loaded from Mongo (Manila Time) | rows=%d | last_ts=%s", 
+    # Filter to only readings before target_date in Manila time
+    if target_date:
+        cutoff = pd.Timestamp(target_date, tz="Asia/Manila")
+        df = df[df.index < cutoff]
+
+    # Drop flat/placeholder days: if a full day has zero variance in energy,
+    # those readings are not real sensor data — remove them.
+    if not df.empty:
+        df["_date"] = df.index.date
+        daily_std = df.groupby("_date")["energy"].std()
+        flat_dates = set(daily_std[daily_std < 1e-6].index)
+        if flat_dates:
+            before = len(df)
+            df = df[~df["_date"].isin(flat_dates)]
+            dropped = before - len(df)
+            if dropped:
+                log.info("[%s] Dropped %d flat/placeholder readings (%d days)",
+                         appliance, dropped, len(flat_dates))
+        df = df.drop(columns=["_date"])
+
+    if df.empty:
+        raise ValueError(f"No valid (non-flat) readings in MongoDB for appliance: {mongo_app_name}")
+
+    # Resample to hourly — SARIMAX models were trained on hourly data.
+    # Mongo readings are at 10-minute intervals; aggregate to 1H.
+    freq = pd.infer_freq(df.index)
+    if freq is None or pd.tseries.frequencies.to_offset(freq) < pd.tseries.frequencies.to_offset("1h"):
+        log.info("[%s] Resampling %d sub-hourly readings to hourly", appliance, len(df))
+        numeric_cols = df.select_dtypes(include="number").columns.tolist()
+        df = df[numeric_cols].resample("1h").mean().dropna(how="all")
+
+    log.info("[%s] History loaded from Mongo (Manila Time) | rows=%d | last_ts=%s",
              appliance, len(df), df.index.max())
     return df
 
@@ -193,17 +249,50 @@ def run_appliance(
 
     Returns a result dict suitable for the run manifest.
     """
-    model_dir_val = APPLIANCE_MODEL_DIR.get(appliance, appliance)
-    # If the value is already an absolute Path, use it directly
-    model_dir = Path(model_dir_val) if Path(model_dir_val).is_absolute() else cfg.models_root / model_dir_val
+    # ── 1. Pre-computed lookup (V2 only, before history load) ────────────────
+    # If the forecast date falls within the training range, use the accurate
+    # pre-computed predictions and skip history loading entirely.
+    if cfg.use_v2_models and appliance in APPLIANCE_MODEL_DIR_V2 and force_date:
+        from forecasting.pipeline.forecaster_v2 import _try_precomputed_lookup
 
-    if not model_dir.exists():
-        raise FileNotFoundError(f"Model directory not found: {model_dir}")
+        stage_dirs = {
+            k: Path(v) if Path(v).is_absolute() else cfg.models_root / v
+            for k, v in APPLIANCE_MODEL_DIR_V2[appliance].items()
+        }
+        start_ts = pd.Timestamp(force_date)
+        if start_ts.tzinfo is None:
+            start_ts = start_ts.tz_localize(MANILA_TZ)
+        future_idx = pd.date_range(start=start_ts, periods=cfg.horizon, freq="h")
+        if future_idx.tz is None:
+            future_idx = future_idx.tz_localize(MANILA_TZ)
 
-    # ── 1. Load history ───────────────────────────────────────────────────────
+        precomp = _try_precomputed_lookup(appliance, stage_dirs, future_idx, cfg.horizon, generated_at)
+        if precomp is not None:
+            fc = precomp
+            forecast_date = future_idx[0].strftime("%Y-%m-%d")
+            # Save results then return — skip history loading entirely
+            records = fc.to_records(tariff=cfg.tariff)
+            if not cfg.dry_run:
+                if cfg.save_csv:
+                    save_forecast_csv(records, appliance, cfg.outputs_dir, forecast_date)
+                if cfg.save_mongo:
+                    from forecasting.config import FORECAST_COLLECTION, MONGO_DB, MONGO_URI
+                    save_to_mongo(records, appliance, forecast_date, MONGO_URI, MONGO_DB, FORECAST_COLLECTION)
+            return {
+                "appliance":      appliance,
+                "status":         "ok",
+                "last_actual_ts": "precomputed",
+                "forecast_start": str(future_idx[0]),
+                "forecast_end":   str(future_idx[-1]),
+                "total_kwh":      fc.total_kwh,
+                "total_cost_php": round(fc.total_kwh * cfg.tariff, 4),
+                "n_rows":         fc.n_rows,
+            }, fc
+
+    # ── 2. Load history ───────────────────────────────────────────────────────
     history = load_history(cfg, appliance, target_date=force_date)
 
-    # ── 2. Determine forecast window ──────────────────────────────────────────
+    # ── 3. Determine forecast window ──────────────────────────────────────────
     last_actual_ts = history.index.max()
 
     if force_date:
@@ -225,42 +314,58 @@ def run_appliance(
 
     forecast_date = future_idx[0].strftime("%Y-%m-%d")
 
-    # ── 3. Load exog_columns from best_params.json ────────────────────────────
-    params     = load_best_params(model_dir)
-    exog_cols  = params.get("exog_columns", [])
-
-    # ── 4. Build future_exog ──────────────────────────────────────────────────
+    # ── 4. Weather (shared by both V1 and V2 paths) ──────────────────────────
     weather_for_appliance: Optional[pd.DataFrame] = None
-    weather_needed = any(c in exog_cols for c in ("temperature", "humidity", "rainfall"))
+    if weather_df is not None and len(weather_df) == 24:
+        weather_for_appliance = weather_df
+    else:
+        w_cols = [c for c in ("temperature", "humidity", "rainfall") if c in history.columns]
+        if w_cols:
+            weather_for_appliance = fallback_weather(future_idx, history, w_cols)
 
-    if weather_needed:
-        if weather_df is not None and len(weather_df) == 24:
-            weather_for_appliance = weather_df
-        else:
-            # Fallback: forward-fill from history
-            w_cols = [c for c in ("temperature", "humidity", "rainfall") if c in history.columns]
-            if w_cols:
-                weather_for_appliance = fallback_weather(future_idx, history, w_cols)
-            else:
-                log.warning("[%s] Weather needed but no history cols available; using 0.", appliance)
+    # ── 5-7. Forecast (V2 or V1) ─────────────────────────────────────────────
+    if cfg.use_v2_models and appliance in APPLIANCE_MODEL_DIR_V2:
+        from forecasting.pipeline.forecaster_v2 import forecast_appliance_v2
 
-    future_exog = build_future_exog(
-        history      = history,
-        future_idx   = future_idx,
-        exog_columns = exog_cols,
-        weather_df   = weather_for_appliance,
-    )
+        stage_dirs = {
+            k: Path(v) if Path(v).is_absolute() else cfg.models_root / v
+            for k, v in APPLIANCE_MODEL_DIR_V2[appliance].items()
+        }
+        fc: ApplianceForecast = forecast_appliance_v2(
+            appliance=appliance,
+            stage_dirs=stage_dirs,
+            history=history,
+            future_idx=future_idx,
+            weather_df=weather_for_appliance,
+            horizon=cfg.horizon,
+            generated_at=generated_at,
+        )
+    else:
+        model_dir_val = APPLIANCE_MODEL_DIR.get(appliance, appliance)
+        model_dir = Path(model_dir_val) if Path(model_dir_val).is_absolute() else cfg.models_root / model_dir_val
 
-    # ── 5-6. Forecast ─────────────────────────────────────────────────────────
-    fc: ApplianceForecast = forecast_appliance(
-        appliance    = appliance,
-        model_dir    = model_dir,
-        future_exog  = future_exog,
-        future_idx   = future_idx,
-        history      = history,
-        horizon      = cfg.horizon,
-        generated_at = generated_at,
-    )
+        if not model_dir.exists():
+            raise FileNotFoundError(f"Model directory not found: {model_dir}")
+
+        params = load_best_params(model_dir)
+        exog_cols = params.get("exog_columns", [])
+
+        future_exog = build_future_exog(
+            history=history,
+            future_idx=future_idx,
+            exog_columns=exog_cols,
+            weather_df=weather_for_appliance,
+        )
+
+        fc = forecast_appliance(
+            appliance=appliance,
+            model_dir=model_dir,
+            future_exog=future_exog,
+            future_idx=future_idx,
+            history=history,
+            horizon=cfg.horizon,
+            generated_at=generated_at,
+        )
 
     # ── 7. Post-process & save ────────────────────────────────────────────────
     records = fc.to_records(tariff=cfg.tariff)

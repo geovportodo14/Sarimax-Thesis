@@ -1,21 +1,21 @@
 {
   "forecast_date": "2026-03-06",
   "daily_budget_php": 200.0,
-  "predicted_cost_php": 81.0617,
-  "budget_remaining": 118.9383,
-  "budget_utilization": 0.4053,
+  "predicted_cost_php": 68.6763,
+  "budget_remaining": 131.3237,
+  "budget_utilization": 0.3434,
   "status": "within_budget",
   "messages": [
-    "\u2705 Expected to stay within budget. Predicted cost \u20b181.06 vs. budget \u20b1200.00.",
-    "\ud83d\udcca Highest usage: Aircon (\u20b150.22, 62% of predicted daily spend).",
-    "\ud83e\udde0 Optimized schedule estimate: save \u20b110.72 (from \u20b181.06 to \u20b164.32).",
-    "\ud83d\udcc9 Peak-hour load reduction estimate: 0.121 kWh.",
-    "\ud83d\udd52 Top scheduling action: Turn off aircon at 17:00 to stay within budget (saves \u20b11.74).",
-    "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Aircon: 12 AM \u2013 5 AM, 6 PM \u2013 midnight\n   \u2022 Electric Fan: 12 AM \u2013 6 AM, 7 PM \u2013 midnight\n   \u2022 Refrigerator: Continuous operation"
+    "\u2705 Expected to stay within budget. Predicted cost \u20b168.68 vs. budget \u20b1200.00.",
+    "\ud83d\udcca Highest usage: Aircon (\u20b138.61, 56% of predicted daily spend).",
+    "\ud83e\udde0 Optimized schedule estimate: save \u20b11.30 (from \u20b168.68 to \u20b160.57).",
+    "\ud83d\udd52 Top scheduling action: Turn off electric fan at 08:00 to stay within budget (saves \u20b10.45).",
+    "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Aircon: 12 AM \u2013 5 AM, 10 PM \u2013 midnight\n   \u2022 Electric Fan: 12 AM \u2013 3 AM, 4 AM \u2013 6 AM\n   \u2022 Refrigerator: Continuous operation",
+    "Note: Meralco charges change per month (per season and depends on billing). The projected cost above is based on the latest available rate schedule and may differ from your actual bill."
   ],
   "appliance_breakdown": {
-    "aircon": 50.2151,
-    "electric_fan": 3.3772,
-    "refrigerator": 27.4694
+    "aircon": 38.6098,
+    "electric_fan": 3.4461,
+    "refrigerator": 26.6204
   }
 }

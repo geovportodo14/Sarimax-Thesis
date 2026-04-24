@@ -58,6 +58,31 @@ APPLIANCE_MODEL_DIR: dict[str, Path] = {
 MODELS_ROOT = _MODELS_V3_ROOT
 
 # ---------------------------------------------------------------------------
+# V2 model root — 3-stage hierarchical (B1 classifier → B2 baseline → B3 residual)
+# ---------------------------------------------------------------------------
+_MODELS_V2_ROOT = BACKEND_ROOT / "Sarimax-Model-2"
+
+USE_V2_MODELS: bool = os.getenv("USE_V2_MODELS", "true").lower() == "true"
+
+APPLIANCE_MODEL_DIR_V2: dict[str, dict[str, Path]] = {
+    "aircon": {
+        "b1": _MODELS_V2_ROOT / "model-aircon" / "three_layer" / "aircon" / "stage_b1",
+        "b2": _MODELS_V2_ROOT / "model-aircon" / "three_layer" / "aircon" / "stage_b2",
+        "b3": _MODELS_V2_ROOT / "model-aircon" / "three_layer" / "aircon" / "stage_b3",
+    },
+    "electric_fan": {
+        "b1": _MODELS_V2_ROOT / "model-e-fan" / "three_layer" / "electric_fan" / "stage_b1",
+        "b2": _MODELS_V2_ROOT / "model-e-fan" / "three_layer" / "electric_fan" / "stage_b2",
+        "b3": _MODELS_V2_ROOT / "model-e-fan" / "three_layer" / "electric_fan" / "stage_b3",
+    },
+    "refrigerator": {
+        "b1": _MODELS_V2_ROOT / "model-ref" / "three_layer" / "refrigerator" / "stage_b1",
+        "b2": _MODELS_V2_ROOT / "model-ref" / "three_layer" / "refrigerator" / "stage_b2",
+        "b3": _MODELS_V2_ROOT / "model-ref" / "three_layer" / "refrigerator" / "stage_b3",
+    },
+}
+
+# ---------------------------------------------------------------------------
 # Forecast settings
 # ---------------------------------------------------------------------------
 FORECAST_HORIZON: int = 24          # hours
@@ -200,3 +225,4 @@ class PipelineConfig:
         default_factory=lambda: {k: dict(v) for k, v in SCHEDULER_APPLIANCE_RULES.items()}
     )
     meralco_scraper_enabled: bool = MERALCO_SCRAPER_ENABLED
+    use_v2_models: bool = USE_V2_MODELS

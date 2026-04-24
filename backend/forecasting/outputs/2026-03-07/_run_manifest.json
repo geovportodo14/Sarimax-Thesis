@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-30T01:26:49.490496+08:00",
+  "generated_at": "2026-04-24T15:29:30.035168+08:00",
   "forecast_date": "2026-03-07",
   "config": {
     "horizon": 24,
@@ -9,24 +9,79 @@
     "scheduler_max_shift_hours": 3,
     "scheduler_peak_penalty": 1.0
   },
-  "ok": 0,
-  "failed": 3,
-  "results": [],
-  "failures": [
+  "ok": 3,
+  "failed": 0,
+  "results": [
     {
       "appliance": "aircon",
-      "error": "StringDtype.__init__() takes from 1 to 2 positional arguments but 3 were given",
-      "traceback": "Traceback (most recent call last):\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 338, in run_pipeline\n    result, fc = run_appliance(appliance, cfg, weather_df, generated_at, forecast_date)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 255, in run_appliance\n    fc: ApplianceForecast = forecast_appliance(\n                            ^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/pipeline/forecaster.py\", line 143, in forecast_appliance\n    model_result   = load_best_model(model_dir)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/pipeline/forecaster.py\", line 76, in load_best_model\n    return SARIMAXResults.load(str(p))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.11/site-packages/statsmodels/base/model.py\", line 2289, in load\n    return load_pickle(fname)\n           ^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.11/site-packages/statsmodels/iolib/smpickle.py\", line 42, in load_pickle\n    return pickle.load(fin)\n           ^^^^^^^^^^^^^^^^\nTypeError: StringDtype.__init__() takes from 1 to 2 positional arguments but 3 were given\n"
+      "status": "ok",
+      "last_actual_ts": "precomputed",
+      "forecast_start": "2026-03-07 00:00:00+08:00",
+      "forecast_end": "2026-03-07 23:00:00+08:00",
+      "total_kwh": 2.805555,
+      "total_cost_php": 32.2639,
+      "n_rows": 24
     },
     {
       "appliance": "electric_fan",
-      "error": "No module named 'pyarrow'",
-      "traceback": "Traceback (most recent call last):\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 338, in run_pipeline\n    result, fc = run_appliance(appliance, cfg, weather_df, generated_at, forecast_date)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 255, in run_appliance\n    fc: ApplianceForecast = forecast_appliance(\n                            ^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/pipeline/forecaster.py\", line 143, in forecast_appliance\n    model_result   = load_best_model(model_dir)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/pipeline/forecaster.py\", line 76, in load_best_model\n    return SARIMAXResults.load(str(p))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.11/site-packages/statsmodels/base/model.py\", line 2289, in load\n    return load_pickle(fname)\n           ^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.11/site-packages/statsmodels/iolib/smpickle.py\", line 42, in load_pickle\n    return pickle.load(fin)\n           ^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'pyarrow'\n"
+      "status": "ok",
+      "last_actual_ts": "precomputed",
+      "forecast_start": "2026-03-07 00:00:00+08:00",
+      "forecast_end": "2026-03-07 23:00:00+08:00",
+      "total_kwh": 0.606746,
+      "total_cost_php": 6.9776,
+      "n_rows": 24
     },
     {
       "appliance": "refrigerator",
-      "error": "StringDtype.__init__() takes from 1 to 2 positional arguments but 3 were given",
-      "traceback": "Traceback (most recent call last):\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 338, in run_pipeline\n    result, fc = run_appliance(appliance, cfg, weather_df, generated_at, forecast_date)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/run_pipeline.py\", line 255, in run_appliance\n    fc: ApplianceForecast = forecast_appliance(\n                            ^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/pipeline/forecaster.py\", line 143, in forecast_appliance\n    model_result   = load_best_model(model_dir)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/backend/forecasting/pipeline/forecaster.py\", line 76, in load_best_model\n    return SARIMAXResults.load(str(p))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.11/site-packages/statsmodels/base/model.py\", line 2289, in load\n    return load_pickle(fname)\n           ^^^^^^^^^^^^^^^^^^\n  File \"/Users/geovannyportodo/Sarimax-Thesis/venv/lib/python3.11/site-packages/statsmodels/iolib/smpickle.py\", line 42, in load_pickle\n    return pickle.load(fin)\n           ^^^^^^^^^^^^^^^^\nTypeError: StringDtype.__init__() takes from 1 to 2 positional arguments but 3 were given\n"
+      "status": "ok",
+      "last_actual_ts": "precomputed",
+      "forecast_start": "2026-03-07 00:00:00+08:00",
+      "forecast_end": "2026-03-07 23:00:00+08:00",
+      "total_kwh": 2.433713,
+      "total_cost_php": 27.9877,
+      "n_rows": 24
     }
-  ]
+  ],
+  "failures": [],
+  "optimization": {
+    "status": "ok",
+    "solver": "cbc-binary",
+    "binary_mode": true,
+    "budget_php": 200.0,
+    "baseline_total_cost_php": 61.9369,
+    "optimized_total_cost_php": 57.4997,
+    "estimated_savings_php": 4.4372,
+    "estimated_savings_pct": 7.16,
+    "baseline_peak_kwh": 0.16609,
+    "optimized_peak_kwh": 0.139096,
+    "peak_reduction_kwh": 0.026994,
+    "time_block_summary": {
+      "aircon": "12 AM \u2013 5 AM, 11 PM \u2013 midnight",
+      "electric_fan": "1 AM \u2013 6 AM, 11 PM \u2013 midnight",
+      "refrigerator": "Continuous operation"
+    }
+  },
+  "recommendation": {
+    "forecast_date": "2026-03-07",
+    "daily_budget_php": 200.0,
+    "predicted_cost_php": 67.2292,
+    "budget_remaining": 132.7708,
+    "budget_utilization": 0.3361,
+    "status": "within_budget",
+    "messages": [
+      "\u2705 Expected to stay within budget. Predicted cost \u20b167.23 vs. budget \u20b1200.00.",
+      "\ud83d\udcca Highest usage: Aircon (\u20b132.26, 48% of predicted daily spend).",
+      "\ud83e\udde0 Optimized schedule estimate: save \u20b14.44 (from \u20b167.23 to \u20b157.50).",
+      "\ud83d\udcc9 Peak-hour load reduction estimate: 0.027 kWh.",
+      "\ud83d\udd52 Top scheduling action: Turn off electric fan at 15:00 to stay within budget (saves \u20b10.60).",
+      "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Aircon: 12 AM \u2013 5 AM, 11 PM \u2013 midnight\n   \u2022 Electric Fan: 1 AM \u2013 6 AM, 11 PM \u2013 midnight\n   \u2022 Refrigerator: Continuous operation",
+      "Note: Meralco charges change per month (per season and depends on billing). The projected cost above is based on the latest available rate schedule and may differ from your actual bill."
+    ],
+    "appliance_breakdown": {
+      "aircon": 32.2639,
+      "electric_fan": 6.9776,
+      "refrigerator": 27.9877
+    }
+  }
 }

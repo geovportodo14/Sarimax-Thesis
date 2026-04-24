@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-07T03:00:52.470048+08:00",
+  "generated_at": "2026-04-24T15:39:20.088655+08:00",
   "forecast_date": "2026-03-08",
   "config": {
     "horizon": 24,
@@ -15,69 +15,72 @@
     {
       "appliance": "aircon",
       "status": "ok",
-      "last_actual_ts": "2026-03-07 23:50:00+08:00",
+      "last_actual_ts": "precomputed",
       "forecast_start": "2026-03-08 00:00:00+08:00",
       "forecast_end": "2026-03-08 23:00:00+08:00",
-      "total_kwh": 2.404373,
-      "total_cost_php": 27.6503,
+      "total_kwh": 3.846648,
+      "total_cost_php": 44.2365,
       "n_rows": 24
     },
     {
       "appliance": "electric_fan",
       "status": "ok",
-      "last_actual_ts": "2026-03-07 23:50:00+08:00",
+      "last_actual_ts": "precomputed",
       "forecast_start": "2026-03-08 00:00:00+08:00",
       "forecast_end": "2026-03-08 23:00:00+08:00",
-      "total_kwh": 0.479399,
-      "total_cost_php": 5.5131,
+      "total_kwh": 0.569216,
+      "total_cost_php": 6.546,
       "n_rows": 24
     },
     {
       "appliance": "refrigerator",
       "status": "ok",
-      "last_actual_ts": "2026-03-07 23:50:00+08:00",
+      "last_actual_ts": "precomputed",
       "forecast_start": "2026-03-08 00:00:00+08:00",
       "forecast_end": "2026-03-08 23:00:00+08:00",
-      "total_kwh": 2.565856,
-      "total_cost_php": 29.5073,
+      "total_kwh": 2.516112,
+      "total_cost_php": 28.9353,
       "n_rows": 24
     }
   ],
   "failures": [],
   "optimization": {
-    "status": "fallback",
-    "solver": "none",
+    "status": "ok",
+    "solver": "cbc-binary",
     "binary_mode": true,
     "budget_php": 200.0,
-    "baseline_total_cost_php": 57.304,
-    "optimized_total_cost_php": 57.304,
-    "estimated_savings_php": 0.0,
-    "estimated_savings_pct": 0.0,
-    "baseline_peak_kwh": 0.640931,
-    "optimized_peak_kwh": 0.640931,
+    "baseline_total_cost_php": 71.6854,
+    "optimized_total_cost_php": 68.5342,
+    "estimated_savings_php": 3.1512,
+    "estimated_savings_pct": 4.4,
+    "baseline_peak_kwh": 0.131404,
+    "optimized_peak_kwh": 0.131404,
     "peak_reduction_kwh": 0.0,
     "time_block_summary": {
-      "aircon": "Continuous operation",
-      "electric_fan": "Continuous operation",
+      "aircon": "12 AM \u2013 6 AM, 9 PM \u2013 midnight",
+      "electric_fan": "12 AM \u2013 4 AM, 5 AM \u2013 6 AM, 10 PM \u2013 midnight",
       "refrigerator": "Continuous operation"
     }
   },
   "recommendation": {
     "forecast_date": "2026-03-08",
     "daily_budget_php": 200.0,
-    "predicted_cost_php": 62.6707,
-    "budget_remaining": 137.3293,
-    "budget_utilization": 0.3134,
+    "predicted_cost_php": 79.7178,
+    "budget_remaining": 120.2822,
+    "budget_utilization": 0.3986,
     "status": "within_budget",
     "messages": [
-      "\u2705 Expected to stay within budget. Predicted cost \u20b162.67 vs. budget \u20b1200.00.",
-      "\ud83d\udcca Highest usage: Refrigerator (\u20b129.51, 47% of predicted daily spend).",
-      "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Aircon: Continuous operation\n   \u2022 Electric Fan: Continuous operation\n   \u2022 Refrigerator: Continuous operation"
+      "\u2705 Expected to stay within budget. Predicted cost \u20b179.72 vs. budget \u20b1200.00.",
+      "\ud83d\udcca Highest usage: Aircon (\u20b144.24, 55% of predicted daily spend).",
+      "\ud83e\udde0 Optimized schedule estimate: save \u20b13.15 (from \u20b179.72 to \u20b168.53).",
+      "\ud83d\udd52 Top scheduling action: Turn off electric fan at 08:00 to stay within budget (saves \u20b10.47).",
+      "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Aircon: 12 AM \u2013 6 AM, 9 PM \u2013 midnight\n   \u2022 Electric Fan: 12 AM \u2013 4 AM, 5 AM \u2013 6 AM, 10 PM \u2013 midnight\n   \u2022 Refrigerator: Continuous operation",
+      "Note: Meralco charges change per month (per season and depends on billing). The projected cost above is based on the latest available rate schedule and may differ from your actual bill."
     ],
     "appliance_breakdown": {
-      "aircon": 27.6503,
-      "electric_fan": 5.5131,
-      "refrigerator": 29.5073
+      "aircon": 44.2365,
+      "electric_fan": 6.546,
+      "refrigerator": 28.9353
     }
   }
 }

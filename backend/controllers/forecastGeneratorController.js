@@ -2,6 +2,8 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 const PIPELINE_SCRIPT = path.join(__dirname, '..', 'forecasting', 'run_pipeline.py');
+const PROJECT_ROOT = path.join(__dirname, '..', '..');
+const VENV_PYTHON = path.join(PROJECT_ROOT, '.venv', 'bin', 'python');
 
 exports.generateForecast = async (req, res) => {
     console.log('[forecast-generator] req.body:', req.body);
@@ -13,12 +15,15 @@ exports.generateForecast = async (req, res) => {
 
     console.log(`[forecast-generator] Running pipeline for ${date}...`);
 
+    // Use the project venv Python so all dependencies (statsmodels, joblib, etc.) are available.
+    const pythonBin = require('fs').existsSync(VENV_PYTHON) ? VENV_PYTHON : 'python3';
+
     try {
         const result = await new Promise((resolve, reject) => {
-            const proc = spawn('python3', [PIPELINE_SCRIPT, '--date', date], {
-                cwd: path.join(__dirname, '..', 'forecasting'),
+            const proc = spawn(pythonBin, ['-m', 'forecasting.run_pipeline', '--date', date], {
+                cwd: path.join(__dirname, '..'),
                 env: { ...process.env },
-                timeout: 120000, // 2 minute max
+                timeout: 180000, // 3 minute max
             });
 
             let stdout = '';

@@ -1,18 +1,19 @@
 {
   "forecast_date": "2026-03-09",
   "daily_budget_php": 200.0,
-  "predicted_cost_php": 99.6393,
-  "budget_remaining": 100.3607,
-  "budget_utilization": 0.4982,
+  "predicted_cost_php": 64.4757,
+  "budget_remaining": 135.5243,
+  "budget_utilization": 0.3224,
   "status": "within_budget",
   "messages": [
-    "\u2705 Expected to stay within budget. Predicted cost \u20b199.64 vs. budget \u20b1200.00.",
-    "\ud83d\udcca Highest usage: Aircon (\u20b177.01, 77% of predicted daily spend).",
-    "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Aircon: Continuous operation\n   \u2022 Electric Fan: Continuous operation\n   \u2022 Refrigerator: Continuous operation"
+    "\u2705 Expected to stay within budget. Predicted cost \u20b164.48 vs. budget \u20b1200.00.",
+    "\ud83d\udcca Highest usage: Aircon (\u20b135.77, 55% of predicted daily spend).",
+    "\ud83d\uddd3\ufe0f Recommended appliance schedule:\n   \u2022 Aircon: 12 AM \u2013 6 AM, 11 PM \u2013 midnight\n   \u2022 Electric Fan: 1 AM \u2013 6 AM, 11 PM \u2013 midnight\n   \u2022 Refrigerator: Continuous operation",
+    "Note: Meralco charges change per month (per season and depends on billing). The projected cost above is based on the latest available rate schedule and may differ from your actual bill."
   ],
   "appliance_breakdown": {
-    "aircon": 77.0142,
-    "electric_fan": 5.3746,
-    "refrigerator": 17.2505
+    "aircon": 35.7739,
+    "electric_fan": 2.7046,
+    "refrigerator": 25.9972
   }
 }

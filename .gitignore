@@ -60,3 +60,13 @@ backend/Sarimax-ModelV2/**/*.pkl
 data/generated_raw/
 data/jan3tofeb17/
 data/archive/
+
+# Model directories
+backend/Sarimax-Model-2/
+backend/Sarimax_ModelV3/
+backend/Sarimax-ModelV2/
+backend/Sarimax-ModelV3/
+backend/Sarimax-ModelV6/
+
+# Forecast outputs
+backend/forecasting/outputs/
