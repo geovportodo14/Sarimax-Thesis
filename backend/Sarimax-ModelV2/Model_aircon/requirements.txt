@@ -1,7 +1,0 @@
-numpy==2.4.2
-pandas==3.0.1
-scipy==1.15.2
-statsmodels==0.14.6
-# pip install numpy==2.4.2 pandas==3.0.1 statsmodels==0.14.6 scipy patsy
-# pip install 
-matplotlib
